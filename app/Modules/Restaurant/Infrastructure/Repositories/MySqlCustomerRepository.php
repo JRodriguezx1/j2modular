@@ -55,50 +55,16 @@ class MySqlCustomerRepository implements CustomerRepository{
     }
 
 
-    public function exists(
-    int $customerId
-): bool {
-
-    $sql = "
-        SELECT 1
-        FROM clientes
-        WHERE id = ?
-        LIMIT 1
-    ";
-
-
-    $stmt =
-        $this->db->prepare($sql);
-
-
-    if (!$stmt) {
-        throw new \RuntimeException(
-            'Error preparando validación de cliente: '
-            . $this->db->error
-        );
+    public function exists(int $customerId): bool{
+        $sql = "SELECT 1 FROM clientes WHERE id = ? LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)throw new \RuntimeException('Error preparando validación de cliente: ' . $this->db->error);
+        $stmt->bind_param('i', $customerId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $exists = $result->num_rows > 0;
+        $stmt->close();
+        return $exists;
     }
-
-
-    $stmt->bind_param(
-        'i',
-        $customerId
-    );
-
-
-    $stmt->execute();
-
-    $result =
-        $stmt->get_result();
-
-
-    $exists =
-        $result->num_rows > 0;
-
-
-    $stmt->close();
-
-
-    return $exists;
-}
     
 }
