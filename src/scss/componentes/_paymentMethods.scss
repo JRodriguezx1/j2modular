@@ -1,0 +1,109 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+// estilos del acordeon y validacion de medios de pago
+.payment-methods-panel{
+  overflow: visible;
+
+  &.accordion{
+    margin-top: 0;
+
+    .etiqueta::before{
+      display: none;
+    }
+
+    .wrapper{
+      display: block;
+      width: 100%;
+    }
+
+    .wrapper-content{
+      margin-top: 0;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height .22s ease, opacity .18s ease;
+    }
+
+    .content{
+      max-height: none;
+      overflow: visible;
+    }
+
+    > input[type="checkbox"]:checked + .etiqueta + .wrapper .wrapper-content{
+      max-height: 32rem;
+      opacity: 1;
+    }
+  }
+}
+
+@media (max-width: 640px){
+  .payment-methods-panel.accordion > input[type="checkbox"]:checked + .etiqueta + .wrapper .wrapper-content{
+    max-height: 48rem;
+  }
+}
+
+.payment-methods-toggle{
+  border: 0;
+  cursor: pointer;
+  outline: 0;
+  user-select: none;
+
+  &:hover,
+  &:focus-visible{
+    background: linear-gradient(135deg, #5b52f0, #4338ca) !important;
+    box-shadow: 0 .85rem 1.6rem rgba(79, 70, 229, .22);
+    color: #fff !important;
+  }
+}
+
+.payment-methods-panel--attention{
+  background: linear-gradient(135deg, #fff7f8, #f0fdfa) !important;
+  border-color: #fb7185 !important;
+
+  .etiqueta > span{
+    background: linear-gradient(135deg, #f43f5e, #5b52f0) !important;
+    color: #fff !important;
+  }
+
+}
+
+.payment-methods-required-message{
+  align-items: flex-start;
+  background: linear-gradient(135deg, #fff1f2, #fff7f8);
+  border: 1px solid #fecdd3;
+  border-radius: 1rem;
+  box-shadow: 0 .7rem 1.4rem rgba(244, 63, 94, .08);
+  color: #be123c;
+  display: none;
+  gap: .85rem;
+  margin-top: 1rem;
+  padding: .95rem 1rem;
+  &.show{
+    display: flex;
+  }
+
+
+  .material-symbols-outlined{
+    background: #ffe4e6;
+    border-radius: .85rem;
+    color: #e11d48;
+    font-size: 1.65rem;
+    padding: .35rem;
+  }
+
+  strong{
+    color: #9f1239;
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  p{
+    color: #be123c;
+    font-size: .95rem;
+    line-height: 1.35;
+    margin: .2rem 0 0;
+  }
+}

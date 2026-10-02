@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../app/Modules/Restaurant/Resources/ts/reservations/index.ts"],
+  "sourcesContent": ["import type {ReservationsPageData} from './types';\r\nimport {initReservationDrawer} from './reservationDrawer';\r\n\r\n\r\nfunction getPageData(): ReservationsPageData {\r\n    const element = document.querySelector<HTMLScriptElement>('#restaurantReservationsData');\r\n    if(!element)return {zones: []};\r\n\r\n    try{\r\n        return JSON.parse(element.textContent ?? '{}') as ReservationsPageData;\r\n    } catch(error){\r\n        console.error('Restaurant \u2192 Error leyendo datos de reservas', error);\r\n        return { zones: [] };\r\n    }\r\n}\r\n\r\n\r\nexport function initReservations(): void{\r\n    console.log('Restaurant \u2192 Reservations cargado');\r\n    const data = getPageData();\r\n    initReservationDrawer(data);\r\n}"],
+  "mappings": "AAIA,SAASA,GAAoC,CACzC,IAAMC,EAAU,SAAS,cAAiC,6BAA6B,EACvF,GAAG,CAACA,EAAQ,MAAO,CAAC,MAAO,CAAC,CAAC,EAE7B,GAAG,CACC,OAAO,KAAK,MAAMA,EAAQ,aAAe,IAAI,CACjD,OAAQC,EAAM,CACV,eAAQ,MAAM,oDAAgDA,CAAK,EAC5D,CAAE,MAAO,CAAC,CAAE,CACvB,CACJ,CAGO,SAASC,GAAwB,CACpC,QAAQ,IAAI,wCAAmC,EAC/C,IAAMC,EAAOJ,EAAY,EAE7B",
+  "names": ["getPageData", "element", "error", "initReservations", "data"]
+}

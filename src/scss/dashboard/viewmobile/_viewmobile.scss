@@ -1,0 +1,31 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+.viewmobile {
+    color: v.$azul100;
+    &__contenedor {
+        background-color: v.$blanco;
+        padding: 2rem;
+        border-radius: 0.8rem;
+    }
+    &__bloquemovil {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        
+    }
+    &__bloquemovil i {
+        color: v.$azul100;
+        font-size: 2rem;
+        max-width: 2rem;
+    }
+    &__bloquemovil a {
+        display: flex;
+        gap: 2rem;
+        color: v.$azul100; 
+        text-transform: capitalize;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+}

@@ -1,0 +1,59 @@
+{
+	"billing_reference": {
+		"number": "FE2097",
+		"uuid": "ef4132182e96f1b431cd51cf97867f096377e246bafd60ff887fa5094ebb06b1975779e334807c22acdd6c86145ea8e9",
+		"issue_date": "2025-07-18"
+	},
+	
+	"discrepancyresponsecode": 2,
+	"discrepancyresponsedescription": "Prueba de NC anulacion de FE",
+	
+  "notes": "Prueba de nota credito",
+  "prefix": "NC",
+	"number": 1496,
+	"type_document_id": 4,
+	"date": "2025-07-18",
+	"time": "06:00:13",
+	"type_operation_id": 12,
+  "establishment_name": "j2software",
+  "sendmail": false,
+  "sendmailtome": false,
+  
+  
+  "head_note": "Este documento es una nota crédito con referencia generada automáticamente.",
+  "foot_note": "Gracias por su atención. Cualquier duda comuníquese con servicio al cliente.",
+  
+	"customer": {
+		"identification_number": 222222222222,
+		"name": "Consumidor Final",
+		"phone": null,
+		"address": null,
+		"email": "julianithox1@gmail.com",
+		"type_document_identification_id": 3,
+		"type_organization_id": 2,
+		"municipality_id": null
+	},
+	
+	"legal_monetary_totals": {
+	  "line_extension_amount": "1000.00",
+    "tax_exclusive_amount": "0.00",
+    "tax_inclusive_amount": "1000.00",
+    "payable_amount": "1000.00"
+	},
+	
+	"credit_note_lines": [
+	  {
+      "type_item_identification_id": "4",
+      "code": "155",
+      "description": "Producto Prueba",
+      
+      "invoiced_quantity": "1.00",
+      "unit_measure_id": "70",
+      "line_extension_amount": "1000.00",
+      "free_of_charge_indicator": false,
+      "price_amount": "1000.00",
+      "base_quantity": "1.00"
+    }
+	]
+	
+}

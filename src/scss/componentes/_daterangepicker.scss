@@ -1,0 +1,241 @@
+@use 'base/variables' as v;
+
+
+// tema compartido del selector de rango para cuotas y ventas generales
+.daterangepicker.app-daterangepicker{
+  border: 1px solid #dbe3ef;
+  border-radius: 1rem;
+  box-shadow: 0 1.6rem 3.5rem rgba(15, 23, 42, .16);
+  color: #14233b;
+  font-family: inherit;
+  overflow: hidden;
+  padding: 0;
+  width: auto;
+
+  &::before,
+  &::after{
+    display: none;
+  }
+
+  .ranges{
+    display: none !important;
+  }
+
+  .drp-calendar{
+    display: block !important;
+    float: left;
+    max-width: none;
+    padding: 1.2rem;
+  }
+
+  .drp-calendar.left{
+    border-right: 1px solid #e8eef7;
+  }
+
+  .calendar-table{
+    background: #fff;
+    border: 0;
+    padding: 0;
+
+    table{
+      border-collapse: separate;
+      border-spacing: .35rem;
+    }
+
+    th,
+    td{
+      border: 0;
+      border-radius: .65rem;
+      font-size: 1.02rem;
+      height: 3.2rem;
+      line-height: 3.2rem;
+      min-width: 3.2rem;
+      width: 3.2rem;
+    }
+
+    th{
+      color: #64748b;
+      font-weight: 850;
+    }
+
+    .month{
+      color: #14233b;
+      font-size: 1.18rem;
+      font-weight: 900;
+    }
+
+    .prev,
+    .next{
+      span{
+        border-color: #4f46e5;
+        padding: .32rem;
+      }
+
+      &:hover{
+        background: #eef2ff;
+      }
+    }
+  }
+
+  td.available:hover,
+  th.available:hover{
+    background: #eef2ff;
+    color: #4f46e5;
+  }
+
+  td.off,
+  td.off.in-range,
+  td.off.start-date,
+  td.off.end-date{
+    background: transparent;
+    color: #a8b3c4;
+  }
+
+  td.in-range{
+    background: #eef2ff;
+    color: #4338ca;
+  }
+
+  td.start-date,
+  td.end-date,
+  td.active,
+  td.active:hover{
+    background: linear-gradient(135deg, #5b52f0, #4338ca);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .calendar-time{
+    align-items: center;
+    display: flex;
+    gap: .45rem;
+    justify-content: center;
+    margin: .8rem 0 .2rem;
+
+    select{
+      appearance: none;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: .55rem;
+      color: #14233b;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 800;
+      height: 3rem;
+      padding: 0 .75rem;
+
+      &:focus{
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 .2rem rgba(79,70,229,.13);
+        outline: 0;
+      }
+    }
+  }
+
+  .drp-buttons{
+    align-items: center;
+    background: linear-gradient(135deg, #f8fafc, #fff);
+    border-top: 1px solid #e8eef7;
+    display: flex;
+    gap: .75rem;
+    justify-content: flex-end;
+    padding: 1rem 1.2rem;
+
+    .drp-selected{
+      color: #64748b;
+      flex: 1 1 auto;
+      font-size: 1.02rem;
+      font-weight: 750;
+      padding-right: 1rem;
+      text-align: left;
+    }
+
+    .btn{
+      border-radius: .65rem;
+      border-width: 1px;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 700;
+      min-height: 3.6rem;
+      min-width: 9rem;
+      padding: 0 1.2rem;
+    }
+
+    .cancelBtn{
+      background: #ecfeff;
+      border-color: #67e8f9;
+      color: #0e7490;
+    }
+
+    .applyBtn{
+      background: linear-gradient(135deg, #5b52f0, #4338ca);
+      border-color: transparent;
+      box-shadow: 0 .8rem 1.6rem rgba(79,70,229,.22);
+      color: #fff;
+    }
+  }
+}
+
+@media (max-width: 640px){
+  .daterangepicker.app-daterangepicker{
+    left: 1rem !important;
+    max-width: calc(100vw - 2rem);
+    width: calc(100vw - 2rem);
+
+    .drp-calendar{
+      border-right: 0;
+      float: none;
+      max-width: none;
+      width: 100%;
+    }
+
+    .drp-calendar.left{
+      border-bottom: 1px solid #e8eef7;
+      border-right: 0;
+    }
+
+    .calendar-table{
+      th,
+      td{
+        min-width: 2.8rem;
+        width: 2.8rem;
+      }
+    }
+
+    .drp-buttons{
+      align-items: stretch;
+      flex-direction: column;
+
+      .drp-selected{
+        padding-right: 0;
+        text-align: center;
+      }
+    }
+  }
+}
+// fin tema compartido del selector de rango
+
+
+// animacion del boton consultar del reporte de cuotas
+.daterangepicker-action--attention{
+  animation: btn-consultar-attention .75s ease-in-out 3;
+}
+
+@keyframes btn-consultar-attention{
+  0%,
+  100%{
+    box-shadow: 0 0 0 0 rgba(91, 82, 240, 0);
+    transform: translateY(0);
+  }
+
+  35%{
+    box-shadow: 0 0 0 .38rem rgba(91, 82, 240, .18), 0 1rem 2.2rem rgba(91, 82, 240, .2);
+    transform: translateY(-.08rem);
+  }
+
+  70%{
+    box-shadow: 0 0 0 .22rem rgba(14, 165, 181,.18), 0 .8rem 1.8rem rgba(14, 165, 181, .16);
+    transform: translateY(.04rem);
+  }
+}
+// fin animacion del boton consultar

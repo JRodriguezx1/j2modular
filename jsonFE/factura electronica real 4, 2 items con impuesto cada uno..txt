@@ -1,0 +1,87 @@
+{
+  "prefix": "FE",
+  "number": "2086", 
+  "type_document_id": "1",
+  "date": "2025-07-06",
+  "time": "00:00:01",
+  "resolution_number": "18764084947985",
+  "sendmail": false,
+  "notes": "Factura Electroncia de pruebas Auto",
+  "payment_form": {
+    "payment_form_id": "1",
+    "payment_method_id": "10",
+    "payment_due_date": "2025-07-06",
+    "duration_measure": "0"
+  },
+  "customer": {
+    "identification_number": "222222222222",
+    "name": "Consumidor Final",
+    "phone": null,
+    "address": null,
+    "type_document_identification_id": 3,
+    "type_organization_id": 2,
+    "municipality_id": null
+  },
+  "invoice_lines": [
+    {
+      "type_item_identification_id": "4",
+      "code": "155",
+      "description": "Producto Prueba",
+      
+      "invoiced_quantity": "2.00",
+      "unit_measure_id": "70",
+      "line_extension_amount": "1600.00",
+      "free_of_charge_indicator": false,
+      "tax_totals": [
+        {
+          "tax_id": 1,
+          "tax_amount": "304.00",
+          "taxable_amount": "1600.00",
+          "percent": "19"
+        }
+      ],
+      
+      "price_amount": "800.00",
+      "base_quantity": "2"
+    },
+    {
+      "type_item_identification_id": "4",
+      "code": "156",
+      "description": "Producto Prueba 2",
+      
+      "invoiced_quantity": "1.00",
+      "unit_measure_id": "70",
+      "line_extension_amount": "500.00",
+      "free_of_charge_indicator": false,
+      "tax_totals": [
+        {
+          "tax_id": 1,
+          "tax_amount": "95.00",
+          "taxable_amount": "500.00",
+          "percent": "19"
+        }
+      ],
+      
+      "price_amount": "500.00",
+      "base_quantity": "1"
+    }
+  ],
+  
+  "legal_monetary_totals": {
+    "line_extension_amount": "2100",
+    "tax_exclusive_amount": "2100",
+    "tax_inclusive_amount": "2499",
+    "allowance_total_amount": "0",
+    "charge_total_amount": "0",
+    "payable_amount": "2499"
+  },
+  
+  "tax_totals": [
+    {
+      "tax_id": 1,
+      "tax_amount": "399.00",
+      "percent": "19",
+      "taxable_amount": "2100.00"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../app/Modules/Restaurant/Resources/ts/main.ts"],
+  "sourcesContent": ["const page = document.body.dataset.page;\r\n\r\nasync function bootstrap(): Promise<void> {\r\n\r\n    switch (page) {\r\n\r\n        case 'tables': {\r\n            const module = await import('./tables');\r\n            module.initTables();\r\n            break;\r\n        }\r\n\r\n        /*case 'kitchen': {\r\n\r\n            const module = await import('./kitchen');\r\n            module.initKitchen();\r\n\r\n            break;\r\n        }*/\r\n\r\n        case 'reservations': {\r\n            const module = await import('./reservations');\r\n            module.initReservations();\r\n            break;\r\n        }\r\n\r\n    }\r\n\r\n}\r\n\r\nbootstrap();"],
+  "mappings": "AAAA,IAAMA,EAAO,SAAS,KAAK,QAAQ,KAEnC,eAAeC,GAA2B,CAEtC,OAAQD,EAAM,CAEV,IAAK,SAAU,EACI,KAAM,QAAO,sBAAU,GAC/B,WAAW,EAClB,KACJ,CAUA,IAAK,eAAgB,EACF,KAAM,QAAO,4BAAgB,GACrC,iBAAiB,EACxB,KACJ,CAEJ,CAEJ,CAEAC,EAAU",
+  "names": ["page", "bootstrap"]
+}

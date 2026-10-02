@@ -1,0 +1,58 @@
+SCRIPT PARA REINICIAR CUENTA DE UNA SUCURSAL (EJ: SUCURSAL id=2):
+
+DELETE FROM ingresoscajas WHERE idsucursal_idfk = 2;
+DELETE FROM facturas WHERE id_sucursal = 2;  (tambien se elimina ventas, factmediospago y factimpuestos)
+DELETE FROM gastos WHERE id_sucursalfk = 2;
+DELETE FROM declaracionesdineros WHERE idcierrecajaid IN (SELECT id FROM cierrescajas WHERE idsucursal_id = 2);
+DELETE FROM cierrescajas WHERE idsucursal_id = 2;  (tambien elimina arqueosdecaja)
+DELETE FROM compras WHERE id_sucursal_id = 2; (tambien se elimina detallecompra)
+UPDATE consecutivos SET siguientevalor = 1 WHERE id_sucursalid = 2 AND idtipofacturador = 2;  (reiniciar el consecutivos POS)
+DELETE FROM creditos WHERE id_fksucursal = 2;
+DELETE FROM comisiones WHERE fk_idsucursal = 2;
+DELETE FROM pagos_comisiones WHERE fkidsucursal = 2;
+
+
+/////////////// reiniciar cuenta  ///////////////////////////////////
+
+DELETE FROM ingresoscajas WHERE idsucursal_idfk = 1;
+DELETE FROM facturas WHERE id_sucursal = 1;
+DELETE FROM gastos WHERE id_sucursalfk = 1;
+DELETE FROM declaracionesdineros WHERE idcierrecajaid IN (SELECT id FROM cierrescajas WHERE idsucursal_id = 1);
+DELETE FROM cierrescajas WHERE idsucursal_id = 1;
+DELETE FROM compras WHERE id_sucursal_id = 1;
+UPDATE consecutivos SET siguientevalor = 1 WHERE id_sucursalid = 1 AND idtipofacturador = 2;
+DELETE FROM creditos WHERE id_fksucursal = 1;
+DELETE FROM comisiones WHERE fk_idsucursal = 1;
+DELETE FROM pagos_comisiones WHERE fkidsucursal = 1;
+DELETE FROM movimientos_insumos WHERE fksucursal_id = 1;
+DELETE FROM movimientos_productos WHERE idfksucursal = 1;
+DELETE FROM movimientos_caja WHERE id_sucursal = 1;
+
+TRUNCATE TABLE ingresoscajas;
+TRUNCATE TABLE gastos;
+TRUNCATE TABLE declaracionesdineros;
+TRUNCATE TABLE comisiones;
+TRUNCATE TABLE movimientos_insumos;
+TRUNCATE TABLE movimientos_productos;
+TRUNCATE TABLE movimientos_caja;
+TRUNCATE TABLE venta_insumos;
+
+ALTER TABLE ingresoscajas AUTO_INCREMENT = 1;
+ALTER TABLE facturas AUTO_INCREMENT = 1;
+ALTER TABLE ventas AUTO_INCREMENT = 1;
+ALTER TABLE factmediospago AUTO_INCREMENT = 1;
+ALTER TABLE factimpuestos AUTO_INCREMENT = 1;
+ALTER TABLE gastos AUTO_INCREMENT = 1;
+ALTER TABLE declaracionesdineros AUTO_INCREMENT = 1;
+ALTER TABLE cierrescajas AUTO_INCREMENT = 1;
+ALTER TABLE arqueoscajas AUTO_INCREMENT = 1;
+ALTER TABLE compras AUTO_INCREMENT = 1;
+ALTER TABLE creditos AUTO_INCREMENT = 1;
+ALTER TABLE comisiones AUTO_INCREMENT = 1;
+ALTER TABLE pagos_comisiones AUTO_INCREMENT = 1;
+ALTER TABLE movimientos_insumos AUTO_INCREMENT = 1;
+ALTER TABLE movimientos_productos AUTO_INCREMENT = 1;
+ALTER TABLE movimientos_caja AUTO_INCREMENT = 1;
+ALTER TABLE venta_insumos AUTO_INCREMENT = 1;
+
+UPDATE clientes set totaldebe = 0, total_compras = 0, ultima_compra = null;

@@ -1,0 +1,278 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+.tabla{
+    width: 100%;
+    border-collapse: collapse;
+    thead{
+        color: v.$gris80;
+        tr{
+            th{
+                border:  solid 1px darken(v.$gris20, 0);
+                padding: 1rem;
+            }
+        }
+    }
+    tbody{
+        color: v.$gris70;
+        text-align: center;
+        tr{
+            td{
+                padding: 1rem;
+            }
+            .accionestd{  //td
+                padding: 0;
+            }
+            .acciones-btns{
+                display: inline-flex;
+                gap: .6rem;
+                padding: 1rem 0;
+            }
+        } //fin tr
+    } //fin tbody
+}//fin tabla
+
+.tabla2{
+    width: 100%;
+    border-collapse: collapse;
+    thead{
+        color: v.$gris80;
+        tr{
+            th{
+                border:  solid 1px darken(v.$gris20, 0);
+                padding: 1rem;
+            }
+        }
+    }
+    tbody{
+        color: v.$gris70;
+        text-align: center;
+        tr{
+            border-bottom:  solid 1px v.$gris20;
+            td{
+                padding: 1rem;
+            }
+            .accionestd{  //td
+                padding: 0;
+            }
+            .acciones-btns{
+                display: inline-flex;
+                gap: .6rem;
+            }
+        } //fin tr
+    } //fin tbody
+}//fin tabla
+
+////////////////
+
+//estilos de la tabla del detalle del credito
+.detallecredito #tablacuotas{
+  border-collapse: separate !important;
+  border-spacing: 0 .65rem !important;
+  border: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.detallecredito #tablacuotas thead th{
+  background: #f1f5f9 !important;
+  border: 0 !important;
+  color: #334155 !important;
+  font-size: 1.02rem !important;
+  font-weight: 900 !important;
+  padding: .95rem 1rem !important;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.detallecredito #tablacuotas tbody tr{
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, .05);
+}
+
+.detallecredito #tablacuotas tbody td{
+  border-bottom: 1px solid #edf2f7 !important;
+  border-top: 1px solid #edf2f7 !important;
+  color: v.$color-text;
+  font-size: 1.06rem;
+  padding: 1rem !important;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.detallecredito #tablacuotas tbody td:first-child{
+  border-left: 1px solid #edf2f7 !important;
+  border-radius: .7rem 0 0 .7rem;
+  color: v.$color-muted;
+  font-weight: 850;
+}
+
+.detallecredito #tablacuotas tbody td:last-child{
+  border-radius: 0 .7rem .7rem 0;
+  border-right: 1px solid #edf2f7 !important;
+}
+
+.detallecredito #tablacuotas .mediosdepago{
+  background: #ecfeff !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #0e7490 !important;
+  font-size: 1rem;
+  font-weight: 850;
+  margin: .15rem;
+  min-height: 2.7rem;
+  padding: .35rem .85rem;
+}
+
+.detallecredito #tablacuotas .anularAbono,
+.detallecredito #tablacuotas .printPOSAbono{
+  align-items: center;
+  border: 0 !important;
+  border-radius: .55rem !important;
+  cursor: pointer;
+  display: inline-flex;
+  height: 3.4rem;
+  justify-content: center;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 3.4rem;
+}
+
+.detallecredito #tablacuotas .anularAbono{
+  background: #ef1111 !important;
+  color: #fff !important;
+}
+
+.detallecredito #tablacuotas .printPOSAbono{
+  background: #ecfeff !important;
+  border: 1px solid #67e8f9 !important;
+  color: #0e7490 !important;
+}
+// fin estilos de la tabla del detalle del credito
+
+// estilos de la tabla del modal de productos
+.detalle-producto-dialog__table thead th{
+  background: #eef2ff;
+  border: 0;
+  color: #334155;
+  font-size: .92rem;
+  font-weight: 850;
+  padding: .85rem 1rem;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.detalle-producto-dialog__table thead th:first-child{
+  border-radius: .65rem 0 0 .65rem;
+}
+
+.detalle-producto-dialog__table thead th:last-child{
+  border-radius: 0 .65rem .65rem 0;
+}
+
+.detalle-producto-dialog__table tbody tr{
+  background: #fff;
+  box-shadow: 0 .45rem 1rem rgba(15, 23, 42, .045);
+}
+
+.detalle-producto-dialog__table tbody td{
+  border-bottom: 1px solid #edf2f7;
+  border-top: 1px solid #edf2f7;
+  color: var(v.$color-text, #14233b);
+  font-size: 1.08rem;
+  padding: 1rem;
+}
+
+.detalle-producto-dialog__table tbody td:first-child{
+  border-left: 1px solid #edf2f7;
+  border-radius: .65rem 0 0 .65rem;
+}
+
+.detalle-producto-dialog__table tbody td:last-child{
+  border-radius: 0 .65rem .65rem 0;
+  border-right: 1px solid #edf2f7;
+}
+
+.detalle-producto-dialog__product{
+  color: var(v.$color-text, #14233b);
+  font-weight: 650;
+}
+
+.detalle-producto-dialog__quantity,
+.detalle-producto-dialog__unit{
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  min-height: 2.3rem;
+  padding: .25rem .8rem;
+}
+
+.detalle-producto-dialog__quantity{
+  background: #eef2ff;
+  color: var(v.$color-primary, #4f46e5);
+  min-width: 3.2rem;
+}
+
+.detalle-producto-dialog__unit{
+  background: #ecfeff;
+  color: #0e7490;
+}
+// fin estilos de la tabla del modal de productos
+
+// responsive de la tabla del modal de productos
+@media (max-width: 760px){
+  .detalle-producto-dialog__table{
+    border-spacing: 0 .7rem;
+  }
+
+  .detalle-producto-dialog__table thead{
+    display: none;
+  }
+
+  .detalle-producto-dialog__table,
+  .detalle-producto-dialog__table tbody,
+  .detalle-producto-dialog__table tr,
+  .detalle-producto-dialog__table td{
+    display: block;
+    width: 100%;
+  }
+
+  .detalle-producto-dialog__table tbody tr{
+    border: 1px solid #edf2f7;
+    border-radius: .75rem;
+    padding: .75rem;
+  }
+
+  .detalle-producto-dialog__table tbody td{
+    align-items: center;
+    border: 0;
+    display: flex;
+    font-size: 1rem;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .55rem .2rem;
+  }
+
+  .detalle-producto-dialog__table tbody td:first-child,
+  .detalle-producto-dialog__table tbody td:last-child{
+    border: 0;
+    border-radius: 0;
+  }
+
+  .detalle-producto-dialog__table tbody td::before{
+    color: var(v.$color-muted, #64748b);
+    content: attr(data-label);
+    flex: 0 0 7rem;
+    font-size: .88rem;
+    font-weight: 850;
+    text-transform: uppercase;
+  }
+
+  .detalle-producto-dialog__product{
+    text-align: right;
+  }
+
+}
+// fin responsive de la tabla del modal de productos

@@ -1,0 +1,301 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+.headerapp {
+    @include m.tablet { 
+        background-image:linear-gradient(to left, rgba(v.$negro90, .3), rgba(v.$negro90, .03)), url(/build/img/portada1.jpg);
+        // //linear-gradient(to left, rgba(v.$negro90, .1), rgba(v.$negro90, 1)), 
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+    }
+    
+    // height: 10%;
+    @include m.xl_desktop { 
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-image:linear-gradient(to left, rgba(v.$negro90, .3), rgba(v.$negro90, .03)), url(/build/img/portada1.jpg);
+    }
+    &__contenedor{
+        position: relative;
+        background-color: #060021;
+        @include m.contenedor;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        @include m.tablet { 
+            background-color: transparent;
+        }
+        // @include m.desktop { 
+        //     height: 74%;
+        // }
+        @media screen and (max-width: 1024px) and (orientation: landscape) {
+            height: 64rem;
+        }
+    }
+    &__barra{
+        background-image:linear-gradient(to left, rgba(v.$negro90, .3), rgba(v.$negro90, .03)), url(/build/img/portadamoviltransp.png);
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        height: 50%;
+       
+        // padding-top: 2rem;
+        @include m.tablet {
+            background-image: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: auto;
+            margin-top: 2rem;
+            margin-right: 2rem;
+        }
+        @media screen and (max-width: 740px) and (orientation: landscape) {
+            height: 83%;
+        }
+    }
+    &__logo{
+        //background-color: aquamarine;
+        //width: 25%;
+        flex: 0 0 25%;
+        
+    }
+    &__nav{
+        //width: 75%;
+        flex: 0 0 75%;
+        //background-color: blue;
+        display: none;
+        @include m.tablet{
+        display: flex;
+        justify-content: right;
+        gap: 11rem;
+        text-transform: uppercase;
+        }
+        @include m.xl_tablet { 
+            gap: 17rem;
+        }
+        @include m.xl_desktop { 
+            gap: 23rem;
+        }
+        a{
+            color: v.$blanco;
+            font-size: 1.7rem;
+            &:hover {
+                color: v.$rosa;
+            }
+            &:nth-of-type(4){
+                background-color: v.$naranja100;
+                padding: 2rem 4rem;
+                &:hover{
+                    background-color: transparent;
+                    border: 1px solid v.$naranja100;
+                    color: v.$naranja100;
+                }
+            }
+        }
+    }
+
+    &__menu{
+        display: block;
+        position: relative;
+        @include m.tablet{
+            display: none;
+        }
+    }
+    &__menubars{
+        background-color: rgba(6, 0, 33, 45%);
+        color: v.$blanco;
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem 2rem;
+        // border-top-left-radius: 0.8rem;
+        // border-top-right-radius: 0.8rem;
+    }
+    &__bars{
+        background-color: rgba(6, 0, 33, 0.451);
+        padding: .7rem 1rem;
+        display: flex;
+        align-items: center;
+        border-radius: .8rem;
+        span{
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+        i{
+            font-size: 2rem;
+        }
+        &:hover{
+            cursor: pointer;
+        }
+    }
+    &__navmenu{
+        height: 0rem;
+        text-align: center;
+        background-color: rgba(6, 0, 33, 0.451);
+        overflow: hidden;
+        position: absolute;
+        z-index: 100;
+        width: 100%;
+        a{
+            display: block;
+            color: v.$blanco;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            font-weight: 500;
+            &:hover {
+               color: #ae1c34;  
+            }
+        }
+        transition: all .6s ease;
+        &.mostrar{ 
+            padding: 1rem;
+            height: 27rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            align-items: center;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+    }
+
+    &__contenido{
+        position: absolute;
+        top: 31.8rem;
+        background-color: #060021;
+        @include m.tablet{
+            display: grid;
+            grid-template-columns: 8fr 8fr;
+            justify-content: center;
+            align-items: center;
+            top: 1.8rem;
+            background-color: transparent;
+            @include m.xxl_desktop { 
+                width: 100%;
+            }
+        }
+    }
+    &__texto{
+        //background-color: bisque;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        // padding: 5rem 0;
+        
+        @include m.tablet{
+            // flex: 0 0 55%;
+        }
+        @include m.xl_tablet{
+            flex: 0 0 48%;
+        }
+        color: v.$blanco; 
+    }
+
+    &__logoInnovaTech {
+       
+        img {
+            width: 13rem;
+            margin: 1.5rem 0;
+
+            @include m.telefono { 
+                width: 16rem;
+            }
+        }
+    }
+
+    &__bloqueTexto {
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       justify-content: center;
+        h1 {
+            font-family: v.$fuente-secundaria;
+            text-align: center;
+            line-height: 1.38;
+            font-size: 2rem;
+            margin: 0 1.5rem 2rem 1.5rem;
+            text-transform: uppercase;
+            // @include m.texto_fluido(2.5rem, 2.3rem);
+            //font-family: cursive;
+            span {
+                display: block;
+                color: #ae1c34;
+                font-size: 4.3rem;
+                text-transform: uppercase;
+                font-weight: 700;
+            }
+        }
+        p {
+            line-height: 1.5;
+            margin: 0 1.5rem 2.5rem 1.5rem;
+            font-size: 1.1rem;
+            text-align: center;
+            width: 80%;
+            span{
+                color: v.$rojo60;
+            }
+            @include m.desktop { 
+                max-width: 70%;
+            }
+            @include m.xxl_desktop { 
+                max-width: 70%;
+            }
+        }
+
+        a { 
+            color: v.$blanco;
+            background-color: #ae1c34;
+            padding: 1.8rem 0;
+            border-radius: .8rem;
+            display: flex;
+            margin: 0 1rem 1rem 1rem;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+            border: 1px solid #ae1c34;
+            @include m.telefono { 
+                font-size: 1.8rem;
+                max-width: 45%;
+                text-align: center;
+            }
+
+            &:hover{
+                background-color: transparent;
+                border: 1px solid #ae1c34;
+                color: v.$blanco;
+            }
+        }
+    }     
+}
+
+//Redes Sociales
+.rrss {
+    display: flex;
+    align-items: center;
+    gap: 3.4rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    a {    
+        svg {
+            font-size: 2.8rem;
+        }
+    }
+}
+
+.app {
+    color: white;
+    font-size: 2rem;
+    text-align: center;
+}
+  
+@media screen and (max-width: 980px) and (orientation: landscape) {
+    .app {
+        display: block;
+        height: 65rem;
+        width: 100%;
+    }
+}

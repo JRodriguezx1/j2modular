@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../app/Modules/Restaurant/Resources/ts/reservations/index.ts"],
+  "sourcesContent": ["export function initReservations(): void {\r\n\r\n    console.log('Restaurant \u2192 Reservations cargado');\r\n\r\n}"],
+  "mappings": "AAAO,SAASA,GAAyB,CAErC,QAAQ,IAAI,wCAAmC,CAEnD",
+  "names": ["initReservations"]
+}

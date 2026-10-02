@@ -1,0 +1,23 @@
+{
+    "name": "jrodriguez/pos-system",
+    "description": "Sistema POS con PHP 8.1+, MVC, SQL, BEM, SASS, ts",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "MVC\\" : "./",
+            "App\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Julian David Rodriguez Desarrollador WEB "
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "^6.5",
+        "vlucas/phpdotenv": "^5.4",
+        "intervention/image": "^2.7",
+        "phpoffice/phpspreadsheet": "^5.3",
+        "green-api/whatsapp-api-client-php": "^0.3.4"
+    }
+}

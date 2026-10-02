@@ -1,0 +1,719 @@
+@use 'base/variables' as v;
+
+.configuracion{
+  // Navegacion principal del modulo de configuracion
+  .configuracion-tabs{
+    scrollbar-color: rgba(79,70,229,.5) rgba(238,242,255,.85);
+    scrollbar-width: thin;
+
+    &::-webkit-scrollbar-track{
+      background: rgba(238,242,255,.85);
+      border-radius: 999px;
+      margin: 0 .4rem;
+    }
+
+    &::-webkit-scrollbar-thumb{
+      background: linear-gradient(90deg, rgba(79,70,229,.72), rgba(20,184,166,.72));
+      border: 2px solid rgba(238,242,255,.85);
+      border-radius: 999px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover{
+      background: linear-gradient(90deg, rgba(79,70,229,.9), rgba(20,184,166,.9));
+    }
+
+    background: rgba(255,255,255,.94);
+    border: 1px solid v.$color-border;
+    border-radius: .8rem;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .06);
+    margin-bottom: 1.4rem;
+    overflow-x: auto;
+    padding: .8rem;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+
+    &::-webkit-scrollbar{
+      height: .8rem;
+    }
+
+  }
+
+  .configuracion-tabs__content{
+    display: flex;
+    gap: .8rem;
+    min-width: max-content;
+  }
+
+  .configuracion-tab{
+    display: block;
+    margin: 0;
+
+    input{
+      display: none;
+    }
+
+    span{
+      align-items: center;
+      background: #fff;
+      box-sizing: border-box;
+      border: 1px solid v.$color-border;
+      border-radius: .65rem;
+      color: #263852;
+      cursor: pointer;
+      display: flex;
+      font-size: 1.22rem;
+      font-weight: 700;
+      gap: .85rem;
+      height: 4.4rem;
+      justify-content: center;
+      line-height: 1;
+      min-height: 4.4rem;
+      padding: 0 1.25rem;
+      transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease, transform .2s ease;
+      white-space: nowrap;
+
+      i{
+        align-items: center;
+        color: v.$color-primary;
+        display: inline-flex;
+        height: 1.6rem;
+        justify-content: center;
+        font-size: 1.3rem;
+        line-height: 1;
+        margin: 0;
+        min-width: 1.6rem;
+        text-align: center;
+      }
+
+      &:hover{
+        border-color: rgba(79,70,229,.38);
+        box-shadow: 0 8px 18px rgba(79,70,229,.10);
+        transform: translateY(-1px);
+      }
+    }
+
+    input:checked + span{
+      background: linear-gradient(135deg, #5b52f0, v.$color-primary-dark);
+      border-color: v.$color-primary-dark;
+      box-shadow: 0 12px 24px rgba(79,70,229,.22);
+      color: #fff;
+
+      i{
+        color: #fff;
+      }
+    }
+  }
+  // Ajustes generales del sistema, buscador y acordeones
+  .config-system.accordion_inv{
+    .config-system-content > .accordion_tab_content{
+      display: none !important;
+    }
+
+    #btn1:checked ~ .config-system-content > .contenido1,
+    #btn2:checked ~ .config-system-content > .contenido2,
+    #btn3:checked ~ .config-system-content > .contenido3,
+    #btn4:checked ~ .config-system-content > .contenido4,
+    #btn5:checked ~ .config-system-content > .contenido5,
+    #btn6:checked ~ .config-system-content > .contenido6,
+    #btn7:checked ~ .config-system-content > .contenido7,
+    #btn8:checked ~ .config-system-content > .contenido8,
+    #btn9:checked ~ .config-system-content > .contenido9,
+    #btn10:checked ~ .config-system-content > .contenido10{
+      display: block !important;
+    }
+
+    #btn9:checked ~ .config-system-content > .contenido9{
+      display: grid !important;
+    }
+  }
+
+  .config-param-hidden{
+    display: none !important;
+  }
+
+  .config-system.param-search-active{
+    .config-system-content .accordion_tab_content.config-param-panel-match{
+      display: block;
+    }
+  }
+
+  .config-param-match{
+    animation: configParamPulse 1.35s ease-out 1;
+    background: rgba(79,70,229,.035);
+    border: 1px solid rgba(79,70,229,.18);
+    border-radius: .9rem;
+    box-shadow: 0 .8rem 1.8rem rgba(15,23,42,.06);
+    padding: .8rem;
+  }
+
+  @keyframes configParamPulse{
+    0%{
+      border-color: rgba(79,70,229,.42);
+      box-shadow: 0 0 0 .35rem rgba(79,70,229,.16), 0 .8rem 1.8rem rgba(15,23,42,.06);
+    }
+    100%{
+      border-color: rgba(79,70,229,.18);
+      box-shadow: 0 .8rem 1.8rem rgba(15,23,42,.06);
+    }
+  }
+
+  // Confirmacion visual temporal al guardar un parametro
+  .config-system-content .config-param-saved{
+    animation: configParamSaved 1.8s ease-out 1;
+    background: #ecfdf5 !important;
+    border-color: rgba(16,185,129,.62) !important;
+    box-shadow: 0 0 0 .22rem rgba(16,185,129,.14), 0 .8rem 1.8rem rgba(16,185,129,.10) !important;
+
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select,
+    textarea{
+      border-color: rgba(16,185,129,.72) !important;
+      box-shadow: 0 0 0 .2rem rgba(16,185,129,.12) !important;
+    }
+
+    label:has(input[type="radio"]:checked){
+      background: #d1fae5 !important;
+      border-color: rgba(16,185,129,.70) !important;
+
+      input[type="radio"] + div{
+        background: #10b981 !important;
+        border-color: #10b981 !important;
+      }
+    }
+  }
+
+
+  .config-system-content{
+    label:has(input[type="radio"]:checked){
+        background: #eef2ff !important;
+        border-color: rgba(79,70,229,.36) !important;
+
+        > div{
+          background: v.$color-primary;
+          border-color: v.$color-primary;
+          box-shadow: inset 0 0 0 .28rem #fff;
+        }
+      }
+    }
+
+  @keyframes configParamSaved{
+    0%{
+      transform: translateY(-1px);
+    }
+    70%{
+      background: #ecfdf5;
+      border-color: rgba(16,185,129,.62);
+      box-shadow: 0 0 0 .22rem rgba(16,185,129,.14), 0 .8rem 1.8rem rgba(16,185,129,.10);
+    }
+    100%{
+      transform: translateY(0);
+    }
+  }
+
+  // Opciones de notificacion por WhatsApp
+  .config-whatsapp-events{
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .config-whatsapp-event{
+    background: #f8fafc;
+    border: 1px solid #dbe3ef;
+    border-radius: .9rem;
+    display: grid;
+    gap: .95rem;
+    padding: 1rem;
+  }
+
+  .config-whatsapp-options{
+    display: grid;
+    gap: .65rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    label{
+      align-items: center;
+      background: #fff !important;
+      border: 1px solid #dbe3ef !important;
+      border-radius: .75rem !important;
+      cursor: pointer;
+      display: flex;
+      gap: .65rem;
+      height: auto !important;
+      margin: 0 !important;
+      min-height: 3.8rem;
+      padding: .75rem .9rem !important;
+
+      > div{
+        background: #fff;
+        border: 2px solid #cbd5e1;
+        border-radius: 999px;
+        flex: 0 0 auto;
+        height: 1.25rem;
+        width: 1.25rem;
+      }
+
+      span{
+        color: v.$color-text !important;
+        font-size: 1.08rem !important;
+        font-weight: 800 !important;
+      }
+    }
+
+    label:has(input[type="radio"]:checked){
+      background: #eef2ff !important;
+      border-color: rgba(79,70,229,.36) !important;
+
+      > div{
+        background: v.$color-primary;
+        border-color: v.$color-primary;
+        box-shadow: inset 0 0 0 .28rem #fff;
+      }
+    }
+  }
+
+  @media (max-width: 1200px){
+    .config-whatsapp-events{
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Contenedores compartidos de listados y tablas del modulo
+  .config-table-card{
+    background: #fff;
+    border: 1px solid v.$color-border;
+    border-radius: .85rem;
+    overflow: hidden;
+    padding: .9rem;
+  }
+
+  .empleados{
+    .config-employee-name{
+      color: v.$color-text;
+      font-weight: 500;
+    }
+
+    .config-employee-user{
+      color: #475569;
+      font-weight: 500;
+    }
+
+    .config-employee-avatar{
+      align-items: center;
+      background: linear-gradient(135deg, #eef2ff, #ecfeff);
+      border: 2px solid #e0e7ff;
+      border-radius: 999px;
+      box-shadow: 0 .7rem 1.6rem rgba(15,23,42,.10);
+      color: v.$color-primary-dark;
+      display: inline-flex;
+      font-size: 1.2rem;
+      font-weight: 800;
+      height: 4.2rem;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      width: 4.2rem;
+
+      &::before{
+        content: attr(data-initials);
+        inset: 0;
+        align-items: center;
+        display: flex;
+        justify-content: center;
+        position: absolute;
+        z-index: 0;
+      }
+
+      img{
+        border-radius: 999px;
+        height: 4.2rem;
+        object-fit: cover;
+        position: relative;
+        width: 4.2rem;
+        z-index: 1;
+      }
+    }
+
+    .config-profile-badge{
+      background: rgba(79,70,229,.10);
+      border: 1px solid rgba(79,70,229,.18);
+      border-radius: 999px;
+      color: v.$color-primary-dark;
+      display: inline-flex;
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1;
+      padding: .65rem .9rem;
+    }
+
+  }
+
+  // Carga de documentos DIAN
+  .config-dian-document-upload{
+    align-items: center;
+    background: #f8fafc;
+    border: 1px dashed #c7d2fe;
+    border-radius: .85rem;
+    cursor: pointer;
+    display: grid;
+    gap: .35rem;
+    min-height: 12rem;
+    min-width: 0;
+    overflow: hidden;
+    padding: 1rem;
+    text-align: center;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease, background .2s ease;
+
+    &:hover{
+      background: #fff;
+      border-color: rgba(79,70,229,.62);
+      box-shadow: 0 12px 28px rgba(15,23,42,.08);
+      transform: translateY(-1px);
+    }
+
+    span{
+      align-items: center;
+      background: #eef2ff;
+      border-radius: .8rem;
+      color: v.$color-primary;
+      display: inline-flex;
+      height: 3.3rem;
+      justify-content: center;
+      justify-self: center;
+      width: 3.3rem;
+
+      i{
+        font-size: 1.45rem;
+      }
+    }
+
+    strong{
+      color: v.$color-text;
+      font-size: 1.08rem;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    small{
+      color: v.$color-muted;
+      font-size: .95rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    input{
+      color: #52637a;
+      display: block;
+      font-size: .9rem;
+      margin-top: .35rem;
+      min-width: 0;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    input::file-selector-button{
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: .55rem;
+      color: v.$color-primary;
+      cursor: pointer;
+      font-weight: 800;
+      margin-right: .45rem;
+      padding: .5rem .75rem;
+      transition: background .2s ease, border-color .2s ease;
+    }
+
+    input::file-selector-button:hover{
+      background: #e0e7ff;
+      border-color: rgba(79,70,229,.5);
+    }
+  }
+
+  // Elementos especiales del empleado: foto y permisos
+  .config-empleado-dialog__photo{
+    align-items: center;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: .9rem;
+    display: grid;
+    gap: .85rem;
+    justify-items: center;
+    margin-bottom: 1.3rem !important;
+    padding: 1.2rem;
+
+    .formulario__contentinputfile{
+      align-items: center;
+      background: #fff;
+      border: 1px solid #e0e7ff;
+      border-radius: 999px;
+      display: inline-flex;
+      height: 9rem;
+      justify-content: center;
+      overflow: hidden;
+      width: 9rem;
+
+      p{
+        display: none;
+      }
+    }
+
+    .formulario__imginputfile{
+      align-items: center;
+      background: linear-gradient(135deg, #eef2ff, #ecfeff);
+      border-radius: 999px;
+      display: inline-flex;
+      height: 100%;
+      justify-content: center;
+      position: relative;
+      width: 100%;
+
+      &::before{
+        color: v.$color-primary;
+        content: "\f007";
+        font-family: "Font Awesome 6 Free";
+        font-size: 3rem;
+        font-weight: 900;
+        position: absolute;
+      }
+
+      img{
+        border-radius: 999px;
+        height: 100%;
+        object-fit: cover;
+        position: relative;
+        width: 100%;
+        z-index: 1;
+
+        &:not([src]),
+        &[src=""],
+        &[src=" "]{
+          display: none;
+        }
+      }
+    }
+
+    .text-greymouse{
+      color: v.$color-muted;
+      font-size: 1.05rem;
+      margin: 0;
+    }
+  }
+
+  .config-empleado-dialog__upload{
+    align-items: center;
+    background: #fff;
+    border: 1px solid rgba(79,70,229,.24);
+    border-radius: 999px;
+    color: v.$color-primary-dark;
+    display: inline-flex;
+    font-size: 1.12rem;
+    font-weight: 800;
+    gap: .55rem;
+    height: 3.6rem;
+    justify-content: center;
+    padding: 0 1.35rem;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+
+    &:hover{
+      border-color: rgba(79,70,229,.55);
+      box-shadow: 0 .8rem 1.8rem rgba(79,70,229,.14);
+      transform: translateY(-1px);
+    }
+  }
+
+
+
+
+
+
+
+  .config-empleado-dialog #contentpermisos,
+  .config-empleado-dialog #contentpermisosadmin{
+    border-top: 1px solid v.$color-border;
+    gap: .85rem;
+    margin-top: 1.15rem;
+    padding-top: 1.1rem;
+  }
+
+  .config-empleado-dialog #contentpermisos:not([style*="display: none"]),
+  .config-empleado-dialog #contentpermisosadmin:not([style*="display: none"]){
+    display: grid;
+  }
+
+  .config-empleado-dialog #contentpermisos::before,
+  .config-empleado-dialog #contentpermisosadmin::before{
+    align-items: center;
+    color: v.$color-primary;
+    content: "Permisos del perfil";
+    display: flex;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    margin-bottom: .1rem;
+    text-transform: uppercase;
+  }
+
+  .config-empleado-dialog .moduloventas,
+  .config-empleado-dialog .moduloadmin{
+    background: linear-gradient(180deg, #fff 0%, #f8fafc 100%) !important;
+    border: 1px solid #dbe3ef !important;
+    border-radius: .9rem !important;
+    box-shadow: 0 .8rem 1.8rem rgba(15,23,42,.055);
+    margin-bottom: 0 !important;
+    padding: 1rem 1.1rem !important;
+  }
+
+  .config-empleado-dialog .moduloventas > p,
+  .config-empleado-dialog .moduloadmin > p{
+    align-items: center;
+    color: v.$color-text !important;
+    display: flex;
+    font-size: 1.18rem !important;
+    font-weight: 800 !important;
+    gap: .65rem;
+    line-height: 1.2;
+    margin: 0 0 .6rem !important;
+  }
+
+  .config-empleado-dialog .moduloventas > p::before,
+  .config-empleado-dialog .moduloadmin > p::before{
+    align-items: center;
+    background: #eef2ff;
+    border-radius: .55rem;
+    color: v.$color-primary;
+    content: "\f085";
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-family: "Font Awesome 6 Free";
+    font-size: 1.05rem;
+    font-weight: 900;
+    height: 2.35rem;
+    justify-content: center;
+    width: 2.35rem;
+  }
+
+  .config-empleado-dialog .moduloadmin > p::before{
+    content: "\f505";
+  }
+
+  .config-empleado-dialog .moduloventas label,
+  .config-empleado-dialog .moduloadmin label{
+    align-items: center !important;
+    border-top: 1px solid #edf2f7;
+    display: flex !important;
+    gap: 1rem;
+    justify-content: space-between !important;
+    margin: 0 !important;
+    min-height: 3.15rem;
+    padding: .52rem 0;
+  }
+
+  .config-empleado-dialog .moduloventas label:first-of-type,
+  .config-empleado-dialog .moduloadmin label:first-of-type{
+    border-top: 0;
+  }
+
+  .config-empleado-dialog .moduloventas label span,
+  .config-empleado-dialog .moduloadmin label span{
+    color: #475569 !important;
+    font-size: 1.08rem !important;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .config-empleado-dialog .moduloventas label > div,
+  .config-empleado-dialog .moduloadmin label > div{
+    background: #e2e8f0 !important;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    flex: 0 0 auto;
+    height: 2rem !important;
+    position: relative;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+    width: 3.8rem !important;
+  }
+
+  .config-empleado-dialog .moduloventas label > div > div,
+  .config-empleado-dialog .moduloadmin label > div > div{
+    background: #fff;
+    border-radius: 999px;
+    box-shadow: 0 .15rem .4rem rgba(15,23,42,.16);
+    height: 1.54rem !important;
+    left: .2rem !important;
+    position: absolute;
+    top: .18rem !important;
+    transition: transform .2s ease;
+    width: 1.54rem !important;
+  }
+
+  .config-empleado-dialog .moduloventas input:checked + div,
+  .config-empleado-dialog .moduloadmin input:checked + div{
+    background: linear-gradient(135deg, v.$color-primary, #14b8a6) !important;
+    border-color: rgba(79,70,229,.65);
+    box-shadow: 0 .25rem .7rem rgba(79,70,229,.18);
+  }
+
+  .config-empleado-dialog .moduloventas input:checked + div > div,
+  .config-empleado-dialog .moduloadmin input:checked + div > div{
+    transform: translateX(1.8rem) !important;
+  }
+
+
+  // Ajustes responsive generales del modulo
+    .configuracion-tabs{
+      margin-left: 0;
+      margin-right: 0;
+      max-width: 100%;
+      overflow-x: auto;
+      padding: .65rem;
+      top: 0;
+      width: 100%;
+    }
+
+    .configuracion-tabs__content{
+      gap: .65rem;
+      max-width: none;
+      width: max-content;
+    }
+
+    .tabs-content label.configuracion-tab{
+      flex: 0 0 auto;
+    }
+
+    .tabs-content label.configuracion-tab > span{
+      align-items: center;
+      box-sizing: border-box;
+      display: flex;
+      gap: 1.05rem;
+      height: 4.8rem;
+      justify-content: center;
+      line-height: 1;
+      padding: 0 1.25rem;
+    }
+
+    .tabs-content label.configuracion-tab > span i{
+      align-items: center;
+      display: inline-flex;
+      height: 1.8rem;
+      justify-content: center;
+      line-height: 1;
+      margin: 0;
+      min-width: 1.8rem;
+    }
+
+  @media (max-width: 640px){
+    .config-empleado-dialog__photo{
+      padding: 1rem;
+    }
+
+  }
+
+}
+
+// Fin de estilos del modulo de configuracion

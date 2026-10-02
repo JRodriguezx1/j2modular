@@ -1,0 +1,142 @@
+@use 'base/variables' as v;
+
+// elementos reutilizables para el contenido de las celdas de tablas
+.table-entity{
+  align-items: center;
+  display: inline-flex;
+  gap: .75rem;
+  min-width: 0;
+
+  > span:last-child{
+    font-weight: 800;
+  }
+}
+
+.table-entity__icon{
+  align-items: center;
+  background: rgba(79,70,229,.10);
+  border-radius: .55rem;
+  color: v.$color-primary;
+  display: inline-flex;
+  flex: 0 0 3.4rem;
+  height: 3.4rem;
+  justify-content: center;
+  width: 3.4rem;
+}
+
+.table-badge,
+.table-status{ 
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.2;
+  min-height: 2.8rem;
+  padding: .35rem .8rem;
+  white-space: nowrap;
+}
+
+.table-badge--primary{
+  background: #eef2ff;
+  color: v.$color-primary;
+}
+
+.table-badge--info{
+  background: #ecfeff;
+  color: #0e7490;
+}
+
+.table-badge--neutral{ 
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+.table-badge--success{
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+}
+
+.table-badge--warning{
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+}
+
+.table-amount{
+  color: #0f172a;
+  font-weight: 850;
+}
+
+.table-status--success{
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.table-status--warning{
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.table-status--danger{
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.table-action{
+  align-items: center;
+  border: 0;
+  border-radius: .55rem;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1.35rem;
+  height: 3.55rem;
+  justify-content: center;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-decoration: none;
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+  width: 3.55rem;
+
+  i{
+    pointer-events: none;
+  }
+
+  &:hover{
+    transform: translateY(-1px);
+  }
+}
+
+.table-action--view{
+  background: #0f3ee8;
+  color: #fff;
+
+  &:hover{
+    box-shadow: 0 10px 18px rgba(15, 62, 232, .22);
+    color: #fff;
+  }
+}
+
+.table-action--danger{
+  background: #ef1111;
+  color: #fff;
+
+  &:hover{
+    box-shadow: 0 10px 18px rgba(239, 17, 17, .22);
+    color: #fff;
+  }
+}
+
+.table-action--print{
+  background: #ecfeff;
+  border: 1px solid #67e8f9;
+  color: #0e7490;
+
+  &:hover{
+    background: #cffafe;
+    color: #0e7490;
+  }
+}
+// fin elementos reutilizables para el contenido de las celdas de tablas

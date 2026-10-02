@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../app/Modules/Restaurant/Resources/ts/reservations/index.ts"],
+  "sourcesContent": ["export function initReservations(): void {\r\n\r\n    console.log('Restaurant \u2192 Reservations cargado');\r\n    const dataElement = document.querySelector<HTMLScriptElement>('#restaurantReservationsData');\r\n\r\n    const data = dataElement? JSON.parse(dataElement.textContent ?? '{}') : {};\r\n\r\n}"],
+  "mappings": "AAAO,SAASA,GAAyB,CAErC,QAAQ,IAAI,wCAAmC,EAC/C,IAAMC,EAAc,SAAS,cAAiC,6BAA6B,EAErFC,EAAOD,EAAa,KAAK,MAAMA,EAAY,aAAe,IAAI,EAAI,CAAC,CAE7E",
+  "names": ["initReservations", "dataElement", "data"]
+}

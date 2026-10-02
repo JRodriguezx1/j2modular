@@ -1,0 +1,312 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+
+// estilos de los controles y del interruptor de los modales de abono
+.detalle-abono-dialog__control > span{
+  align-items: center;
+  background: #eef2ff;
+  color: var(v.$color-primary, #4f46e5);
+  display: inline-flex;
+  justify-content: center;
+}
+
+.detalle-abono-dialog__field > label{
+  color: var(v.$color-text, #14233b);
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.detalle-abono-dialog__control{
+  align-items: stretch;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: .75rem;
+  display: flex;
+  min-height: 4.2rem;
+  overflow: hidden;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.detalle-abono-dialog__control:focus-within{
+  background: #fff;
+  border-color: var(v.$color-primary, #4f46e5);
+  box-shadow: 0 0 0 .22rem rgba(79,70,229,.1);
+}
+
+.detalle-abono-dialog__control > span{
+  border-right: 1px solid #cbd5e1;
+  flex: 0 0 4.2rem;
+  font-size: 1.35rem;
+  width: 4.2rem;
+}
+
+.detalle-abono-dialog__control input,
+.detalle-abono-dialog__control select,
+.detalle-abono-dialog__field textarea{
+  background: transparent;
+  border: 0;
+  color: var(v.$color-text, #14233b);
+  font-size: 1.08rem;
+  font-weight: 500;
+  outline: 0;
+  width: 100%;
+}
+
+.detalle-abono-dialog__control input,
+.detalle-abono-dialog__control select{
+  min-height: 4.2rem;
+  padding: 0 1rem;
+}
+
+.detalle-abono-dialog__field textarea{
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: .75rem;
+  min-height: 8.4rem;
+  padding: 1rem;
+  resize: vertical;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+.detalle-abono-dialog__field textarea:focus{
+  background: #fff;
+  border-color: var(v.$color-primary, #4f46e5);
+  box-shadow: 0 0 0 .22rem rgba(79,70,229,.1);
+}
+
+.detalle-abono-dialog__control input::placeholder,
+.detalle-abono-dialog__field textarea::placeholder{
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.detalle-abono-dialog__switch{
+  align-items: center;
+  background: linear-gradient(135deg, #f8fafc, #fff);
+  border: 1px solid var(v.$color-border, #dbe3ef);
+  border-radius: .85rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .95rem 1rem;
+}
+
+.detalle-abono-dialog__switch-copy{
+  display: grid;
+  gap: .15rem;
+}
+
+.detalle-abono-dialog__switch-copy strong{
+  color: var(v.$color-text, #14233b);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.detalle-abono-dialog__switch-copy small{
+  color: var(v.$color-muted, #64748b);
+  font-size: .92rem;
+  font-weight: 600;
+}
+
+.detalle-abono-dialog__toggle{
+  align-items: center;
+  background: #cbd5e1;
+  border-radius: 999px;
+  display: inline-flex;
+  flex: 0 0 5.8rem;
+  height: 2.55rem;
+  overflow: hidden;
+  position: relative;
+  transition: background .2s ease, box-shadow .2s ease;
+  width: 5.8rem;
+}
+
+.detalle-abono-dialog__toggle span{
+  background: #fff;
+  border-radius: 999px;
+  box-shadow: 0 .25rem .7rem rgba(15,23,42,.18);
+  display: block;
+  height: 2rem;
+  left: .28rem;
+  position: absolute;
+  top: .28rem;
+  transition: transform .2s ease;
+  width: 2rem;
+  z-index: 2;
+}
+
+.detalle-abono-dialog__toggle-state{
+  font-size: .74rem;
+  font-weight: 900;
+  line-height: 1;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: opacity .18s ease;
+  z-index: 1;
+}
+
+.detalle-abono-dialog__toggle-state--off{
+  color: #64748b;
+  opacity: 1;
+  right: .72rem;
+}
+
+.detalle-abono-dialog__toggle-state--on{
+  color: rgba(255,255,255,.88);
+  left: .82rem;
+  opacity: 0;
+}
+
+.detalle-abono-dialog__switch input:checked + .detalle-abono-dialog__toggle{
+  background: linear-gradient(135deg, #5b52f0, v.$color-primary-dark);
+  box-shadow: 0 .45rem 1rem rgba(79,70,229,.2);
+}
+
+.detalle-abono-dialog__switch input:checked + .detalle-abono-dialog__toggle span{
+  transform: translateX(3.25rem);
+}
+
+.detalle-abono-dialog__switch input:checked + .detalle-abono-dialog__toggle .detalle-abono-dialog__toggle-state--off{
+  opacity: 0;
+}
+
+.detalle-abono-dialog__switch input:checked + .detalle-abono-dialog__toggle .detalle-abono-dialog__toggle-state--on{
+  opacity: 1;
+}
+// fin estilos de los controles y del interruptor de los modales de abono
+
+
+
+// estilos del selector segmentado del modal de descuento
+.separado-segmented{
+  background: #f8fafc;
+  border: 1px solid v.$color-border;
+  border-radius: .75rem;
+  display: grid;
+  gap: .55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: .45rem;
+
+  label{
+    align-items: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: .6rem;
+    color: #334155;
+    cursor: pointer;
+    display: flex;
+    font-size: 1.08rem;
+    font-weight: 800;
+    gap: .5rem;
+    justify-content: center;
+    min-height: 3.8rem;
+    position: relative;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease, transform .2s ease;
+
+    &:hover{
+      background: #fff;
+      border-color: rgba(79,70,229,.18);
+      color: v.$color-primary;
+    }
+  }
+
+  input{
+    height: 1px;
+    opacity: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  span{
+    align-items: center;
+    display: inline-flex;
+    gap: .55rem;
+
+    &::before{
+      align-items: center;
+      background: #eef2ff;
+      border-radius: .5rem;
+      color: v.$color-primary;
+      content: "\f02b";
+      display: inline-flex;
+      font-family: "Font Awesome 6 Free";
+      font-size: 1rem;
+      font-weight: 900;
+      height: 2.4rem;
+      justify-content: center;
+      width: 2.4rem;
+    }
+  }
+
+  label:has(input[value="porcentaje"]) span::before{
+    content: "\f295";
+  }
+
+  input:checked + span{
+    color: v.$color-primary;
+  }
+
+  label:has(input:checked){
+    background: #fff;
+    border-color: rgba(79,70,229,.32);
+    box-shadow: 0 .65rem 1.4rem rgba(79,70,229,.10);
+    color: v.$color-primary;
+    transform: translateY(-1px);
+
+    span::before{
+      background: linear-gradient(135deg, #5b52f0, v.$color-primary-dark);
+      color: #fff;
+    }
+  }
+}
+// fin estilos del selector segmentado del modal de descuento
+
+// estilos de campos y tabla de adicionar productos
+.adicionar-producto-table-wrap{
+  border: 1px solid v.$color-border;
+  border-radius: .8rem;
+  overflow-x: auto;
+  scrollbar-color: rgba(79,70,229,.55) #eef2ff;
+  scrollbar-width: thin;
+}
+
+.adicionar-producto-table{
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 78rem;
+  width: 100%;
+
+  thead th{
+    background: #f1f5f9;
+    border: 0;
+    color: #334155;
+    font-size: 1.02rem;
+    font-weight: 900;
+    padding: .85rem 1rem;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  thead th:last-child{
+    text-align: center;
+  }
+
+  tbody tr{
+    background: #fff;
+  }
+
+  tbody td{
+    border-top: 1px solid #edf2f7;
+    color: v.$color-text;
+    font-size: 1.18rem;
+    line-height: 1.35;
+    padding: .85rem 1rem;
+    vertical-align: middle;
+  }
+}
+// fin estilos de campos y tabla de adicionar productos

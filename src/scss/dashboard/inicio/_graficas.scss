@@ -1,0 +1,174 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+.datos{
+    margin-top: 2rem;
+    &__contenedorgraficas{
+        margin-top: 0rem;
+        
+        @include m.xl_tablet{
+            display: flex;
+            gap: 1rem;
+        }
+        @include m.desktop{
+            gap: 1.5rem;
+        }
+        @include m.xl_desktop{
+            gap: 2rem;
+        }
+    }
+    &__grafica1{
+        background-color: v.$blanco;
+        padding: 1rem;
+        //flex-basis: calc(60% - 1rem);
+        @include m.xl_tablet{
+            width: 68%;
+        }
+       // @include m.contenedor-sm;
+       //width: 95%;
+        //max-width: 45rem;
+    }
+
+    &__completado{
+        //flex-basis: calc(40% - 1rem);
+        @include m.xl_tablet{
+            width: 31%;
+        }
+        background-color: v.$blanco;   
+    }
+    
+    &__bg{
+        position: relative;
+        height: 10rem;
+        background-image: url(/build/img/profile-img.png), linear-gradient(rgba(85,110,230,.25), rgba(85,110,230,.25));
+        background-repeat: no-repeat;
+        background-size: 15rem, cover;
+        background-position: center right;
+        padding: 2rem;
+    }
+    &__user{
+        position: absolute;
+        bottom: 0%;
+        left: 0%;
+        transform: translate(50%, 50%);
+        background-color: v.$blanco;
+        border-radius: 50%;
+        padding: 1rem;
+        i{
+            font-size: 3rem;
+            color: v.$gris60;
+        }
+    }
+    &__admininfo{
+        margin-top: 1.5rem;
+        padding: 1rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+    
+    &__infocompletado{
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-around;
+    }
+    &__texto{
+        .dailyearning{
+            color: v.$gris80;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            @include m.texto_fluido(1.5rem, 3.4rem);
+        }
+    }
+        .rueda{
+            position: relative;
+                width: 120px;
+            @include m.xl_tablet{
+                width: 110px;
+            }
+            @include m.desktop{
+                width: 115px;
+            //height: 115px;
+            }
+            @include m.xl_desktop{
+                width: 140px;
+            //height: 140px;
+            }
+            .afuera{
+                width: 120px;
+                height: 120px;
+                @include m.xl_tablet{
+                    width: 110px;
+                    height: 110px;
+                }
+                @include m.desktop{
+                    width: 115px;
+                    height: 115px;
+                }
+                @include m.xl_desktop{
+                    width: 140px;
+                    height: 140px;
+                }
+                /*border: 1px solid #c0e3ee;*/
+                box-shadow: 6px 6px 10px -1px rgba(70, 70, 70, 0.15), -1px -1px 12px -3px rgba(207, 207, 207, 0.7);
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                .adentro{
+                    width: 85px;
+                    height: 85px;
+                    @include m.xl_tablet{
+                        width: 75px;
+                        height: 75px;
+                    }
+                    @include m.desktop{
+                        width: 80px;
+                        height: 80px;
+                    }
+                    @include m.xl_desktop{
+                        width: 100px;
+                        height: 100px;
+                    }
+                    /*border: 1px solid #ad3434;*/
+                    box-shadow: inset 4px 4px 6px -1px rgba(70, 70, 70, 0.2);
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    .numero{
+                        color: v.$gris60;
+                        font-size: 1.6rem;
+                    }
+                }
+            }
+            circle{
+                fill: none;
+                stroke: url(#GradientColor1);
+                stroke-width: 14px;
+                stroke-dasharray: 440;
+                stroke-dashoffset: 440;
+                //animation: anim1 3s linear forwards;
+                transition: all 3s ease;
+            }
+             
+            .animacion{
+                //stroke-dashoffset: 88;
+            }
+            /*
+            @keyframes anim1{
+                100%{stroke-dashoffset: 88;}  //80% html
+            }*/
+        
+            svg{
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            .name{
+                font-size: 1.8rem;
+                margin-top: 1rem;
+                color: v.$blanco;
+            }
+        }// fin rueda
+}

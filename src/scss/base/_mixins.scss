@@ -1,0 +1,163 @@
+@use 'variables' as v;
+
+/** Media Queries **/
+@mixin telefono {
+    @media (min-width: v.$telefono) {
+        @content;
+    }
+}
+@mixin telefonomini {
+    @media (min-width: v.$telefonomini) {
+        @content;
+    }
+}
+@mixin telefonom {
+    @media (min-width: v.$telefonom) {
+        @content;
+    }
+}
+@mixin telefonol {
+    @media (min-width: v.$telefonol) {
+        @content;
+    }
+}
+@mixin telefonoxl {
+    @media (min-width: v.$telefonoxl) {
+        @content;
+    }
+}
+@mixin tablet {
+    @media (min-width: v.$tablet) {
+        @content;
+    }
+}
+@mixin tabletl {
+    @media (min-width: v.$tabletl){
+        @content;
+    }
+}
+@mixin tabletm {
+    @media (min-width: v.$tabletm) {
+        @content;
+    }
+}
+@mixin xl_tablet {
+    @media (min-width: v.$xl_tablet) {
+        @content;
+    }
+}
+@mixin desktop {
+    @media (min-width: v.$desktop) {
+        @content;
+    }
+}
+@mixin xl_desktop {
+    @media (min-width: v.$xl_desktop) {
+        @content;
+    }
+}
+@mixin xxl_desktop {
+    @media (min-width: v.$xxl_desktop) {
+        @content;
+    }
+}
+
+
+@mixin boton($bgColor, $colorTexto) {
+    background-color: $bgColor;
+    padding: 1rem 2rem;
+    color: $colorTexto;
+    font-size: 1.4rem;
+    font-weight: 700;
+    border: none;
+    transition-property: background-color;
+    transition-duration: .3s;
+    text-align: center;
+    width: 100%;
+    display: inline-block;
+    border-radius: .5rem;
+    &:hover {
+        background-color: darken( $bgColor, 10% );
+        cursor: pointer;
+    }
+}
+
+@mixin grid($columnas, $espaciado ) {
+    display: grid;
+    gap: $espaciado;
+    grid-template-columns: repeat($columnas, 1fr);
+}
+
+@mixin contenedor{
+    //max-width: 120rem;
+    //width: 95%;
+    width: min(95%, 144rem); //igual que las 2 lineas de arriba...  menor a 1200px toma 95% y mayor a 1200px muestra los 1200ox
+    margin: 0 auto;
+}
+
+@mixin contenedor100{
+    width: min(100%, 144rem);
+    margin: 0 auto;
+}
+
+@mixin contenedor-sm{
+    width: min(95%, 60rem); 
+    margin: 0 auto;
+}
+
+@mixin contenedor-xs{
+    width: min(95%, 35rem); 
+    margin: 0 auto;
+}
+
+@mixin texto_fluido($min, $max){
+    font-size: clamp($min, -0.8rem + 10vw ,$max);
+}
+
+/*
+@mixin logo{
+    color: v.$blanco;
+    text-align: center;
+    margin-bottom: 2rem;
+    @include tablet{
+        color: v.$azuloscuro;
+        text-align: left;
+        margin: 0;
+    }
+}*/
+
+
+@mixin menu-social($color, $size) {
+    &__enlace{ // = <a>...</a>
+        &::before{
+            color: $color;
+            font-size: $size;
+            display: inline-block; // para que se ponga el elemento al lado de otro se puede aplicar pading
+            font-style: normal;
+            text-rendering: auto; //propiedad que se aplica a vectores
+            -webkit-font-smoothing: antialiased;
+            font-family: "Font Awesome 6 brands";
+        }
+        &[href*="https://facebook.com"]::before{
+            content: "\f39e";
+        }
+        &[href*="https://github.com"]::before{
+            content: "\f09b";
+        }
+        &[href*="https://tiktok.com"]::before{
+            content: "\e07b";
+        }
+        &[href*="https://instagram.com"]::before{
+            content: "\f16d";
+        }
+        &[href*="https://twitter.com"]::before{
+            content: "\f099";
+        }
+        &[href*="https://youtube.com"]::before{
+            content: "\f167";
+        }
+    }
+    &__ocultar{ //== <span></span>
+        display: none;
+    }
+}

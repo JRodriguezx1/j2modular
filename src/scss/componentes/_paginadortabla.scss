@@ -1,0 +1,23 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+.paginacion{
+    text-align: center;
+    margin-top: 1rem;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    &__enlace{
+        &--actual{
+            font-weight: 700;
+            color: v.$turquesa;
+            font-size: 1.7rem;
+        }
+        &--numero{
+            color: v.$gris80;
+            margin: 0 .8rem;
+        }
+        &--texto{
+            color: v.$gris80;
+        }
+    }
+}

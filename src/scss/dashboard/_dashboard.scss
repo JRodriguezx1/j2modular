@@ -1,0 +1,409 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+
+.dashboard{
+    &.swal2-height-auto{  //clase interna que se agrega por js de sweetalert  una espacion al final con esto se quita
+        height: 100% !important;
+    }
+    
+    background-color: v.$azul0;
+    @include m.tablet{
+        display: flex;
+        height: 100vh;
+    }
+    .principal{ //clase esta en header_dashboard.php
+        background-color: v.$blanco;
+        flex: 1;
+        overflow: hidden;
+    }
+    .contenido{  //clase esta en header_dashboard.php
+        background-color: v.$azul0;
+        padding: 1rem 1.6rem 2rem 1.6rem;
+        height: 94%;
+        overflow: auto;
+    }
+
+//////////////////////////estilos al sidebar.php////////////////////////////
+    .sidebar{
+        transition: .5s all ease;
+        display: none;  //me oculta el sidebar lateral en dipositivo movil
+        overflow: hidden;
+        @include m.tablet{  //cuando es igual o superior a tablet muesta el sidebar lateral
+            display: block;
+            width: 9.6rem;
+        }
+        
+        background-color: v.$indigo;
+        background-image: linear-gradient(180deg, #4f46e5 0%, #4338ca 48%, #312e81 100%);
+        //padding: 2rem 0rem 2rem 2rem;
+        padding: 2rem 1.2rem;
+        &:hover,
+        &.sidebar-fija{
+            padding: 2rem;
+            width: 26rem;
+        }
+        &.mostrar{   //clase hecha en app.js
+            display: block;
+        }
+        .uptask{
+            .menux{
+                img{ 
+                    width: 1.8rem;
+                    &:hover{
+                        cursor: pointer;
+                    }
+                }
+                @include m.tablet{
+                    display: none;
+                }
+            }
+        }
+        .sidebar-mini-logo{
+            background-color: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .20);
+            border-radius: 1.2rem;
+            display: block;
+            height: 5.8rem;
+            object-fit: contain;
+            padding: .35rem;
+            width: 5.8rem;
+        }
+        #logoj2{
+            display: none;
+            opacity: 0;
+            transform: scale(.85);
+            transition: opacity 300ms ease, transform 300ms ease;
+        }
+
+        &:hover,
+        &.sidebar-fija{
+            .uptask{
+                padding: 0 3rem;
+                justify-content: space-between;
+            }
+            .sidebar-mini-logo{
+                display: none;
+            }
+            #logoj2{
+                display: block;
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .sidebar-nav{
+            margin-top: 3.2rem;
+            a{              //el tamaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â±o de las letras de los links a esta definido en globales.scss de 1.6rem
+                white-space: nowrap;
+                color: v.$gris30; //blanco
+                display: block;
+                margin-bottom: .8rem;
+                padding: 1.2rem;
+                transition-property: background-color;
+                transition-duration: 300ms;
+                font-size: 1.4rem;
+                text-align: center;
+                overflow: hidden;
+                .material-symbols-outlined{
+                    font-size: 2.9rem;
+                    min-width: 2.9rem;
+                }
+                label{
+                    cursor: pointer;
+                    max-width: 0;
+                    opacity: 0;
+                    overflow: hidden;
+                    transition: max-width 300ms ease, opacity 200ms ease;
+                }
+                &:hover{
+                    background-color: rgba(255, 255, 255, .14);
+                    border-radius: 0.5rem;
+                    color: v.$gris30;
+                }
+                &.activo{
+                    background-color: v.$azul0;
+                    border-radius: 0.5rem;
+                    color: v.$indigo;
+                }
+                @include m.tablet{
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0;
+                    font-size: 1.2rem;
+                    margin-bottom: .8rem;
+                    min-height: 5.4rem;
+                    text-align: left;
+                }
+            }
+        }
+
+        &:hover,
+        &.sidebar-fija{
+            .sidebar-nav{
+                margin-top: 5rem;
+                a{
+                    label{
+                        max-width: 16rem;
+                        opacity: 1;
+                    }
+                    @include m.tablet{
+                        justify-content: flex-start;
+                        gap: .5rem;
+                    }
+                }
+            }
+        }
+    
+    }//cierre del .sidebar
+
+
+
+    .barra-mobile{  //clase que esta en header.php, crea sub barra para ocultar los links <a> del sidebar en dispositivos moviles
+        &.ocultarmenu{
+            display: none;
+        }
+        background-color: v.$indigo;
+        margin-top: 0;
+        padding: 2rem 4rem;
+        position: sticky;
+        top: 0;
+        z-index: 25;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        @include m.tablet{
+            display: none;
+        }
+    }
+
+    .subscription-alert-wrap{
+        align-items: center;
+        flex: 1 1 auto;
+        justify-content: center;
+        min-width: 0;
+        padding: 0 1.6rem;
+    }
+
+    .subscription-alert-wrap--mobile{
+        display: flex;
+        flex: 0 0 auto;
+        margin-top: 1.2rem;
+        padding: 0;
+        width: 100%;
+    }
+
+    .subscription-alert{
+        align-items: center;
+        background: linear-gradient(135deg, #fff7ed 0%, #fff1f2 100%);
+        border: .1rem solid #fecaca;
+        border-radius: 1.4rem;
+        box-shadow: 0 .8rem 2rem rgba(239, 68, 68, .12);
+        color: #7f1d1d;
+        cursor: pointer;
+        display: flex;
+        gap: 1rem;
+        max-width: 86rem;
+        min-height: 5.4rem;
+        overflow: hidden;
+        padding: .7rem 1.2rem .7rem .9rem;
+        position: relative;
+        text-decoration: none;
+        transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+        width: 100%;
+    }
+
+    .subscription-alert:hover{
+        border-color: #fb7185;
+        box-shadow: 0 1.1rem 2.6rem rgba(239, 68, 68, .18);
+        transform: translateY(-.1rem);
+    }
+
+    .subscription-alert::before{
+        background: linear-gradient(180deg, #ef4444, #f97316);
+        content: "";
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: .35rem;
+    }
+
+    .subscription-alert__icon{
+        align-items: center;
+        background: #fee2e2;
+        border-radius: 1rem;
+        color: #dc2626;
+        display: inline-flex;
+        flex: 0 0 3.2rem;
+        font-size: 2rem;
+        height: 3.2rem;
+        justify-content: center;
+        width: 3.2rem;
+    }
+
+    .subscription-alert__body{
+        align-items: flex-start;
+        display: flex;
+        flex-direction: column;
+        gap: .2rem;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .subscription-alert__title{
+        color: #991b1b;
+        font-size: 1.25rem;
+        font-weight: 900;
+        line-height: 1.15;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .subscription-alert__message{
+        color: #9f1239;
+        display: -webkit-box;
+        font-size: 1.12rem;
+        font-weight: 600;
+        line-height: 1.18;
+        min-width: 0;
+        overflow: hidden;
+        white-space: normal;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    @media (max-width: 767px){
+        .subscription-alert{
+            align-items: flex-start;
+            border-radius: 1.2rem;
+            max-width: none;
+            min-height: auto;
+            padding: .8rem 1rem;
+        }
+
+    }
+}
+
+
+
+    .precios-adicionales-tabs-wrap{
+        justify-content: flex-start !important;
+        max-width: 100%;
+        overflow-x: visible;
+        padding: .2rem 0 .4rem;
+    }
+
+    .precios-adicionales-tabs{
+        background: rgba(255, 255, 255, .96);
+        border: 1px solid #cbd5e1;
+        border-radius: .8rem;
+        box-shadow: 0 8px 22px rgba(15, 23, 42, .08);
+        display: grid;
+        gap: .55rem;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        min-width: 0;
+        padding: .55rem;
+        width: 100%;
+    }
+
+    .precios-adicionales-tab{
+        align-items: center;
+        background: #fff;
+        border: 1px solid #d7e0ee;
+        border-radius: .65rem;
+        color: #263852;
+        cursor: pointer;
+        display: flex;
+        font-size: 1.1rem;
+        font-weight: 700;
+        gap: .45rem;
+        height: 4.1rem;
+        justify-content: center;
+        line-height: 1;
+        min-width: 0;
+        overflow: hidden;
+        padding: 0 .75rem;
+        text-overflow: ellipsis;
+        transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease, transform .2s ease;
+        white-space: nowrap;
+
+        .material-symbols-outlined{
+            color: #4f46e5;
+            font-size: 1.65rem;
+            line-height: 1;
+        }
+
+        &:hover{
+            border-color: rgba(79,70,229,.38);
+            box-shadow: 0 8px 18px rgba(79,70,229,.10);
+            transform: translateY(-1px);
+        }
+    }
+
+
+body.dashboardno{
+    @media (max-width: 767px){
+        background-color: v.$indigo;
+
+        .dashboard{
+            background-color: v.$indigo;
+            display: block;
+            min-height: 100vh;
+        }
+
+        .dashboard,
+        .principal{
+            margin-top: 0;
+            padding-top: 0;
+        }
+
+        .principal{
+            background-color: transparent;
+            overflow: visible;
+        }
+
+        .contenido{
+            background-color: v.$azul0;
+        }
+
+        .barra-mobile{
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            gap: .8rem;
+            margin-top: 0;
+            padding: 1.2rem 2rem;
+            position: relative;
+            top: auto;
+
+            .barra-mobile__logo{
+                align-items: center;
+                display: flex;
+                justify-content: center;
+                line-height: 0;
+                max-width: 100%;
+                width: auto;
+            }
+
+            > .flex.flex-col.items-center.w-full{
+                align-items: center !important;
+                display: flex !important;
+                justify-content: center !important;
+                line-height: 0 !important;
+                width: auto !important;
+            }
+
+            #logoj2{
+                height: 5.8rem;
+                object-fit: contain;
+                width: 18rem;
+            }
+        }
+
+    }
+}

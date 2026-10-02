@@ -1,0 +1,2 @@
+INSERT INTO stockproductossucursal (productoid, sucursalid, stock, stockminimo, habilitarventa) 
+SELECT id, 3, 0, 0, 1 FROM productos;

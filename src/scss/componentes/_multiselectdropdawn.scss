@@ -1,0 +1,61 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+.content-dropdawn{
+    position: relative;
+}
+
+.btnmultiselect{
+    display: flex;
+    justify-content: space-between;
+    //height: 5rem;
+    align-items: center;
+    padding: 1rem 1.2rem;
+    border-radius: 1rem;
+    cursor: pointer;
+    background-color: v.$blanco;
+    max-width: 32rem;
+    //min-width: 26rem;
+    .btnmultiselect-text{
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: v.$gris70;
+        margin-right: 1rem;
+    }
+    .arrow{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 2.2rem;
+        width: 2.2rem;
+        background-color: v.$azul50;
+        border-radius: 50%;
+        color: v.$blanco;
+        transition: 0.3s;
+    }
+
+    &.open~ .list-items{
+            display: block;
+    }
+
+     &.open .arrow{
+        transform: rotate(-180deg);
+     } 
+    
+}
+
+.list-items{
+    display: none;
+    min-width: 26.3rem;
+    max-width: 32rem;
+    position: absolute;
+    z-index: 15;
+    margin-top: 1.4rem;
+    background-color: v.$blanco;
+    border-radius: 1rem;
+    padding: 2rem 1.5rem 0rem 1.5rem;
+    .item{
+        height: 4rem;
+        color: v.$gris70;
+    }
+}

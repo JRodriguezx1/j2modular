@@ -1,0 +1,70 @@
+{
+  "discrepancyresponsecode": 1,
+  "discrepancyresponsedescription": "Prueba de nota credito",
+	
+  "notes": "Prueba de nota credito",
+  "prefix": "NC",
+  "number": 1,
+  "type_document_id": 4,
+  "date": "2025-06-29",
+  "time": "06:00:13",
+  "type_operation_id": 8,
+  "establishment_name": "j2software",
+  "sendmail": false,
+  "sendmailtome": false,
+  
+  
+  "head_note": "Este documento es una nota crédito generada automáticamente.",
+  "foot_note": "Gracias por su atención. Cualquier duda comuníquese con servicio al cliente.",
+  
+  "customer": {
+	"identification_number": 222222222222,
+	"name": "Consumidor Final",
+	"phone": null,
+	"address": null,
+	"email": "julianithox1@gmail.com",
+	"type_document_identification_id": 3,
+	"type_organization_id": 2,
+	"municipality_id": null
+  },
+  "invoice_period": {
+  "start_date": "2023-12-01",
+  "end_date": "2023-12-31"
+  },
+  "tax_totals": [
+	{
+	  "tax_id": 1,
+	  "tax_amount": "159663.865",
+	  "percent": "19",
+	  "taxable_amount": "840336.134"
+	}
+  ],
+  "legal_monetary_totals": {
+	"line_extension_amount": "840336.134",
+	"tax_exclusive_amount": "840336.134",
+	"tax_inclusive_amount": "1000000.00",
+	"payable_amount": "1000000.00"
+  },
+ "credit_note_lines": [
+	{
+	  "description": "COMISION POR SERVICIOS",
+          "notes": "ESTA ES UNA PRUEBA DE NOTA DE DETALLE DE LINEA.",
+	  "code": "COMISION",
+	  "invoiced_quantity": "1",
+	  "unit_measure_id": 70,
+	  "line_extension_amount": "840336.134",
+	  "free_of_charge_indicator": false,
+	  "tax_totals": [
+		{
+		  "tax_id": 1,
+		  "tax_amount": "159663.865",
+		  "taxable_amount": "840336.134",
+		  "percent": "19.00"
+	        }
+	  ],
+	  "type_item_identification_id": 4,
+	  "price_amount": "840336.134",
+	  "base_quantity": "1"
+	}
+  ]
+}

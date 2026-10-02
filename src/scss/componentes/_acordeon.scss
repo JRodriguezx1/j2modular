@@ -1,0 +1,373 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+.wrapper {
+  display: flex;
+}
+.acordeon{
+  max-height: 0rem;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.showacordeon{
+  max-height: 100%; 
+}
+
+
+///////////////// con input tipe chekbox sin usar js, en vista cerrarcaja.php//////////////////
+.accordion{
+  margin-top: 2rem;
+  input[type="checkbox"]{
+    display: none;
+  }
+  .etiqueta{
+    cursor: pointer;
+    display: block;
+    padding: 1rem;
+    font-size: 1.7rem;
+    text-align: center;
+    position: relative;
+    &::before{
+      content: "+";
+      position: absolute;
+      right: 0;
+      margin-right: 1rem;
+      font-size: 2rem;
+      font-weight: 700;
+    }
+  }
+  .wrapper-content{
+    margin-top: 1rem;
+    flex: 1;
+    max-height: 0rem;
+    transition: max-height 0.2s ease-out;
+  }
+  .content{
+    max-height: 0rem;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+  }
+
+  input[type="checkbox"]:checked + .etiqueta + .wrapper{
+    .wrapper-content{
+      max-height: 100%;
+      .content{
+        max-height: 100%; 
+      }
+    }
+  }
+
+  input[type="checkbox"]:checked + .etiqueta::before{
+    content: "-";
+  }
+}
+
+
+///////////////// con input tipe radio sin usar js, en vista index.php de almacen tab//////////////////
+.accordion_inv{
+    #infoalmacen:checked ~ .btn_inv_info_rapido .btninfoalmacen{
+      background-color: darken(v.$gris20, 0);
+      color: v.$gris80;
+      border-color: lighten(v.$gris80, 10);
+    }
+    #stockproducto:checked ~ .btn_inv_info_rapido .btnstockproducto{
+      background-color: darken(v.$gris20, 0);
+      color: v.$gris80;
+      border-color: lighten(v.$gris80, 10);
+    }
+    #utilidadproducto:checked ~ .btn_inv_info_rapido .btnutilidadproducto{
+      background-color: darken(v.$gris20, 0);
+      color: v.$gris80;
+      border-color: lighten(v.$gris80, 10);
+    }
+    #sedes:checked ~ .btn_inv_info_rapido .btnsedes{
+      background-color: darken(v.$gris20, 0);
+      color: v.$gris80;
+      border-color: lighten(v.$gris80, 10);
+    }
+    #proveedores:checked ~ .btn_inv_info_rapido .btnproveedores{
+      background-color: darken(v.$gris20, 0);
+      color: v.$gris80;
+      border-color: lighten(v.$gris80, 10);
+    }
+    #ordenproduccion:checked ~ .btn_inv_info_rapido .btnordenproduccion{
+      background-color: darken(v.$gris20, 0);
+      color: v.$gris80;
+      border-color: lighten(v.$gris80, 10);
+    }
+    #codigobarras:checked ~ .btn_inv_info_rapido .btncodigobarras{
+      background-color: darken(v.$gris20, 0);
+      color: v.$gris80;
+      border-color: lighten(v.$gris80, 10);
+    }
+    .accordion_tab_content{
+      display: none;
+    }
+    input[type="radio"]{
+      display: none;
+    }
+    #infoalmacen:checked ~ .tablas_inv_rapido .infoalmacen{
+      display: block;
+    }
+    #stockproducto:checked ~ .tablas_inv_rapido .tablastock{
+      display: block;
+    }
+    #utilidadproducto:checked ~ .tablas_inv_rapido .tablautilidad{
+      display: block;
+    }
+    #sedes:checked ~ .tablas_inv_rapido .sedes{
+      display: block;
+    }
+    #proveedores:checked ~ .tablas_inv_rapido .proveedores{
+      display: block;
+    }
+    #ordenproduccion:checked ~ .tablas_inv_rapido .ordenproduccion{
+      display: block;
+    }
+    #codigobarras:checked ~ .tablas_inv_rapido .codigobarras{
+      display: block;
+    }
+}
+
+///////////////// con input tipe radio sin usar js, en vista index.php de configuracion//////////////////
+.accordion_inv{
+  .config-tab{
+    display: flex;
+    align-items: center;
+    background: v.$blanco;
+    border: 1px solid v.$color-border;
+    border-radius: .75rem;
+    color: v.$gris80;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 700;
+    gap: .8rem;
+    padding: 1rem;
+    text-align: left;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease, transform .2s ease;
+    width: auto;
+    @media ( min-width: 992px) {
+      width: 100%;
+    }
+    i{
+      color: v.$color-primary;
+      font-size: 1.25rem;
+      text-align: center;
+    }
+    &:hover{
+      border-color: rgba(79,70,229,.35);
+      box-shadow: 0 8px 18px rgba(15,23,42,.07);
+      transform: translateY(-1px);
+    }
+  }
+
+  #btn1:checked ~ .btnsetup .btn1{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn2:checked ~ .btnsetup .btn2{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn3:checked ~ .btnsetup .btn3{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn4:checked ~ .btnsetup .btn4{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn5:checked ~ .btnsetup .btn5{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn6:checked ~ .btnsetup .btn6{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn7:checked ~ .btnsetup .btn7{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn8:checked ~ .btnsetup .btn8{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn9:checked ~ .btnsetup .btn9{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn10:checked ~ .btnsetup .btn10{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn11:checked ~ .btnsetup .btn11{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn12:checked ~ .btnsetup .btn12{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn13:checked ~ .btnsetup .btn13{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  #btn14:checked ~ .btnsetup .btn14{
+    background-color: darken(v.$gris20, 0);
+    color: v.$gris80;
+    border-color: lighten(v.$gris80, 10);
+  }
+  
+  #btn1:checked ~ .btnsetup .btn1,
+  #btn2:checked ~ .btnsetup .btn2,
+  #btn3:checked ~ .btnsetup .btn3,
+  #btn4:checked ~ .btnsetup .btn4,
+  #btn5:checked ~ .btnsetup .btn5,
+  #btn6:checked ~ .btnsetup .btn6,
+  #btn7:checked ~ .btnsetup .btn7,
+  #btn8:checked ~ .btnsetup .btn8,
+  #btn9:checked ~ .btnsetup .btn9,
+  #btn10:checked ~ .btnsetup .btn10{
+    background: linear-gradient(135deg, #5b52f0, v.$color-primary-dark);
+    border-color: v.$color-primary-dark;
+    box-shadow: 0 10px 20px rgba(79,70,229,.20);
+    color: #fff;
+    transform: translateY(-1px);
+
+    i{
+      color: #fff;
+    }
+  }
+
+
+  #btn1:checked ~ .flex .btnsetup-precios .btn1{
+    background: linear-gradient(
+        135deg,
+        #6366f1,
+        #4f46e5
+    );
+    color: #fff;
+    border-color: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow:
+        0 8px 20px rgba(79,70,229,.20);
+    border-radius: .65rem;
+    transform: translateY(-1px);
+  }
+  #btn2:checked ~ .flex .btnsetup-precios .btn2{
+    background: linear-gradient(
+        135deg,
+        #6366f1,
+        #4f46e5
+    );
+    color: #fff;
+    border-color: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow:
+        0 8px 20px rgba(79,70,229,.20);
+    border-radius: .65rem;
+    transform: translateY(-1px);
+  }
+  #btn3:checked ~ .flex .btnsetup-precios .btn3{
+    background: linear-gradient(
+        135deg,
+        #6366f1,
+        #4f46e5
+    );
+    color: #fff;
+    border-color: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow:
+        0 8px 20px rgba(79,70,229,.20);
+    border-radius: .65rem;
+    transform: translateY(-1px);
+  }
+  #btn4:checked ~ .flex .btnsetup-precios .btn4{
+    background: linear-gradient(
+        135deg,
+        #6366f1,
+        #4f46e5
+    );
+    color: #fff;
+    border-color: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow:
+        0 8px 20px rgba(79,70,229,.20);
+    border-radius: .65rem;
+    transform: translateY(-1px);
+  }
+
+  .btnsetup-precios label{
+    transition:
+        background .25s ease,
+        color .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease,
+        transform .25s ease;
+  }
+
+
+  #btn1:checked ~ .contenedorsetup .contenido1{
+    display: block;
+  }
+  #btn2:checked ~ .contenedorsetup .contenido2{
+    display: block;
+  }
+  #btn3:checked ~ .contenedorsetup .contenido3{
+    display: block;
+  }
+  #btn4:checked ~ .contenedorsetup .contenido4{
+    display: block;
+  }
+  #btn5:checked ~ .contenedorsetup .contenido5{
+    display: block;
+  }
+  #btn6:checked ~ .contenedorsetup .contenido6{
+    display: block;
+  }
+  #btn7:checked ~ .contenedorsetup .contenido7{
+    display: block;
+  }
+  #btn8:checked ~ .contenedorsetup .contenido8{
+    display: block;
+  }
+  #btn9:checked ~ .contenedorsetup .contenido9{
+    display: block;
+  }
+  #btn10:checked ~ .contenedorsetup .contenido10{
+    display: block;
+  }
+  #btn11:checked ~ .contenedorsetup .contenido11{
+    display: block;
+  }
+  #btn12:checked ~ .contenedorsetup .contenido12{
+    display: block;
+  }
+  #btn13:checked ~ .contenedorsetup .contenido13{
+    display: block;
+  }
+  #btn14:checked ~ .contenedorsetup .contenido14{
+    display: block;
+  }
+}
+
+.blockInputRadio{
+  input[type="radio"]{
+    display: block;
+  }
+}

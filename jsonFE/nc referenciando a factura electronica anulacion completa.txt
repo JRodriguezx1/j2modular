@@ -1,0 +1,76 @@
+{
+	"billing_reference": {
+		"number": "FE2082",
+		"uuid": "e8ab77148cf474a87ff93d73b43bd077c1fa3da7776f2ab771f95c723653fd92e4f2476f99aa5a735d8c896724ea3001",
+		"issue_date": "2025-07-01"
+	},
+	
+	"discrepancyresponsecode": 2,
+	"discrepancyresponsedescription": "Prueba de nota credito",
+	
+  "notes": "Prueba de nota credito",
+  "prefix": "NC",
+	"number": 1495,
+	"type_document_id": 4,
+	"date": "2025-07-01",
+	"time": "06:00:13",
+	"type_operation_id": 12,
+  "establishment_name": "j2software",
+  "sendmail": false,
+  "sendmailtome": false,
+  
+  
+  "head_note": "Este documento es una nota crédito con referencia generada automáticamente.",
+  "foot_note": "Gracias por su atención. Cualquier duda comuníquese con servicio al cliente.",
+  
+	"customer": {
+		"identification_number": 222222222222,
+		"name": "Consumidor Final",
+		"phone": null,
+		"address": null,
+		"email": "julianithox1@gmail.com",
+		"type_document_identification_id": 3,
+		"type_organization_id": 2,
+		"municipality_id": null
+	},
+	
+	"tax_totals": [
+		{
+			"tax_id": 1,
+			"tax_amount": "0.00",
+      "percent": "0",
+      "taxable_amount": "1000.00"
+		}
+	],
+	"legal_monetary_totals": {
+		"line_extension_amount": "1000",
+    "tax_exclusive_amount": "1000",
+    "tax_inclusive_amount": "1000",
+    "allowance_total_amount": "0",
+    "charge_total_amount": "0",
+    "payable_amount": "1000"
+	},
+	"credit_note_lines": [
+	  {
+      "type_item_identification_id": "4",
+      "code": "155",
+      "description": "Producto Prueba",
+      
+      "invoiced_quantity": "1.00",
+      "unit_measure_id": "70",
+      "line_extension_amount": "1000.00",
+      "free_of_charge_indicator": false,
+      "tax_totals": [
+        {
+          "tax_id": 1,
+          "tax_amount": "0.00",
+          "taxable_amount": "1000.00",
+          "percent": "0"
+        }
+      ],
+      
+      "price_amount": "1000.00",
+      "base_quantity": "1"
+    }
+	]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../app/Modules/Restaurant/Resources/ts/tables/index.ts"],
+  "sourcesContent": ["export function initTables(): void {\r\n\r\n    console.log('Restaurant \u2192 Tables cargado');\r\n\r\n    /*const tables = document.querySelectorAll('.restaurant-table');\r\n\r\n    tables.forEach(table => {\r\n\r\n        table.addEventListener('click', () => {\r\n            console.log('Mesa seleccionada');\r\n        });\r\n\r\n    });*/\r\n\r\n}"],
+  "mappings": "AAAO,SAASA,GAAmB,CAE/B,QAAQ,IAAI,kCAA6B,CAY7C",
+  "names": ["initTables"]
+}

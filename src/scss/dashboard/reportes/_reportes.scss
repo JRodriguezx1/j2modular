@@ -1,0 +1,16 @@
+@use 'base/variables' as v;
+
+// estados dinamicos del panel principal de reportes
+.reportes-dashboard__switch button.active,
+.reportes-dashboard__switch button.active:hover,
+.reportes-dashboard__switch button.active:focus{
+  background: linear-gradient(135deg, #5b52f0, v.$color-primary-dark);
+  box-shadow: 0 10px 20px rgba(79,70,229,.22);
+  color: #fff;
+}
+
+.reportes-dashboard__canvas canvas{
+  height: 100% !important;
+  width: 100% !important;
+}
+// fin estados dinamicos del panel principal de reportes

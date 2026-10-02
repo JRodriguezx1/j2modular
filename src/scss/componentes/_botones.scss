@@ -1,0 +1,403 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+//tamaño de botones
+.btn-xs{
+    display: inline-block;
+    width: auto;
+    font-size: 1.1rem;
+    padding: .4rem .6rem;
+    border-radius: .4rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.btn-md{
+    display: inline-block;
+    width: auto;
+    font-size: 1.6rem;
+    padding: .5rem 1.2rem;
+    border-radius: .4rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.btn-lg{
+    display: inline-block;
+    width: auto;
+    font-size: 1.7rem;
+    font-weight: 600;
+    padding: .6rem 1.4rem;
+    border-radius: .4rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+//colores de botones
+
+.btn-bluedark{
+    background-color:v.$azul70;
+    border-color:v.$azul70;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$azul70, 15);
+        border-color: darken(v.$azul70, 15);
+    }
+}
+.btn-blueintense{
+    background-color:v.$azul60;
+    border-color:v.$azul60;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$azul60, 15);
+        border-color: darken(v.$azul60, 15);
+    }
+}
+.btn-blue{
+    background-color:v.$azul40;
+    border-color:v.$azul40;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$azul40, 15);
+        border-color: darken(v.$azul40, 15);
+    }
+}
+.btn-bluelight{
+    background-color:v.$azul20;
+    border-color:v.$azul20;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$azul20, 15);
+        border-color: darken(v.$azul20, 15);
+    }
+}
+.btn-red{
+    background-color:v.$rojo60;
+    border-color:v.$rojo60;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$rojo60, 15);
+        border-color: darken(v.$rojo60, 15);
+    }
+}
+.btn-green{
+    background-color:v.$verde70;
+    border-color:v.$verde70;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$verde70, 15);
+        border-color: darken(v.$verde70, 15);
+    }
+}
+.btn-lima{
+    background-color:v.$lima;
+    border-color:v.$lima;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$lima, 15);
+        border-color: darken(v.$lima, 15);
+    }
+}
+.btn-pink{
+    background-color:v.$rosa;
+    border-color:v.$rosa;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$rosa, 15);
+        border-color: darken(v.$rosa, 15);
+    }
+}
+.btn-orange{
+    background-color:v.$naranja100;
+    border-color:v.$naranja100;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$naranja100, 15);
+        border-color: darken(v.$naranja100, 15);
+    }
+}
+.btn-yellow{
+    background-color:v.$amarillo80;
+    border-color:v.$amarillo80;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$amarillo80, 15);
+        border-color: darken(v.$amarillo80, 15);
+    }
+}
+.btn-turquoise{
+    background-color:v.$turquesa;
+    border-color:v.$turquesa;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$turquesa, 15);
+        border-color: darken(v.$turquesa, 15);
+    }
+}
+.btn-indigo{
+    background-color:v.$indigo;
+    border-color:v.$indigo;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$indigo, 15);
+        border-color: darken(v.$indigo, 15);
+    }
+}
+.btn-light{
+    background-color:v.$blanco;
+    border-color:lighten( v.$gris60, 7);
+    color: v.$negro90;
+    &:hover{
+        background-color: darken(v.$blanco, 15);
+        border-color: darken(v.$blanco, 15);
+    }
+}
+.btn-dark{
+    background-color:v.$negro90;
+    border-color: v.$negro90;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$gris20, 0);
+        color: v.$gris80;
+        border-color: lighten(v.$gris80, 10);
+    }
+}
+.btn-semidark{
+    background-color:v.$gris80;
+    border-color: v.$gris80;
+    color: v.$blanco;
+    &:hover{
+        background-color: darken(v.$gris20, 0);
+        color: v.$gris80;
+        border-color: lighten(v.$gris80, 10);
+    }
+}
+.btn-locked{
+    background-color:v.$gris10;
+    border-color:darken(v.$gris20, 7);
+    color: darken(v.$gris20, 7);
+    &:hover{
+        cursor: auto;
+    }
+}
+.btn-command{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 9.6rem;
+    width: 100%;
+    padding: .7rem;
+    border: solid 1px v.$gris30;
+    border-radius: .5rem;
+    color: v.$gris50;
+    font-size: 1.25rem;
+    &:hover{
+        //background-color: v.$negro90;
+        color: v.$gris80;
+        //border-color: v.$azul40;
+    }
+}
+//animacion de botones de alternancia de flecha
+.btnrotated{
+    position: relative;
+    padding-right: 3rem;
+}
+#arrow{
+    position: absolute;
+    right: .9rem;
+    transition: transform 0.3s ease;
+}
+.rotated {
+    transform: rotate(180deg);
+}
+
+
+// botones para modal dialog
+.btnDialog{
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: .7rem;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    gap: .65rem;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: 700;
+    min-height: 4.2rem;
+    padding: 0 1rem;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
+    &:focus{
+        transform: translateY(-1px);
+    }
+    &:hover{
+        transform: translateY(-1px);
+    }
+}
+
+.btnDialog_secondary{
+  background: #ecfeff;
+  border-color: #67e8f9;
+  color: #0e7490;
+}
+
+.btnDialog_primary{
+  background: linear-gradient(135deg, #5b52f0, var(--detalle-primary-dark, #4338ca));
+  box-shadow: 0 .75rem 1.6rem rgba(79,70,229,.2);
+  color: #fff;
+}
+
+.btnDialog_esmeralda{
+  background: #10bfb8;
+  border: 1px solid #10bfb8;
+  color: #fff;
+}
+
+.btnDialog_light{
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  color: #263852;
+
+  &:hover{
+    background: #f8fafc;
+    border-color: rgba(79,70,229,.35);
+    color: v.$color-primary;
+  }
+}
+
+
+.btndialog__close{
+    align-items: center;
+    background: #fff1f2;
+    border: 0;
+    border-radius: 999px;
+    color: #ef4444;
+    cursor: pointer;
+    display: inline-flex;
+    height: 3.4rem;
+    justify-content: center;
+    width: 3.4rem;
+}
+
+// nuevos botones usados en reporte de cuotas
+
+.nuevobtn{
+    align-items: center;
+    border: 1px solid transparent;
+    border-radius: .65rem;
+    cursor: pointer;
+    display: inline-flex;
+    font-size: 1.2rem;
+    font-weight: 700;
+    gap: .55rem;
+    justify-content: center;
+    margin: 0;
+    min-height: 4.2rem;
+    min-width: 12rem;
+    padding: 0 1.1rem;
+    text-decoration: none;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+    &:hover{
+        transform: translateY(-1px);
+    }
+}
+
+.nuevobtn_blueintense{
+    background: #0f3ee8;
+    color: #fff;
+}
+
+.nuevobtn_indigo{
+    background: linear-gradient(135deg, #5b52f0, v.$color-primary-dark);
+    box-shadow: 0 .75rem 1.6rem rgba(79,70,229,.2);
+    color: #fff;
+}
+
+.nuevobtn_turquoise{
+    background: linear-gradient(135deg, #14b8a6, #08c6bd);
+    box-shadow: 0 .75rem 1.6rem rgba(20,184,166,.18);
+    color: #fff;
+}
+
+.nuevobtn_gray{
+    background: #eef2f7;
+    border-color: #dbe3ef;
+    color: #334155;
+}
+
+.nuevobtn_light{
+    background: #fff;
+    border-color: #cbd5e1;
+    color: #263852;
+}
+
+
+
+// botones tipo cards en modulo de reportes
+.btn_card{
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid v.$color-border;
+  border-radius: .78rem;
+  color: v.$color-text;
+  cursor: pointer;
+  display: grid;
+  gap: .25rem .85rem;
+  grid-template-columns: auto 1fr;
+  min-height: 8.4rem;
+  padding: 1rem;
+  text-align: left;
+  text-decoration: none;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+  width: 100%;
+
+  > span, > i{
+    align-items: center;
+    background: #eef2ff;
+    border-radius: .68rem;
+    color: v.$color-primary;
+    display: inline-flex;
+    font-size: 1.8rem;
+    grid-row: span 2;
+    height: 4rem;
+    justify-content: center;
+    width: 4rem;
+  }
+
+  > i{
+    font-size: 1.45rem;
+  }
+
+  strong{
+    color: v.$color-text;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-top: .25rem;
+  }
+
+  small{
+    color: v.$color-muted;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  &:hover, &:focus{
+    border-color: rgba(79,70,229,.38);
+    box-shadow: 0 16px 28px rgba(79,70,229,.11);
+    color: v.$color-text;
+    outline: none;
+    transform: translateY(-2px);
+  }
+}
+
+.btn_card--primary{
+  background: linear-gradient(135deg, rgba(79,70,229,.08), rgba(6,182,212,.06));
+
+  > span, > i{
+    background: linear-gradient(135deg, #5b52f0, v.$color-primary-dark);
+    color: #fff;
+  }
+}

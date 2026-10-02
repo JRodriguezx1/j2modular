@@ -1,0 +1,72 @@
+@use 'base/variables' as v;
+@use 'base/mixins' as m;
+
+.tabs{  //se usa en la tabulacion en vista configuracion
+  text-align: center;
+  .tabs-content{
+      display: inline-flex;
+      flex-wrap: wrap;
+      border: 1px solid #4338ca;
+      padding: 0.3rem;
+      border-radius: 0.5rem;
+      label{
+          flex: 1 1 auto;
+          text-align: center;
+      }
+      input[type="radio"] {
+          clip-path: inset(100%); //recorta el elemento
+          display: none; 
+      }
+      label span {
+          display: block;
+          cursor: pointer;
+          padding: .7rem 1.2rem;
+          font-size: 1.3rem;
+          color: #4338ca;
+          font-weight: 400;
+          &:hover{
+              background-color: v.$azul10;
+          }
+      }
+      input[type="radio"]:checked + span{
+          background-color: #4338ca;
+          color: v.$blanco;
+          border-radius: 0.5rem;
+          font-weight: 500;
+      }
+  }
+}
+
+
+.tabslife{
+  .tabslife-content{
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+      justify-content: center;
+      input[type="radio"] {
+          clip-path: inset(100%); //recorta el elemento
+          display: none;
+      }
+      label span {
+          display: block;
+          cursor: pointer;
+          color: v.$gris80;
+          background-color: v.$blanco;
+          padding: .8rem 1.4rem;
+          border: 1px solid v.$gris20;
+          transition: background-color .3s ease;
+      }
+      input[type="radio"]:checked + span{
+          background-color: darken(v.$azul10, 3);
+          color: #0043ed;
+          border-color: #0043ed;
+      }
+      label:first-child span {
+      border-radius: .375em 0 0 .375em;
+      }
+      label:last-child span {
+      border-radius: 0 .375em .375em 0;
+      }
+  }
+}

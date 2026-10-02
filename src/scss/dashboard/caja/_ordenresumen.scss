@@ -1,0 +1,251 @@
+.ordenresumen-page,
+.ordenresumen-products-card {
+  background: #fff;
+  border: 1px solid #dbe4f0;
+  border-radius: .8rem;
+}
+
+.ordenresumen-page {
+  box-shadow: 0 12px 30px rgba(15, 23, 42, .06);
+  padding: 1.5rem;
+}
+
+.ordenresumen-page .ordenresumen-back {
+  align-items: center;
+  background: #4d3fd7;
+  border: 0;
+  border-radius: .65rem;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  height: 3.8rem;
+  justify-content: center;
+  margin-bottom: 1.2rem;
+  transition: background .2s ease, transform .2s ease;
+  width: 3.8rem;
+}
+
+.ordenresumen-page .ordenresumen-back:hover {
+  background: #3527bf;
+  transform: translateY(-1px);
+}
+
+.ordenresumen-actions {
+  align-items: stretch;
+  border-bottom: 2px solid #4d46e5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .9rem;
+  margin: 0 0 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.ordenresumen-actions .btn-command {
+  background: #fff;
+  border: 1px solid #cbd7e7;
+  border-radius: .7rem;
+  color: #1f2f46;
+  font-size: 1.28rem;
+  font-weight: 600;
+  gap: .45rem;
+  line-height: 1.15;
+  max-width: 14.4rem;
+  min-width: 11.6rem;
+  text-align: center;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.ordenresumen-actions .btn-command .material-symbols-outlined {
+  color: #4d46e5;
+  font-size: 2.8rem;
+}
+
+.ordenresumen-actions .btn-command:hover {
+  border-color: #8ea0ff;
+  box-shadow: 0 8px 18px rgba(79, 70, 229, .12);
+  transform: translateY(-1px);
+}
+
+.ordenresumen-actions #btnfacturar,
+.ordenresumen-actions #printcarta {
+  background: #4d3fd7;
+  border-color: #4d3fd7;
+  color: #fff;
+}
+
+.ordenresumen-actions #btnfacturar .material-symbols-outlined,
+.ordenresumen-actions #printcarta .material-symbols-outlined {
+  color: #fff;
+}
+
+.ordenresumen-actions #btneliminarorden {
+  background: #fff7f7;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.ordenresumen-actions #btneliminarorden .material-symbols-outlined {
+  color: #ef4444;
+}
+
+.ordenresumen-actions #btnDespachar {
+  color: #0f766e;
+}
+
+.ordenresumen-actions #btnDespachar .material-symbols-outlined {
+  color: #0f766e;
+}
+
+.ordenresumen-metrics {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 1.5rem;
+}
+
+.ordenresumen-main-grid {
+  display: grid;
+  gap: 1.6rem;
+  grid-template-columns: minmax(0, 1fr) 32rem;
+}
+
+.ordenresumen-products-card {
+  box-shadow: 0 8px 18px rgba(15, 23, 42, .04);
+  overflow-x: auto;
+  padding: 1.3rem;
+}
+
+.ordenresumen-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  color: #1e2d42;
+  min-width: 76rem;
+  width: 100%;
+}
+
+.ordenresumen-table thead th {
+  background: #f6f8fb;
+  border-bottom: 1px solid #d5deea;
+  border-top: 1px solid #d5deea;
+  color: #26364d;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 1rem;
+  text-align: left;
+}
+
+.ordenresumen-table thead th:first-child {
+  border-left: 1px solid #d5deea;
+  border-radius: .55rem 0 0 .55rem;
+}
+
+.ordenresumen-table thead th:last-child {
+  border-right: 1px solid #d5deea;
+  border-radius: 0 .55rem .55rem 0;
+}
+
+.ordenresumen-table tbody td,
+.ordenresumen-table tfoot td,
+.ordenresumen-table tfoot th {
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 1.3rem;
+  padding: 0.7rem;
+  vertical-align: middle;
+}
+
+.ordenresumen-table tfoot th,
+.ordenresumen-table tfoot td {
+  background: #f8fafc;
+  color: #111827;
+  font-weight: 700;
+}
+
+.ordenresumen-product-cell {
+  color: #14233a;
+  font-weight: 600;
+}
+
+.ordenresumen-product-info {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  min-width: 28rem;
+}
+
+.ordenresumen-product-img {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: .55rem;
+  height: 5rem;
+  object-fit: contain;
+  padding: .25rem;
+  width: 5rem;
+}
+
+.ordenresumen-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#miDialogoEliminarOrden.orden-delete-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 2.4rem);
+  overflow: hidden;
+}
+
+#miDialogoEliminarOrden .orden-delete-dialog__body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#miDialogoEliminarOrden .orden-delete-dialog__products {
+  max-height: clamp(16rem, 26dvh, 24rem);
+  overflow: auto;
+}
+
+#miDialogoEliminarOrden .orden-delete-dialog__products table {
+  min-width: 46rem;
+}
+
+#miDialogoEliminarOrden .orden-delete-dialog__footer {
+  box-shadow: 0 -12px 24px rgba(15, 23, 42, .08);
+  z-index: 2;
+}
+
+@media (max-width: 1100px) {
+  .ordenresumen-metrics,
+  .ordenresumen-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ordenresumen-side {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .ordenresumen-page {
+    padding: 1rem;
+  }
+
+  .ordenresumen-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ordenresumen-actions .btn-command {
+    max-width: none;
+    min-width: 0;
+  }
+
+  .ordenresumen-side {
+    grid-template-columns: 1fr;
+  }
+
+  .ordenresumen-products-card {
+    padding: 1rem;
+  }
+}
