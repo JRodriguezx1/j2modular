@@ -20,4 +20,18 @@ interface ReservationRepository{
     public function findCurrentByResourceIds(array $resourceIds, int $minutesBefore = 30): array;
     public function findByDate(string $date): array;
     
+    public function create(
+    int $clientId,
+    int $numberOfPeople,
+    string $startDate,
+    string $endDate,
+    string $status,
+    ?string $observations
+): int;
+
+public function attachResource(
+    int $reservationId,
+    int $resourceId,
+    float $price = 0
+): void;
 }

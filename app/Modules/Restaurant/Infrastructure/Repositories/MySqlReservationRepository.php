@@ -304,4 +304,128 @@ class MySqlReservationRepository implements ReservationRepository{
         return $reservations;
     }
 
+
+    public function create(
+    int $clientId,
+    int $numberOfPeople,
+    string $startDate,
+    string $endDate,
+    string $status,
+    ?string $observations
+): int {
+
+    $sql = "
+        INSERT INTO reservas (
+            cliente_id,
+            numero_personas,
+            fecha_entrada,
+            fecha_salida,
+            estado,
+            observaciones
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+    ";
+
+
+    $stmt =
+        $this->db->prepare($sql);
+
+
+    if (!$stmt) {
+        throw new \RuntimeException(
+            'Error preparando creación de reserva: '
+            . $this->db->error
+        );
+    }
+
+
+    $stmt->bind_param(
+        'iissss',
+        $clientId,
+        $numberOfPeople,
+        $startDate,
+        $endDate,
+        $status,
+        $observations
+    );
+
+
+    if (!$stmt->execute()) {
+
+        $error =
+            $stmt->error;
+
+        $stmt->close();
+
+        throw new \RuntimeException(
+            'Error creando reserva: '
+            . $error
+        );
+    }
+
+
+    $reservationId =
+        (int) $this->db->insert_id;
+
+
+    $stmt->close();
+
+
+    return $reservationId;
+}
+
+
+public function attachResource(
+    int $reservationId,
+    int $resourceId,
+    float $price = 0
+): void {
+
+    $sql = "
+        INSERT INTO reserva_recursos (
+            reserva_id,
+            recurso_id,
+            precio
+        )
+        VALUES (?, ?, ?)
+    ";
+
+
+    $stmt =
+        $this->db->prepare($sql);
+
+
+    if (!$stmt) {
+        throw new \RuntimeException(
+            'Error preparando asignación de recurso: '
+            . $this->db->error
+        );
+    }
+
+
+    $stmt->bind_param(
+        'iid',
+        $reservationId,
+        $resourceId,
+        $price
+    );
+
+
+    if (!$stmt->execute()) {
+
+        $error =
+            $stmt->error;
+
+        $stmt->close();
+
+        throw new \RuntimeException(
+            'Error asignando recurso a la reserva: '
+            . $error
+        );
+    }
+
+
+    $stmt->close();
+}
+
 }
