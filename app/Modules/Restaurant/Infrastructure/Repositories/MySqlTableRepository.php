@@ -111,58 +111,25 @@ class MySqlTableRepository implements RestaurantTableRepository{
     }
 
 
-    public function lockResource(
-    int $resourceId
-): void {
+    public function lockResource(int $resourceId): void {
+        $sql = "SELECT id FROM recursos WHERE id = ? FOR UPDATE";
+        $stmt = $this->db->prepare($sql);
 
-    $sql = "
-        SELECT id
-        FROM recursos
-        WHERE id = ?
-        FOR UPDATE
-    ";
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando bloqueo del recurso: ' . $this->db->error);
+        $stmt->bind_param('i', $resourceId);
 
-    $stmt =
-        $this->db->prepare($sql);
+        if(!$stmt->execute()){
+            $error = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException('Error bloqueando el recurso: ' . $error);
+        }
 
-    if (!$stmt) {
-        throw new \RuntimeException(
-            'Error preparando bloqueo del recurso: '
-            . $this->db->error
-        );
-    }
-
-    $stmt->bind_param(
-        'i',
-        $resourceId
-    );
-
-    if (!$stmt->execute()) {
-
-        $error =
-            $stmt->error;
-
+        $result = $stmt->get_result();
+        $exists = $result->num_rows > 0;
         $stmt->close();
-
-        throw new \RuntimeException(
-            'Error bloqueando el recurso: '
-            . $error
-        );
+        if(!$exists)
+            throw new \InvalidArgumentException('La mesa seleccionada no existe.');
     }
-
-    $result =
-        $stmt->get_result();
-
-    $exists =
-        $result->num_rows > 0;
-
-    $stmt->close();
-
-    if (!$exists) {
-        throw new \InvalidArgumentException(
-            'La mesa seleccionada no existe.'
-        );
-    }
-}
 
 }
