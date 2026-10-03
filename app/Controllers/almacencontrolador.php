@@ -30,7 +30,7 @@ use App\services\inventario\ReiniciarInventarioService;
 use App\services\inventario\StockInventarioService;
 use App\services\inventario\UnidadesMedidaInventarioService;
 use App\services\inventarioService;
-use App\Core\Routing\Router;
+use MVC\Router;  //namespace\clase
 
 class almacencontrolador{
 
@@ -249,7 +249,7 @@ class almacencontrolador{
         if(in_array($extension, $extensiones_permitidas)){
           $alertas = inventarioService::importarExcel($url_temp);
           if(empty($alertas)){
-            $alertas['exito'][] = "Extension del archivo no valido";
+            $alertas['exito'][] = "Carga de los productos con exito.";
           }
         }else{
           $alertas['error'][] = "Extension del archivo no valido";

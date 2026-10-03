@@ -20,7 +20,7 @@ use App\services\caja\CajaMovimientosService;
 use App\services\caja\CajaOrdenesService;
 use App\services\caja\CajaReportesService;
 use App\services\caja\CategoriasGastoService;
-use App\Core\Routing\Router;
+use MVC\Router;
 
 class cajacontrolador{
 

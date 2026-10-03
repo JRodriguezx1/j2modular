@@ -53,15 +53,17 @@
   <div class="mt-3">
     <h3 class="font-bold text-gray-900 mb-1.5">Datos de Ventas</h3>
     <ul>
-      <li>Ingreso Total de Ventas: + $<?php echo number_format(($ultimocierre->ingresoventas??0)+($ultimocierre->totaldescuentos??0), "0", ",", ".");?></li>
+      <li>Ingreso de Ventas: + $<?php echo number_format(($ultimocierre->ingresoventas??0)+($ultimocierre->totaldescuentos??0), "2", ",", ".");?></li>
       <li>Abonos totales: + $<?php echo number_format($ultimocierre->abonostotales??0, "0", ",", ".");?></li>
       <li>Total gastos de caja: - $<?php echo number_format($ultimocierre->gastoscaja??0, "0", ",", ".");?></li>
       <li>Gastos otros/bancarios: - $<?php echo number_format($ultimocierre->gastosbanco??0, "0", ",", ".");?></li>
       <li>Total Descuentos: - $<?php echo number_format($ultimocierre->totaldescuentos??0, "0", ",", ".");?></li>
       <li>Total Domicilios: - $<?php echo number_format($ultimocierre->domicilios??0, "0", ",", ".");?></li>
-      <li class="font-semibold text-gray-900">GANANCIA HOY: = $<?php echo number_format(($ultimocierre->ingresoventas??0)+($ultimocierre->abonostotales??0)-($ultimocierre->domicilios??0)-($ultimocierre->gastoscaja??0)-($ultimocierre->gastosbanco??0), "0", ",", ".");?></li>
+      <li class="font-semibold text-gray-900">GANANCIA HOY: = $<?php echo number_format(($ultimocierre->ingresoventas??0)+($ultimocierre->abonostotales??0)-($ultimocierre->domicilios??0)-($ultimocierre->gastoscaja??0)-($ultimocierre->gastosbanco??0), "2", ",", ".");?></li>
       <li>Creditos <span class="font-semibold text-gray-900">+ $<?php echo number_format($ultimocierre->creditos??0, "0", ",", ".");?></span></li>
-      <li class="font-semibold text-gray-900">Total de ventas: $<?php echo number_format(($ultimocierre->ingresoventas??0)+($ultimocierre->creditos??0), "0", ",", ".");?></li>
+      <li class="font-semibold text-gray-900">Total de ventas: $<?php echo number_format(($ultimocierre->ingresoventas??0)+($ultimocierre->creditos??0), "2", ",", ".");?></li>
+      <li>Costo de productos vendidos: - $<?php echo number_format($costo_total??0, "0", ",", ".");?></li>
+      <li class="font-semibold text-gray-900">Utilidad bruta: $<?php echo number_format(($ultimocierre->ingresoventas??0)+($ultimocierre->creditos??0)-$costo_total, "2", ",", ".");?></li>
       <li>Base grabable: = $<?php echo number_format($ultimocierre->basegravable??0, "0", ",", ".");?></li>
       <li>Impuesto Total: - $<?php echo number_format($ultimocierre->valorimpuestototal??0, "0", ",", ".");?></li>
     </ul>

@@ -623,9 +623,17 @@
                                         <td class="">Impuesto Total</td>
                                         <td id="impuestoTotal" class=""> - $<?php echo number_format($ultimocierre->valorimpuestototal??0, "2", ",", ".");?></td>
                                     </tr>
-                                    <tr>     
+                                    <tr>
                                         <td class="text-gray-700 font-medium">Gastos otros/bancarios</td> 
                                         <td id="otrosGastosBancarios" class="text-gray-700 font-medium"> - $<?php echo number_format($ultimocierre->gastosbanco??0, "0", ",", ".");?></td>
+                                    </tr>
+                                    <tr>  
+                                        <td class="">Costo de productos vendidos</td>
+                                        <td id="costoProductosVendidos" class=""> - $<?php echo number_format($costo_total??0, "2", ",", ".");?></td>
+                                    </tr>
+                                    <tr> 
+                                        <td class="font-bold">Utilidad bruta del dia<p class=" text-base m-0 text-gray-500">(Ingreso total ventas - costo de ventas)</p></td> 
+                                        <td id="realVentas" class="text-blue-400 font-medium"> = $<?php echo number_format(($ultimocierre->ingresoventas??0)+($ultimocierre->creditocapital??0)-$costo_total??0, "2", ",", ".");?></td>
                                     </tr>
                                 </tbody>
                             </table>

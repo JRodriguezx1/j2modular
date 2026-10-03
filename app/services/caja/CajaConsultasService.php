@@ -10,6 +10,7 @@ use App\Models\configuraciones\caja;
 use App\Models\configuraciones\mediospago;
 use App\Models\parametrizacion\config_local;
 use App\Models\ventas\facturas;
+use App\Models\ventas\ventas;
 use App\Repositories\creditos\separadoMediopagoRepository;
 use stdClass;
 
@@ -154,6 +155,7 @@ final class CajaConsultasService
             'ultimocierre' => $resumen['ultimocierre'],
             'facturas' => $resumen['facturas'],
             'ventasxusuarios' => $resumen['ventasxusuarios'],
+            'costo_total' => $resumen['costo_total']
         ];
     }
 
@@ -162,7 +164,8 @@ final class CajaConsultasService
      * lógica que estaba repetida en cerrarcaja, detallecierrecaja,
      * datoscajaseleccionada y CajaDocumentosService::prepararDetalleCierre.
      */
-    private function construirResumenCierre(cierrescajas $cierre, int $cajaId, int $sucursalId, array $conflocal): array {
+    private function construirResumenCierre(cierrescajas $cierre, int $cajaId, int $sucursalId, array $conflocal): array{
+        $idsFact = [];
         $facturas = facturas::idregistros('idcierrecaja', $cierre->id);
         $discriminarmediospagos = $this->agruparMediosPago((int)$cierre->id);
         $discriminarimpuesto = cierrescajas::discriminarimpuesto((string)$cierre->id);
@@ -176,8 +179,11 @@ final class CajaConsultasService
 
         foreach($facturas as $factura){
             $facturaId = (int)$factura->id;
+            if($factura->estado === 'Paga')$idsFact[] = $facturaId; // ids de las facturas que se pagaron en este cierre.
             $factura->mediosdepago = ActiveRecord::camposJoinObj("SELECT * FROM factmediospago JOIN mediospago ON factmediospago.idmediopago = mediospago.id WHERE id_factura = {$facturaId};");
         }
+
+        $costo = ventas::camposJoinObj("SELECT ROUND(SUM(costo * cantidad), 2) AS costo_total FROM ventas WHERE idfactura IN (" . implode(', ', $idsFact) . ");");
 
         return [
             'discriminarimpuesto' => $discriminarimpuesto,
@@ -187,6 +193,7 @@ final class CajaConsultasService
             'ultimocierre' => $cierre,
             'facturas' => $facturas,
             'ventasxusuarios' => $ventasxusuarios,
+            'costo_total' => $costo[0]->costo_total ?? 0,
         ];
     }
 
