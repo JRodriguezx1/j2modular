@@ -15,7 +15,6 @@ class MySqlReservationRepository implements ReservationRepository{
      * @return Reservation[]
      */
     public function findUpcomingForToday(int $limit = 5): array {
-
         $limit = max(1, $limit);
 
         /*
@@ -44,8 +43,7 @@ class MySqlReservationRepository implements ReservationRepository{
                 AND r.fecha_entrada >= NOW()
                 AND r.estado NOT IN ('cancelada', 'atendida', 'no_asistio')
             ORDER BY r.fecha_entrada ASC
-            LIMIT ?
-        ";
+            LIMIT ?";
 
         $stmt = $this->db->prepare($sql);
 
@@ -63,7 +61,6 @@ class MySqlReservationRepository implements ReservationRepository{
 
         $stmt->close();
         if(empty($reservationRows))return [];
-        
 
         /*
          * 2. Extraemos los IDs de las reservas encontradas.
@@ -107,8 +104,7 @@ class MySqlReservationRepository implements ReservationRepository{
             WHERE r.fecha_entrada >= CURDATE()
                 AND r.fecha_entrada < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
                 AND r.fecha_entrada >= NOW()
-                AND r.estado NOT IN ('cancelada', 'atendida', 'no_asistio')
-        ";
+                AND r.estado NOT IN ('cancelada', 'atendida', 'no_asistio')";
 
         $result = $this->db->query($sql);
         if(!$result)throw new \RuntimeException('Error consultando total de reservas: ' . $this->db->error);
@@ -123,7 +119,6 @@ class MySqlReservationRepository implements ReservationRepository{
      * @return array<int, array<int, array{id:int, name:string}>>
      */
     private function findResourcesByReservationIds(array $reservationIds): array {
-
         if(empty($reservationIds))return [];
         $reservationIds = array_map('intval', $reservationIds);
         $placeholders = implode( ',', array_fill(0, count($reservationIds), '?'));
@@ -133,13 +128,11 @@ class MySqlReservationRepository implements ReservationRepository{
             FROM reserva_recursos AS rr
             INNER JOIN recursos AS rec ON rec.id = rr.recurso_id
             WHERE rr.reserva_id IN ($placeholders)
-            ORDER BY rec.nombre ASC
-        ";
+            ORDER BY rec.nombre ASC";
 
         $stmt = $this->db->prepare($sql);
 
         if(!$stmt)throw new \RuntimeException('Error preparando consulta de recursos de reservas: ' . $this->db->error);
-        
 
         $types = str_repeat('i', count($reservationIds));
         $stmt->bind_param($types, ...$reservationIds);
@@ -162,7 +155,6 @@ class MySqlReservationRepository implements ReservationRepository{
         $resourceIds = array_map('intval', $resourceIds);
 
         $minutesBefore = max(0, $minutesBefore);
-
         $placeholders = implode(',', array_fill(0, count($resourceIds), '?'));
 
         $sql = "
@@ -185,8 +177,7 @@ class MySqlReservationRepository implements ReservationRepository{
                 AND r.estado NOT IN ('cancelada', 'atendida', 'no_asistio')
                 AND NOW() >= DATE_SUB(r.fecha_entrada, INTERVAL ? MINUTE)
                 AND NOW() < r.fecha_salida
-            ORDER BY r.fecha_entrada ASC
-        ";
+            ORDER BY r.fecha_entrada ASC";
 
         $stmt = $this->db->prepare($sql);
 
@@ -214,7 +205,6 @@ class MySqlReservationRepository implements ReservationRepository{
         }
 
         $stmt->close();
-
         if(empty($reservationRows))return [];
         
 
@@ -259,8 +249,7 @@ class MySqlReservationRepository implements ReservationRepository{
             FROM reservas AS r
             INNER JOIN clientes AS c ON c.id = r.cliente_id
             WHERE r.fecha_entrada >= ? AND r.fecha_entrada < DATE_ADD( ?, INTERVAL 1 DAY)
-            ORDER BY r.fecha_entrada ASC, r.id ASC
-        ";
+            ORDER BY r.fecha_entrada ASC, r.id ASC";
 
         $stmt = $this->db->prepare($sql);
 
@@ -305,127 +294,39 @@ class MySqlReservationRepository implements ReservationRepository{
     }
 
 
-    public function create(
-    int $clientId,
-    int $numberOfPeople,
-    string $startDate,
-    string $endDate,
-    string $status,
-    ?string $observations
-): int {
+    public function create(int $clientId, int $numberOfPeople, string $startDate, string $endDate, string $status, ?string $observations): int {
+        $sql = "INSERT INTO reservas (cliente_id, numero_personas, fecha_entrada, fecha_salida, estado, observaciones) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando creación de reserva: ' . $this->db->error);
+        $stmt->bind_param('iissss', $clientId, $numberOfPeople, $startDate, $endDate, $status, $observations);
 
-    $sql = "
-        INSERT INTO reservas (
-            cliente_id,
-            numero_personas,
-            fecha_entrada,
-            fecha_salida,
-            estado,
-            observaciones
-        )
-        VALUES (?, ?, ?, ?, ?, ?)
-    ";
+        if(!$stmt->execute()){
+            $error = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException('Error creando reserva: ' . $error);
+        }
 
-
-    $stmt =
-        $this->db->prepare($sql);
-
-
-    if (!$stmt) {
-        throw new \RuntimeException(
-            'Error preparando creación de reserva: '
-            . $this->db->error
-        );
-    }
-
-
-    $stmt->bind_param(
-        'iissss',
-        $clientId,
-        $numberOfPeople,
-        $startDate,
-        $endDate,
-        $status,
-        $observations
-    );
-
-
-    if (!$stmt->execute()) {
-
-        $error =
-            $stmt->error;
-
+        $reservationId = (int) $this->db->insert_id;
         $stmt->close();
-
-        throw new \RuntimeException(
-            'Error creando reserva: '
-            . $error
-        );
+        return $reservationId;
     }
 
 
-    $reservationId =
-        (int) $this->db->insert_id;
+    public function attachResource(int $reservationId, int $resourceId, float $price = 0): void {
+        $sql = "INSERT INTO reserva_recursos (reserva_id, recurso_id, precio) VALUES (?, ?, ?)";
+        $stmt = $this->db->prepare($sql);
 
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando asignación de recurso: ' . $this->db->error);
+        $stmt->bind_param('iid', $reservationId, $resourceId, $price);
 
-    $stmt->close();
-
-
-    return $reservationId;
-}
-
-
-public function attachResource(
-    int $reservationId,
-    int $resourceId,
-    float $price = 0
-): void {
-
-    $sql = "
-        INSERT INTO reserva_recursos (
-            reserva_id,
-            recurso_id,
-            precio
-        )
-        VALUES (?, ?, ?)
-    ";
-
-
-    $stmt =
-        $this->db->prepare($sql);
-
-
-    if (!$stmt) {
-        throw new \RuntimeException(
-            'Error preparando asignación de recurso: '
-            . $this->db->error
-        );
-    }
-
-
-    $stmt->bind_param(
-        'iid',
-        $reservationId,
-        $resourceId,
-        $price
-    );
-
-
-    if (!$stmt->execute()) {
-
-        $error =
-            $stmt->error;
-
+        if(!$stmt->execute()){
+            $error = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException('Error asignando recurso a la reserva: ' . $error);
+        }
         $stmt->close();
-
-        throw new \RuntimeException(
-            'Error asignando recurso a la reserva: '
-            . $error
-        );
     }
-
-
-    $stmt->close();
-}
 
 }
