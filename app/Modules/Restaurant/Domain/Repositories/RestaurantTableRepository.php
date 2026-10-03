@@ -14,4 +14,7 @@ interface RestaurantTableRepository{
     */
     public function findAvailableForPeriod(string $startDate, string $endDate, int $capacity): array;
     public function isAvailableForPeriod(int $resourceId, string $startDate, string $endDate, int $capacity): bool;
+    public function lockResource(
+    int $resourceId
+): void;
 }

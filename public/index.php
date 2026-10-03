@@ -34,6 +34,10 @@ use App\Controllers\suscripcioncontrolador;
 use App\Controllers\trasladosinvcontrolador;
 use App\Controllers\whatsAppControlador;
 use App\Middlewares\MembershipMiddleware;
+
+use App\Core\Database\TransactionManager;
+use App\Core\Database\MySqlTransactionManager;
+
 // me importa la clase router
 use App\Core\Container\Container;
 use App\Core\Routing\Router;
@@ -43,6 +47,7 @@ use App\Core\Modules\ModuleManager;
 
 $container = new Container();
 $container->instance(mysqli::class, $db);
+$container->instance(TransactionManager::class, new MySqlTransactionManager($db));
 
 $router = new Router();
 $router->setContainer($container);
@@ -56,7 +61,7 @@ $moduleManager->loadRoutes( $config['modules']);  //config viene de require_once
 $suscripcion = new MembershipMiddleware($router);
 $suscripcion->validarSuscripcion();
 
-$container->instance(Router::class, $router);
+$container->instance(Router::class, $router);  //registrar la misma instancia del Router en el Container. para que el controlador resuelva la instancia existente de Router.
 
 
 // Login

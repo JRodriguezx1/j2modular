@@ -110,4 +110,59 @@ class MySqlTableRepository implements RestaurantTableRepository{
         return $tables;
     }
 
+
+    public function lockResource(
+    int $resourceId
+): void {
+
+    $sql = "
+        SELECT id
+        FROM recursos
+        WHERE id = ?
+        FOR UPDATE
+    ";
+
+    $stmt =
+        $this->db->prepare($sql);
+
+    if (!$stmt) {
+        throw new \RuntimeException(
+            'Error preparando bloqueo del recurso: '
+            . $this->db->error
+        );
+    }
+
+    $stmt->bind_param(
+        'i',
+        $resourceId
+    );
+
+    if (!$stmt->execute()) {
+
+        $error =
+            $stmt->error;
+
+        $stmt->close();
+
+        throw new \RuntimeException(
+            'Error bloqueando el recurso: '
+            . $error
+        );
+    }
+
+    $result =
+        $stmt->get_result();
+
+    $exists =
+        $result->num_rows > 0;
+
+    $stmt->close();
+
+    if (!$exists) {
+        throw new \InvalidArgumentException(
+            'La mesa seleccionada no existe.'
+        );
+    }
+}
+
 }
