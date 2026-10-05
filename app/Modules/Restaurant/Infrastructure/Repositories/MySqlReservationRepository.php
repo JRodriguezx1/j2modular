@@ -329,4 +329,110 @@ class MySqlReservationRepository implements ReservationRepository{
         $stmt->close();
     }
 
+
+    public function findById(int $reservationId): ?Reservation{
+        $sql = "
+            SELECT
+                res.id,
+                res.cliente_id,
+                res.numero_personas,
+                res.fecha_entrada,
+                res.fecha_salida,
+                res.estado,
+                res.observaciones,
+
+                c.nombre,
+                c.apellido,
+                c.identificacion,
+                c.telefono,
+                c.email
+
+            FROM reservas res
+            INNER JOIN clientes c ON c.id = res.cliente_id
+            WHERE res.id = ?
+            LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando consulta de reserva: ' . $this->db->error);
+        
+        $stmt->bind_param('i', $reservationId);
+
+        if (!$stmt->execute()) {
+            $error = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException(
+                'Error consultando la reserva: '
+                . $error
+            );
+        }
+
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+        if(!$row)return null;
+
+        $resources = $this->findResourcesByReservationId($reservationId);
+
+        return new Reservation(
+            id: (int) $row['id'],
+            clientId: (int) $row['cliente_id'],
+            numberOfPeople: (int) $row['numero_personas'],
+            startDate: $row['fecha_entrada'],
+            endDate: $row['fecha_salida'],
+            status: $row['estado'],
+            observations: $row['observaciones'],
+            clientName: trim($row['nombre'] . ' ' . $row['apellido']),
+            resources: $resources
+        );
+    }
+
+    private function findResourcesByReservationId(int $reservationId): array{
+        $sql = "
+            SELECT
+                r.id,
+                r.nombre,
+                r.capacidad,
+                m.zona_id,
+                m.forma,
+                z.nombre AS zona_nombre
+            FROM reserva_recursos rr
+            INNER JOIN recursos r ON r.id = rr.recurso_id
+            LEFT JOIN mesas m ON m.recurso_id = r.id
+            LEFT JOIN zonas z ON z.id = m.zona_id
+            WHERE rr.reserva_id = ?
+            ORDER BY r.nombre ASC";
+
+        $stmt = $this->db->prepare($sql);
+
+        if(!$stmt)throw new \RuntimeException('Error preparando recursos de la reserva: ' . $this->db->error);
+        
+
+        $stmt->bind_param('i', $reservationId);
+
+        if(!$stmt->execute()){
+            $error = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException('Error consultando recursos de la reserva: ' . $error);
+        }
+
+
+        $result = $stmt->get_result();
+        $resources = [];
+
+        while($row = $result->fetch_assoc()){
+            $resources[] = [
+                'id' => (int) $row['id'],
+                'name' => $row['nombre'],
+                'capacity' => (int) $row['capacidad'],
+                'zoneId' => $row['zona_id'] !== null ? (int) $row['zona_id'] : null,
+                'zoneName' => $row['zona_nombre'],
+                'shape' => $row['forma']
+            ];
+        }
+
+        $stmt->close();
+        return $resources;
+    }
+
 }

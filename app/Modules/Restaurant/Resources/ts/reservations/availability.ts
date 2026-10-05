@@ -8,7 +8,7 @@ export interface AvailabilityParams{
 
 let controller: AbortController | null = null;
 
-export async function findAvailableTables(params: AvailabilityParams): Promise<AvailableTable[]> {
+export async function findAvailableTables(params: AvailabilityParams): Promise<AvailableTable[]> { //usado por reservationDrawer.ts
     controller?.abort();
     controller = new AbortController();
 

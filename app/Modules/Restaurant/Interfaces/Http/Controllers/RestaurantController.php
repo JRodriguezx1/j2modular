@@ -8,6 +8,8 @@ use App\Modules\Restaurant\Application\UseCases\ListUpcomingReservations;
 use App\Modules\Restaurant\Application\UseCases\ListReservationsByDate;
 use App\Modules\Restaurant\Application\UseCases\FindAvailableTables;
 use App\Modules\Restaurant\Application\UseCases\SearchCustomers;
+use App\Modules\Restaurant\Application\UseCases\CreateReservation;
+use App\Modules\Restaurant\Application\UseCases\GetReservation;
 use App\Core\Routing\Router;
 
 class RestaurantController
@@ -19,6 +21,8 @@ class RestaurantController
         private ListReservationsByDate $listReservationsByDate,
         private FindAvailableTables $findAvailableTables,
         private SearchCustomers $searchCustomers,
+        private CreateReservation $createReservation,
+        private GetReservation $getReservation,
         private Router $router
     ){}
 
@@ -140,6 +144,7 @@ class RestaurantController
     }
 
 
+    //////////////////        API        ///////////////////
     public function availableTables(): void{
         header('Content-Type: application/json; charset=utf-8');
         try{
@@ -159,8 +164,7 @@ class RestaurantController
                         'zoneId' => $table->getZoneId(),
                         'shape' => $table->getShape()
                     ];
-                },
-                $tables
+                }, $tables
             );
 
             http_response_code(200);
@@ -178,7 +182,6 @@ class RestaurantController
 
     public function searchCustomers(): void{
         header('Content-Type: application/json; charset=utf-8');
-
         try {
             $term = trim($_GET['q'] ?? '');
             $customers = $this->searchCustomers->execute($term, 10);
@@ -192,8 +195,7 @@ class RestaurantController
                                         'phone' => $customer->getPhone(),
                                         'email' => $customer->getEmail()
                                     ];
-                                },
-                                $customers
+                                }, $customers
                             );
 
             http_response_code(200);
@@ -202,6 +204,90 @@ class RestaurantController
             error_log( $e->getMessage());
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'No fue posible buscar los clientes.'], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+
+    public function createReservation(): void{
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $clientId = (int) ($_POST['clientId'] ?? 0);
+            $numberOfPeople = (int) ($_POST['numberOfPeople'] ?? 0);
+            $startDate = trim( $_POST['startDate'] ?? '');
+            $endDate = trim($_POST['endDate'] ?? '');
+            $observations = trim($_POST['observations'] ?? '');
+            /*
+            * La mesa es opcional.
+            */
+            $resourceId = isset($_POST['resourceId']) && $_POST['resourceId'] !== '' ? (int) $_POST['resourceId'] : null;
+
+            $reservationId = $this->createReservation->execute(
+                                clientId: $clientId,
+                                numberOfPeople: $numberOfPeople,
+                                startDate: $startDate,
+                                endDate: $endDate,
+                                resourceId: $resourceId,
+                                observations: $observations !== '' ? $observations : null
+                            );
+
+            http_response_code(201);
+            echo json_encode(
+                [
+                    'success' => true,
+                    'reservationId' => $reservationId,
+                    'message' => 'Reserva creada correctamente.'
+                ],
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            );
+        }catch(\InvalidArgumentException $e){
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }catch(\Throwable $e){
+            error_log(sprintf('CreateReservation: %s in %s:%d', $e->getMessage(), $e->getFile(), $e->getLine()));
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible crear la reserva.'], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+
+    public function getReservation():void{
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $reservationId = (int) ($_GET['id'] ?? 0);
+            $reservation = $this->getReservation->execute($reservationId);
+            http_response_code(200);
+
+            echo json_encode(
+                [
+                    'success' => true,
+                    'reservation' => [
+                        'id' => $reservation->getId(),
+                        'clientId' => $reservation->getClientId(),
+                        'clientName' => $reservation->getClientName(),
+                        'numberOfPeople' => $reservation->getNumberOfPeople(),
+                        'startDate' => $reservation->getStartDate(),
+                        'endDate' => $reservation->getEndDate(),
+                        'status' => $reservation->getStatus(),
+                        'observations' => $reservation->getObservations(),
+                        'resources' => $reservation->getResources()
+                    ]
+                ],
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            );
+        }catch(\InvalidArgumentException $e){
+            http_response_code(404);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }catch(\Throwable $e){
+            error_log(
+                sprintf(
+                    'GetReservation: %s in %s:%d',
+                    $e->getMessage(),
+                    $e->getFile(),
+                    $e->getLine()
+                )
+            );
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible consultar la reserva.'], JSON_UNESCAPED_UNICODE);
         }
     }
     

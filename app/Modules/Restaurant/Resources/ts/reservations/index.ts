@@ -1,13 +1,16 @@
 import type {ReservationsPageData} from './types';
 import {initReservationDrawer} from './reservationDrawer';
 import {initCustomerSearch} from './customerSearch';
-
+import {initReservationForm} from './reservationForm';
+import {initReservationDetail} from './reservationDetail';
 
 export function initReservations(): void{
     console.log('Restaurant → Reservations cargado');
     const data = getPageData();
     initReservationDrawer(data);
     initCustomerSearch();
+    initReservationForm();
+    initReservationDetail()
 }
 
 function getPageData(): ReservationsPageData {

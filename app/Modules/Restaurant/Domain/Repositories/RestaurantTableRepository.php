@@ -12,7 +12,9 @@ interface RestaurantTableRepository{
     /**
     * @return RestaurantTable[]
     */
+    //findAvailableForPeriod Responde: ¿Qué mesas puedo ofrecer para este período y esta cantidad de personas?
     public function findAvailableForPeriod(string $startDate, string $endDate, int $capacity): array;
+    //isAvailableForPeriod Responde algo diferente: ¿Esta mesa específica sigue disponible?
     public function isAvailableForPeriod(int $resourceId, string $startDate, string $endDate, int $capacity): bool;
     public function lockResource(int $resourceId): void;
 }

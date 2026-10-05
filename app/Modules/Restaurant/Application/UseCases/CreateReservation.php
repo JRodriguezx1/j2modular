@@ -66,7 +66,6 @@ class CreateReservation{
             throw new InvalidArgumentException('El cliente seleccionado no existe.');
         
         $this->transactionManager->begin();
-
         try {
             /*
              * Si hay mesa asignada, serializamos

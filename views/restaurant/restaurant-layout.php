@@ -29,12 +29,8 @@
     <!-- Lo utilizaremos posteriormente para acciones Restaurant -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Bundle actual de JDOS -->
-    <script
-        type="module"
-        src="/build/js/restaurant/main.js"
-        defer
-    ></script>
+    <!-- Bundle actual de JDOS-restaurant -->
+    <script type="module" src="/build/js/restaurant/main.js" defer></script>
 
 </body>
 

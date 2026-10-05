@@ -1,7 +1,5 @@
 <?php
-
     $totalReservations = count($reservations);
-
     $pendingReservations = 0;
     $confirmedReservations = 0;
     $totalPeople = 0;
@@ -18,16 +16,7 @@
     $today = date('Y-m-d');
     $isToday = $selectedDate === $today;
 
-    $days = [
-        'Sunday'    => 'domingo',
-        'Monday'    => 'lunes',
-        'Tuesday'   => 'martes',
-        'Wednesday' => 'miércoles',
-        'Thursday'  => 'jueves',
-        'Friday'    => 'viernes',
-        'Saturday'  => 'sábado'
-    ];
-
+    $days = ['Sunday'=>'domingo', 'Monday'=>'lunes', 'Tuesday'=>'martes', 'Wednesday'=>'miércoles', 'Thursday'=>'jueves', 'Friday'=>'viernes', 'Saturday'=>'sábado'];
 
     $months = [
         1  => 'enero',
@@ -43,7 +32,6 @@
         11 => 'noviembre',
         12 => 'diciembre'
     ];
-
 
     $dayName = $days[date('l', $selectedTimestamp)];
     $monthName = $months[(int) date('n', $selectedTimestamp)];
@@ -142,7 +130,7 @@
 
                     <button
                         type="button"
-                        data-reservation-id="<?= (int) $reservation['id']?>"
+                        data-reservation-id="<?= (int)$reservation['id']?>"
                         class="group grid w-auto grid-cols-1 gap-3 px-5 py-4 text-left transition hover:bg-slate-50/80 md:items-center border border-slate-100 rounded-xl"
                     >
                         <!-- Time -->
@@ -203,7 +191,6 @@
 
             </div>
 
-
         <?php else: ?>
             <div class="flex min-h-[320px] flex-col items-center justify-center px-6 py-12 text-center">
                 <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 text-slate-5">
@@ -241,7 +228,7 @@
 
     <!-- Content -->
     <div class="flex-1 overflow-y-auto px-6 py-5">
-        <form id="newReservationForm" class="space-y-6">
+        <form id="reservationForm" class="flex h-full flex-col gap-6">
             <!-- Client -->
             <!--<div>
                 <label for="reservationClient" class="mb-2 block text-lg font-semibold text-slate-700">Cliente</label>
@@ -265,110 +252,56 @@
 
                 <input type="hidden" id="reservationClientId" name="clientId">
             </div>-->
-
             <div class="space-y-2">
-                <label class="text-xs font-semibold text-slate-700">
-                    Cliente
-                </label>
-
-                <input
-                    type="hidden"
-                    id="reservationClientId"
-                    name="clientId"
-                >
-
+                <label class="text-xs font-semibold text-slate-700">Cliente</label>
+                <input  id="reservationClientId" type="hidden" name="clientId">
                 <!-- Cliente seleccionado -->
                 <div id="selectedCustomer" class="hidden">
-                    <div
-                        class="flex items-center gap-3 rounded-xl
-                            border border-indigo-200
-                            bg-indigo-50/50 p-3">
-                        <div
-                            id="selectedCustomerInitials"
-                            class="flex h-9 w-9 shrink-0
-                                items-center justify-center
-                                rounded-full
-                                bg-indigo-100
-                                text-xs font-bold text-indigo-700"
-                        >
-                        </div>
-
+                    <div class="flex items-center gap-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-3">
+                        <div id="selectedCustomerInitials" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700"></div>
                         <div class="min-w-0 flex-1">
-
-                            <p
-                                id="selectedCustomerName"
-                                class="truncate text-sm font-semibold text-slate-800">
-                            </p>
-
-                            <p
-                                id="selectedCustomerInfo"
-                                class=" mt-0.5 truncate text-xs text-slate-500"></p>
-
+                            <p id="selectedCustomerName" class="truncate text-sm font-semibold text-slate-800"></p>
+                            <p id="selectedCustomerInfo" class=" mt-0.5 truncate text-xs text-slate-500"></p>
                         </div>
 
-                        <button
-                            type="button"
-                            id="btnChangeCustomer"
-                            class="shrink-0 text-xs
-                                font-semibold text-indigo-600
-                                hover:text-indigo-700"
-                        >
+                        <button id="btnChangeCustomer" type="button" class="shrink-0 text-xs font-semibold text-indigo-600 hover:text-indigo-700">
                             Cambiar
                         </button>
                     </div>
                 </div>
 
-
                 <!-- Buscador -->
                 <div id="customerSearch">
-
                     <div class="relative">
-
-                        <span
-                            class="material-symbols-outlined
-                                pointer-events-none
-                                absolute left-3 top-1/2
-                                -translate-y-1/2 text-[19px] text-slate-400">
+                        <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[19px] text-slate-400">
                             search
                         </span>
 
                         <input
-                            type="search"
                             id="customerSearchInput"
+                            type="search"
                             autocomplete="off"
                             placeholder="Nombre, identificación o teléfono"
-                            class="w-full rounded-xl border border-slate-200
-                                bg-white
-                                py-2.5 pl-10 pr-9 text-sm text-slate-700 outline-none
-                                transition
-                                placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                            class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-9 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                         >
 
                         <span
                             id="customerSearchLoader"
-                            class="
-                                material-symbols-outlined
-                                absolute right-3 top-1/2
-                                hidden -translate-y-1/2
-                                animate-spin
-                                text-[18px] text-indigo-500">
+                            class="material-symbols-outlined absolute right-3 top-1/2 hidden -translate-y-1/2 animate-spin text-[18px] text-indigo-500"
+                        >
                             progress_activity
                         </span>
-
                     </div>
-
                     <div id="customerSearchResults" class="mt-2 hidden overflow-hidden rounded-xl border border-slate-200 bg-white"></div>
-
                 </div>
-
             </div>
 
             <!-- Date -->
             <div>
                 <label for="reservationDate" class="mb-2 block text-lg font-semibold text-slate-700">Fecha</label>
                 <input
-                    type="date"
                     id="reservationDate"
+                    type="date"
                     name="date"
                     value="<?= htmlspecialchars($selectedDate) ?>"
                     class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-base text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
@@ -380,8 +313,8 @@
                 <div>
                     <label for="reservationStartTime" class="mb-2 block text-lg font-semibold text-slate-700">Hora entrada</label>
                     <input
-                        type="time"
                         id="reservationStartTime"
+                        type="time"
                         name="startTime"
                         step="1800"
                         class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-base text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
@@ -390,8 +323,8 @@
                 <div>
                     <label for="reservationEndTime" class="mb-2 block text-lg font-semibold text-slate-700">Hora salida</label>
                     <input
-                        type="time"
                         id="reservationEndTime"
+                        type="time"
                         name="endTime"
                         step="1800"
                         class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-base text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
@@ -404,8 +337,8 @@
                 <label class="mb-2 block text-xs font-semibold text-slate-700">Personas</label>
                 <div class="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-2">
                     <button
-                        type="button"
                         id="btnDecreasePeople"
+                        type="button"
                         class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition hover:bg-slate-200"
                     >
                         <span class="material-symbols-outlined text-[19px]">remove</span>
@@ -417,14 +350,13 @@
                     </div>
 
                     <button
-                        type="button"
                         id="btnIncreasePeople"
+                        type="button"
                         class="flex h-9  w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition hover:bg-slate-200"
                     >
                         <span class="material-symbols-outlined text-[19px]">add</span>
                     </button>
                 </div>
-
                 <input type="hidden" id="reservationPeople" name="numberOfPeople" value="2">
             </div>
 
@@ -432,7 +364,7 @@
             <div>
                 <div class="mb-3 flex items-center justify-between">
                     <label class="text-lg font-semibold text-slate-700">Mesa</label>
-                    <span id="availableTablesCounter" class="text-[11px] font-medium text-slate-400"></span>
+                    <span id="availableTablesCounter" class="text-lg font-medium text-slate-500"></span>
                 </div>
                 <div id="availableTables" class="min-h-[100px] rounded-xl border border-dashed border-slate-200 p-4">
                     <div class="flex min-h-[70px] flex-col items-center justify-center text-center">
@@ -453,28 +385,56 @@
                     maxlength="512"
                     placeholder="Cumpleaños, ubicación preferida, silla para bebé..."
                     class="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-base text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
-                    >
+                >
                 </textarea>
             </div>
+
+            <!-- Footer -->
+            <div class="mt-auto flex items-center justify-end gap-2 border-t border-slate-200 bg-white px-6 py-4">
+                <button
+                    type="button"
+                    id="btnCancelReservation"
+                    class="rounded-xl px-4 py-2.5 text-base font-semibold text-slate-600 transition hover:bg-slate-100"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    id="btnSaveReservation"
+                    class="rounded-xl bg-indigo-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                >
+                    Guardar reserva
+                </button>
+            </div>
+
         </form>
     </div>
 
-    <!-- Footer -->
-    <div class="flex items-center justify-end gap-2 border-t border-slate-200 bg-white px-6 py-4">
+</aside>
+
+
+
+<div id="reservationDetailOverlay" class="fixed inset-0 z-40 hidden bg-slate-900/30 backdrop-blur-[1px]"></div>
+<aside
+    id="reservationDetailDrawer"
+    class="fixed right-0 top-0 z-50 h-full w-full max-w-md translate-x-full bg-white shadow-2xl transition-transform duration-300"
+>
+    <div class="flex h-16 items-center justify-between border-b border-slate-200 px-6">
+        <div>
+            <h4 class="font-semibold text-slate-900">Detalle de reserva</h4>
+            <p class="text-base text-slate-500 m-0">Información de la reserva</p>
+        </div>
         <button
             type="button"
-            id="btnCancelReservation"
-            class="rounded-xl px-4 py-2.5 text-base font-semibold text-slate-600 transition hover:bg-slate-100"
+            data-reservation-detail-close
+            class="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-100"
         >
-            Cancelar
+            <span class="material-symbols-outlined">close</span>
         </button>
-        <button
-            type="button"
-            id="btnContinueReservation"
-            class="rounded-xl bg-indigo-600 px-5 py-2.5 text-base font-semibold text-white shadow-sm transition hover:bg-indigo-700"
-        >
-            Continuar
-        </button>
+    </div>
+
+    <div id="reservationDetailContent" class="h-[calc(100%-4rem)] overflow-y-auto p-6">
+
     </div>
 </aside>
 

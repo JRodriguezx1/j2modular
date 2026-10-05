@@ -49,7 +49,7 @@ class MySqlTableRepository implements RestaurantTableRepository{
     }
 
 
-    public function findAvailableForPeriod( string $startDate, string $endDate, int $capacity): array {
+    public function findAvailableForPeriod( string $startDate, string $endDate, int $capacity): array{
         $sql = "
             SELECT
                 m.id,
@@ -111,7 +111,54 @@ class MySqlTableRepository implements RestaurantTableRepository{
     }
 
 
-    public function lockResource(int $resourceId): void {
+    public function isAvailableForPeriod(int $resourceId, string $startDate, string $endDate, int $capacity): bool{
+        $sql = "
+            SELECT 1 FROM mesas m
+            INNER JOIN recursos r ON r.id = m.recurso_id
+            WHERE m.recurso_id = ? AND r.activo = 1 AND r.estado = 'disponible' AND r.capacidad >= ?
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM reserva_recursos rr
+                    INNER JOIN reservas res ON res.id = rr.reserva_id
+                    WHERE rr.recurso_id = r.id
+                        AND res.estado NOT IN ('cancelada', 'atendida', 'no_asistio')
+                        AND res.fecha_entrada < ?
+                        AND res.fecha_salida > ?
+                )
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM ocupacion_recursos obr
+                    INNER JOIN ocupaciones o ON o.id = obr.ocupacion_id
+                    WHERE obr.recurso_id = r.id
+                        AND o.estado = 'en_uso'
+                        AND o.fecha_inicio < ?
+                        AND (
+                            o.fecha_fin_estimada IS NULL
+                            OR o.fecha_fin_estimada > ?
+                        )
+                )
+            LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando validación de disponibilidad: ' . $this->db->error);
+        $stmt->bind_param('iissss',$resourceId, $capacity, $endDate, $startDate, $endDate, $startDate);
+
+        if(!$stmt->execute()){
+            $error = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException('Error validando disponibilidad: ' . $error);
+        }
+
+        $result = $stmt->get_result();
+        $available = $result->num_rows > 0;
+        $stmt->close();
+
+        return $available;
+    }
+
+
+    public function lockResource(int $resourceId): void{
         $sql = "SELECT id FROM recursos WHERE id = ? FOR UPDATE";
         $stmt = $this->db->prepare($sql);
 
