@@ -10,9 +10,9 @@ use App\Modules\Restaurant\Domain\Repositories\RestaurantTableRepository;
 class FindAvailableTables{
 
     public function __construct(private RestaurantTableRepository $tableRepository)
-        {}
+    {}
 
-    public function execute(string $startDate, string $endDate, int $numberOfPeople): array {
+    public function execute(string $startDate, string $endDate, int $numberOfPeople): array{
         if($numberOfPeople < 1)throw new InvalidArgumentException('El número de personas debe ser mayor a cero.');
 
         $start = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $startDate);

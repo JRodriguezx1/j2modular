@@ -340,17 +340,14 @@ class MySqlReservationRepository implements ReservationRepository{
                 res.fecha_salida,
                 res.estado,
                 res.observaciones,
-
                 c.nombre,
                 c.apellido,
                 c.identificacion,
                 c.telefono,
                 c.email
-
             FROM reservas res
             INNER JOIN clientes c ON c.id = res.cliente_id
-            WHERE res.id = ?
-            LIMIT 1";
+            WHERE res.id = ? LIMIT 1";
 
         $stmt = $this->db->prepare($sql);
         if(!$stmt)
@@ -404,12 +401,9 @@ class MySqlReservationRepository implements ReservationRepository{
             ORDER BY r.nombre ASC";
 
         $stmt = $this->db->prepare($sql);
-
         if(!$stmt)throw new \RuntimeException('Error preparando recursos de la reserva: ' . $this->db->error);
         
-
         $stmt->bind_param('i', $reservationId);
-
         if(!$stmt->execute()){
             $error = $stmt->error;
             $stmt->close();
@@ -433,6 +427,21 @@ class MySqlReservationRepository implements ReservationRepository{
 
         $stmt->close();
         return $resources;
+    }
+
+
+    public function updateStatus(int $reservationId, string $status): void{
+        $sql = "UPDATE reservas SET estado = ? WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando actualización de reserva: ' . $this->db->error);
+        $stmt->bind_param('si', $status, $reservationId);
+        if(!$stmt->execute()){
+            $error = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException('Error actualizando la reserva: ' . $error);
+        }
+        $stmt->close();
     }
 
 }

@@ -10,6 +10,8 @@ use App\Modules\Restaurant\Application\UseCases\FindAvailableTables;
 use App\Modules\Restaurant\Application\UseCases\SearchCustomers;
 use App\Modules\Restaurant\Application\UseCases\CreateReservation;
 use App\Modules\Restaurant\Application\UseCases\GetReservation;
+use App\Modules\Restaurant\Application\UseCases\ConfirmReservation;
+use App\Modules\Restaurant\Application\UseCases\CancelReservation;
 use App\Core\Routing\Router;
 
 class RestaurantController
@@ -23,6 +25,8 @@ class RestaurantController
         private SearchCustomers $searchCustomers,
         private CreateReservation $createReservation,
         private GetReservation $getReservation,
+        private ConfirmReservation $confirmReservation,
+        private CancelReservation $cancelReservation,
         private Router $router
     ){}
 
@@ -288,6 +292,42 @@ class RestaurantController
             );
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'No fue posible consultar la reserva.'], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+
+    public function confirmReservation(): void{
+        header('Content-Type: application/json; charset=utf-8');
+        try{
+            $reservationId = (int)($_POST['reservationId'] ?? 0);
+            $this->confirmReservation->execute($reservationId);
+            http_response_code(200);
+            echo json_encode(['success' => true, 'message' => 'Reserva confirmada correctamente.'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }catch(\InvalidArgumentException $e){
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }catch(\Throwable $e){
+            error_log(sprintf('ConfirmReservation: %s in %s:%d',$e->getMessage(), $e->getFile(),  $e->getLine()));
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible confirmar la reserva.'], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+
+    public function cancelReservation(): void{
+        header('Content-Type: application/json; charset=utf-8');
+        try{
+            $reservationId = (int)($_POST['reservationId'] ?? 0);
+            $this->cancelReservation->execute($reservationId);
+            http_response_code(200);
+            echo json_encode(['success' => true, 'message' => 'Reserva cancelada correctamente.'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }catch(\InvalidArgumentException $e){
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }catch(\Throwable $e){
+            error_log(sprintf('CancelReservation: %s in %s:%d',$e->getMessage(), $e->getFile(),  $e->getLine()));
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible cancelar la reserva.'], JSON_UNESCAPED_UNICODE);
         }
     }
     

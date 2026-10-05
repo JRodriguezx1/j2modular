@@ -13,7 +13,7 @@ class MySqlCustomerRepository implements CustomerRepository{
     {}
 
 
-    public function search(string $term, int $limit = 10): array {
+    public function search(string $term, int $limit = 10): array{
 
         $sql = "
             SELECT

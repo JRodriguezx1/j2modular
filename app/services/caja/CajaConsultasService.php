@@ -183,7 +183,8 @@ final class CajaConsultasService
             $factura->mediosdepago = ActiveRecord::camposJoinObj("SELECT * FROM factmediospago JOIN mediospago ON factmediospago.idmediopago = mediospago.id WHERE id_factura = {$facturaId};");
         }
 
-        $costo = ventas::camposJoinObj("SELECT ROUND(SUM(costo * cantidad), 2) AS costo_total FROM ventas WHERE idfactura IN (" . implode(', ', $idsFact) . ");");
+        if(!empty($idsFact))
+            $costo = ventas::camposJoinObj("SELECT ROUND(SUM(costo * cantidad), 2) AS costo_total FROM ventas WHERE idfactura IN (" . implode(', ', $idsFact) . ");");
 
         return [
             'discriminarimpuesto' => $discriminarimpuesto,

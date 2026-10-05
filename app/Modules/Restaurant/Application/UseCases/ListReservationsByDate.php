@@ -12,14 +12,10 @@ class ListReservationsByDate{
     {}
 
 
-    public function execute(string $date): array {
-
+    public function execute(string $date): array{
         $parsedDate = DateTimeImmutable::createFromFormat('!Y-m-d', $date);
-
-        if(!$parsedDate || $parsedDate->format('Y-m-d') !== $date){
+        if(!$parsedDate || $parsedDate->format('Y-m-d') !== $date)
             throw new InvalidArgumentException('La fecha de reservas no es válida.');
-        }
-
         return $this->reservationRepository->findByDate($date);
     }
     

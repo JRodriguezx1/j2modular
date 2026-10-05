@@ -10,9 +10,8 @@ class SearchCustomers
     {}
 
 
-    public function execute(string $term, int $limit = 10): array {
+    public function execute(string $term, int $limit = 10): array{
         $term = trim($term);
-
         if(mb_strlen($term) < 2)return [];
         $limit = max(1, min($limit, 20));
         return $this->customerRepository->search($term, $limit);

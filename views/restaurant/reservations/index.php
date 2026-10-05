@@ -409,31 +409,25 @@
 
         </form>
     </div>
-
 </aside>
 
 
-
 <div id="reservationDetailOverlay" class="fixed inset-0 z-40 hidden bg-slate-900/30 backdrop-blur-[1px]"></div>
-<aside
-    id="reservationDetailDrawer"
-    class="fixed right-0 top-0 z-50 h-full w-full max-w-md translate-x-full bg-white shadow-2xl transition-transform duration-300"
->
+<aside id="reservationDetailDrawer" class="fixed right-0 top-0 z-50 h-full w-full max-w-md translate-x-full bg-white shadow-2xl transition-transform duration-300">
     <div class="flex h-16 items-center justify-between border-b border-slate-200 px-6">
         <div>
             <h4 class="font-semibold text-slate-900">Detalle de reserva</h4>
             <p class="text-base text-slate-500 m-0">Información de la reserva</p>
         </div>
-        <button
-            type="button"
-            data-reservation-detail-close
-            class="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-100"
-        >
+        <button type="button" data-reservation-detail-close class="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-100">
             <span class="material-symbols-outlined">close</span>
         </button>
     </div>
-
     <div id="reservationDetailContent" class="h-[calc(100%-4rem)] overflow-y-auto p-6">
+
+    </div>
+    
+    <div id="reservationDetailActions" class="hidden shrink-0 border-t border-slate-200 bg-white p-4 ">
 
     </div>
 </aside>

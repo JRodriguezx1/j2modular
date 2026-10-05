@@ -40,6 +40,7 @@ export function initReservationDetail(): void {
         try{
             const reservation = await fetchReservation(reservationId);
             renderReservation(reservation);
+            renderActions(reservation);
         }catch(error){
             closeDrawer();
             Swal.fire({
@@ -69,7 +70,6 @@ export function initReservationDetail(): void {
                 <span class="material-symbols-outlined animate-spin">
                     progress_activity
                 </span>
-
                 <span class="ml-2 text-sm text-slate-500">
                     Cargando reserva...
                 </span>
@@ -120,9 +120,7 @@ export function initReservationDetail(): void {
                 <div>
                     <div class="text-xs text-slate-400">Horario</div>
                     <div class="mt-1 font-medium">
-                        ${formatDateTime(reservation.startDate)}
-                        —
-                        ${formatTime(reservation.endDate)}
+                        ${formatDateTime(reservation.startDate)} — ${formatTime(reservation.endDate)}
                     </div>
                 </div>
 
@@ -138,6 +136,203 @@ export function initReservationDetail(): void {
                     </div>
                 </div>
             </div>`;
+    }
+
+
+    function renderActions(reservation: ReservationDetail): void{
+        const actions = drawer?.querySelector<HTMLElement>('#reservationDetailActions');
+        if(!actions)return;
+
+        actions.innerHTML = '';
+        if(reservation.status === 'pendiente'){
+            actions.innerHTML = `
+            <div class="space-y-2">
+                <button
+                    type="button"
+                    data-confirm-reservation="${reservation.id}"
+                    class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    <span class="material-symbols-outlined text-[20px]">check_circle</span>
+                    Confirmar reserva
+                </button>
+                <button
+                    type="button"
+                    data-cancel-reservation="${reservation.id}"
+                    class="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                >
+                <span class="material-symbols-outlined text-[20px]">cancel</span>
+                    Cancelar reserva
+                </button>
+            </div>`;
+            actions.classList.remove('hidden');
+            return;
+        }
+
+        if (reservation.status === 'confirmada') {
+            actions.innerHTML = `
+                <button
+                    type="button"
+                    data-cancel-reservation="${reservation.id}"
+                    class="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                >
+                <span class="material-symbols-outlined text-[20px]">cancel</span>
+                    Cancelar reserva
+                </button>`;
+            actions.classList.remove('hidden');
+            return;
+        }
+
+        actions.classList.add('hidden');
+    }
+
+
+    drawer.addEventListener('click', async event => {
+        const target = event.target as HTMLElement;
+        const buttonconfirm = target.closest<HTMLButtonElement>('[data-confirm-reservation]');
+        const buttonCancel = target.closest<HTMLButtonElement>('[data-cancel-reservation]');
+        let reservationId: number = 0;
+        if(!buttonconfirm){
+            if(!buttonCancel){
+                return;
+            }else{
+                reservationId = Number(buttonCancel.dataset.confirmReservation);
+            }
+        }else{
+            reservationId = Number(buttonconfirm.dataset.confirmReservation);
+        }
+
+        if(!reservationId)return;
+        if(buttonconfirm)await confirmReservation(reservationId, buttonconfirm);
+        if(buttonCancel)await cancelReservation( reservationId, buttonCancel);
+    });
+
+
+    async function confirmReservation(reservationId: number, button: HTMLButtonElement): Promise<void>{
+        const confirmation = await Swal.fire({
+                                icon: 'question',
+                                title: '¿Confirmar reserva?',
+                                text: 'La reserva cambiará a estado confirmada.',
+                                showCancelButton: true,
+                                confirmButtonText: 'Sí, confirmar',
+                                cancelButtonText: 'Cancelar'
+                            });
+
+        if(!confirmation.isConfirmed)return;
+        button.disabled = true;
+        const originalContent = button.innerHTML;
+        button.innerHTML = `
+            <span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+            Confirmando...`;
+
+        try {
+            await confirmReservationRequest(reservationId);
+            await Swal.fire({
+                icon: 'success',
+                title: 'Reserva confirmada',
+                text: 'La reserva fue confirmada correctamente.',
+                timer: 1200,
+                showConfirmButton: false
+            });
+
+            /*
+            * Volvemos a consultar la reserva.
+            *
+            * No cambiamos simplemente el estado
+            * en memoria. Backend sigue siendo
+            * nuestra fuente de verdad.
+            */
+            const reservation = await fetchReservation(reservationId);
+            renderReservation(reservation);
+            renderActions(reservation);
+        }catch(error){
+            Swal.fire({
+                icon: 'error',
+                title: 'No se pudo confirmar',
+                text: error instanceof Error ? error.message : 'Ocurrió un error inesperado.'
+            });
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }
+    }
+
+
+    async function confirmReservationRequest(reservationId: number): Promise<void>{
+        const formData = new FormData();
+        formData.append('reservationId', String(reservationId));
+
+        const response = await fetch('/restaurant/api/reservations/confirm',
+                            {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    Accept: 'application/json'
+                                }
+                            }
+                        );
+
+        const result = await response.json() as {success: boolean; message?: string;};
+        if(!response.ok || !result.success)
+            throw new Error(result.message ?? 'No fue posible confirmar la reserva.');
+    }
+
+
+    async function cancelReservation(reservationId: number, button: HTMLButtonElement): Promise<void>{
+        const confirmation = await Swal.fire({
+                icon: 'warning',
+                title: '¿Cancelar reserva?',
+                text: 'La mesa asignada quedará disponible nuevamente para este horario.',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, cancelar reserva',
+                cancelButtonText: 'Volver'
+        });
+
+        if(!confirmation.isConfirmed)return;
+        button.disabled = true;
+        const originalContent = button.innerHTML;
+
+        button.innerHTML = `
+            <span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+            Cancelando...`;
+        try {
+            await cancelReservationRequest(reservationId);
+            await Swal.fire({
+                icon: 'success',
+                title: 'Reserva cancelada',
+                text: 'La reserva fue cancelada correctamente.',
+                timer: 1200,
+                showConfirmButton: false
+            });
+
+            const reservation = await fetchReservation(reservationId);
+            renderReservation(reservation);
+            renderActions(reservation);
+        }catch(error){
+            await Swal.fire({
+                icon: 'error',
+                title: 'No se pudo cancelar',
+                text: error instanceof Error ? error.message : 'Ocurrió un error inesperado.'
+            });
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }
+    }
+
+
+    async function cancelReservationRequest(reservationId: number): Promise<void>{
+        const formData = new FormData();
+        formData.append('reservationId', String(reservationId));
+        const response = await fetch('/restaurant/api/reservations/cancel',
+                            {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    Accept: 'application/json'
+                                }
+                            }
+                        );
+        const result = await response.json() as {success: boolean;  message?: string; };
+        if(!response.ok || !result.success)
+            throw new Error( result.message ?? 'No fue posible cancelar la reserva.'); 
     }
 
 

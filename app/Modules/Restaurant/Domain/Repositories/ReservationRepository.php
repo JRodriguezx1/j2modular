@@ -22,4 +22,5 @@ interface ReservationRepository{
     public function create(int $clientId, int $numberOfPeople, string $startDate, string $endDate, string $status, ?string $observations): int;
     public function attachResource(int $reservationId, int $resourceId, float $price = 0): void;
     public function findById(int $reservationId): ?Reservation;
+    public function updateStatus(int $reservationId, string $status): void;
 }
