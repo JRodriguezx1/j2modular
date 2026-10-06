@@ -16,6 +16,7 @@ async function fetchReservation(reservationId: number): Promise<ReservationDetai
 
 
 export function initReservationDetail(): void {
+
     const drawer = document.querySelector<HTMLElement>('#reservationDetailDrawer');
     const overlay = document.querySelector<HTMLElement>('#reservationDetailOverlay');
     if(!drawer || !overlay)return;
@@ -169,14 +170,25 @@ export function initReservationDetail(): void {
 
         if (reservation.status === 'confirmada') {
             actions.innerHTML = `
-                <button
-                    type="button"
-                    data-cancel-reservation="${reservation.id}"
-                    class="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-red-600 transition hover:bg-red-50"
-                >
-                <span class="material-symbols-outlined text-[20px]">cancel</span>
-                    Cancelar reserva
-                </button>`;
+                <div class="space-y-2">
+                    <button
+                        type="button"
+                        data-start-occupation="${reservation.id}"
+                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        <span class="material-symbols-outlined text-2xl">restaurant</span>
+                        Iniciar atención
+                    </button>
+
+                    <button
+                        type="button"
+                        data-cancel-reservation="${reservation.id}"
+                        class="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                    >
+                    <span class="material-symbols-outlined text-2xl">cancel</span>
+                        Cancelar reserva
+                    </button>
+                </div>`;
             actions.classList.remove('hidden');
             return;
         }
@@ -187,25 +199,23 @@ export function initReservationDetail(): void {
 
     drawer.addEventListener('click', async event => {
         const target = event.target as HTMLElement;
-        const buttonconfirm = target.closest<HTMLButtonElement>('[data-confirm-reservation]');
+        const buttonConfirm = target.closest<HTMLButtonElement>('[data-confirm-reservation]');
         const buttonCancel = target.closest<HTMLButtonElement>('[data-cancel-reservation]');
+        const buttonStart = target.closest<HTMLButtonElement>('[data-start-occupation]');
         let reservationId: number = 0;
-        if(!buttonconfirm){
-            if(!buttonCancel){
-                return;
-            }else{
-                reservationId = Number(buttonCancel.dataset.cancelReservation);
-            }
-        }else{
-            reservationId = Number(buttonconfirm.dataset.confirmReservation);
-        }
+
+        if(buttonConfirm)reservationId = Number(buttonConfirm.dataset.confirmReservation);
+        if(buttonCancel)reservationId = Number(buttonCancel.dataset.cancelReservation);
+        if(buttonStart)reservationId = Number(buttonStart.dataset.startOccupation);
 
         if(!reservationId)return;
-        if(buttonconfirm)await confirmReservation(reservationId, buttonconfirm);
+        if(buttonConfirm)await confirmReservation(reservationId, buttonConfirm);
         if(buttonCancel)await cancelReservation( reservationId, buttonCancel);
+        if(buttonStart)await startOccupation(reservationId, buttonStart);
     });
 
 
+    //////////   confirmar reserva   ////////////
     async function confirmReservation(reservationId: number, button: HTMLButtonElement): Promise<void>{
         const confirmation = await Swal.fire({
                                 icon: 'question',
@@ -275,6 +285,7 @@ export function initReservationDetail(): void {
     }
 
 
+    //////////   cancelar reserva   ////////////
     async function cancelReservation(reservationId: number, button: HTMLButtonElement): Promise<void>{
         const confirmation = await Swal.fire({
                 icon: 'warning',
@@ -335,6 +346,75 @@ export function initReservationDetail(): void {
     }
 
 
+    //////////   iniciar atencion   ////////////
+    async function startOccupation(reservationId: number, button: HTMLButtonElement): Promise<void>{
+        const confirmation = await Swal.fire({
+                icon: 'question',
+                title: '¿Iniciar atención?',
+                text: 'La mesa pasará a estar ocupada y se iniciará la atención de esta reserva.',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, iniciar',
+                cancelButtonText: 'Volver'
+            });
+
+        if(!confirmation.isConfirmed)return;
+        button.disabled = true;
+        const originalContent = button.innerHTML;
+
+        button.innerHTML = `
+            <span class="material-symbols-outlined animate-spin text-[20px]">
+                progress_activity
+            </span>
+            Iniciando...`;
+
+        try{
+            await startOccupationRequest(reservationId);
+            await Swal.fire({
+                icon: 'success',
+                title: 'Atención iniciada',
+                text: 'La mesa ahora se encuentra ocupada.',
+                timer: 1200,
+                showConfirmButton: false
+            });
+
+            /*
+            * Volvemos a consultar backend.
+            */
+            const reservation = await fetchReservation(reservationId);
+            renderReservation(reservation);
+            renderActions(reservation);
+        }catch(error){
+            await Swal.fire({
+                icon: 'error',
+                title: 'No se pudo iniciar la atención',
+                text: error instanceof Error ? error.message : 'Ocurrió un error inesperado.'
+            });
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }
+    }
+
+    async function startOccupationRequest(reservationId: number): Promise<number>{
+        const formData = new FormData();
+        formData.append('reservationId', String(reservationId));
+        const response = await fetch('/restaurant/api/reservations/start-occupation',
+                            {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    Accept: 'application/json'
+                                }
+                            }
+                        );
+
+        const result = await response.json() as {success: boolean; occupationId?: number; message?: string;};
+        if(!response.ok || !result.success || !result.occupationId)
+            throw new Error(result.message ?? 'No fue posible iniciar la atención.');
+        return result.occupationId;
+    }
+
+
+    //helpers
     function formatDateTime(value: string): string{
         const date = new Date(value.replace(' ', 'T'));
         return date.toLocaleString('es', {dateStyle: 'medium', timeStyle: 'short'});

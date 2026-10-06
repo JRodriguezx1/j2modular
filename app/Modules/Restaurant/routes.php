@@ -13,3 +13,4 @@ $router->post('/restaurant/api/reservations', [RestaurantController::class, 'cre
 $router->get('/restaurant/api/reservations/detail', [RestaurantController::class, 'getReservation']); //obtener detalle de una reservacion
 $router->post('/restaurant/api/reservations/confirm', [RestaurantController::class, 'confirmReservation']); //confirmar reservacion
 $router->post('/restaurant/api/reservations/cancel', [RestaurantController::class, 'cancelReservation']); //cancelar reservacion
+$router->post('/restaurant/api/reservations/start-occupation', [RestaurantController::class, 'startReservationOccupation']); //iniciar ocupacion de reservacion

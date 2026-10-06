@@ -12,6 +12,7 @@ use App\Modules\Restaurant\Application\UseCases\CreateReservation;
 use App\Modules\Restaurant\Application\UseCases\GetReservation;
 use App\Modules\Restaurant\Application\UseCases\ConfirmReservation;
 use App\Modules\Restaurant\Application\UseCases\CancelReservation;
+use App\Modules\Restaurant\Application\UseCases\StartReservationOccupation;
 use App\Core\Routing\Router;
 
 class RestaurantController
@@ -27,6 +28,7 @@ class RestaurantController
         private GetReservation $getReservation,
         private ConfirmReservation $confirmReservation,
         private CancelReservation $cancelReservation,
+        private StartReservationOccupation $startReservationOccupation,
         private Router $router
     ){}
 
@@ -331,4 +333,22 @@ class RestaurantController
         }
     }
     
+
+    public function startReservationOccupation(): void{
+        
+        header('Content-Type: application/json; charset=utf-8');
+        try{
+            $reservationId = (int)($_POST['reservationId'] ?? 0);
+            $occupationId = $this->startReservationOccupation->execute($reservationId);
+            http_response_code(200);
+            echo json_encode(['success' => true, 'occupationId' => $occupationId, 'message' => 'Ocupación iniciada correctamente.'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }catch(\InvalidArgumentException $e){
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }catch(\Throwable $e){
+            error_log(sprintf('StartReservationOccupation: %s in %s:%d',$e->getMessage(), $e->getFile(),  $e->getLine()));
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible iniciar la ocupación de la reserva.'], JSON_UNESCAPED_UNICODE);
+        }
+    }
 }
