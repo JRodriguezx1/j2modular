@@ -13,6 +13,7 @@ use App\Modules\Restaurant\Application\UseCases\GetReservation;
 use App\Modules\Restaurant\Application\UseCases\ConfirmReservation;
 use App\Modules\Restaurant\Application\UseCases\CancelReservation;
 use App\Modules\Restaurant\Application\UseCases\StartReservationOccupation;
+use App\Modules\Restaurant\Application\UseCases\GetActiveOccupationDetail;
 use App\Core\Routing\Router;
 
 class RestaurantController
@@ -29,6 +30,7 @@ class RestaurantController
         private ConfirmReservation $confirmReservation,
         private CancelReservation $cancelReservation,
         private StartReservationOccupation $startReservationOccupation,
+        private GetActiveOccupationDetail $getActiveOccupationDetail,
         private Router $router
     ){}
 
@@ -351,4 +353,100 @@ class RestaurantController
             echo json_encode(['success' => false, 'message' => 'No fue posible iniciar la ocupación de la reserva.'], JSON_UNESCAPED_UNICODE);
         }
     }
+
+    public function getActiveOccupation(): void{
+        header(
+        'Content-Type: application/json; charset=utf-8'
+    );
+
+    try {
+
+        $resourceId =
+            (int) ($_GET['resourceId'] ?? 0);
+
+        $detail =
+            $this->getActiveOccupationDetail
+                ->execute($resourceId);
+
+        http_response_code(200);
+
+        echo json_encode(
+            [
+                'success' => true,
+
+                'occupation' => [
+                    'occupationId' =>
+                        $detail->occupationId,
+
+                    'resourceId' =>
+                        $detail->resourceId,
+
+                    'reservationId' =>
+                        $detail->reservationId,
+
+                    'clientId' =>
+                        $detail->clientId,
+
+                    'clientName' =>
+                        $detail->clientName,
+
+                    'type' =>
+                        $detail->type,
+
+                    'startDate' =>
+                        $detail->startDate,
+
+                    'estimatedEndDate' =>
+                        $detail->estimatedEndDate,
+
+                    'status' =>
+                        $detail->status,
+
+                    'numberOfPeople' =>
+                        $detail->numberOfPeople,
+
+                    'observations' =>
+                        $detail->observations
+                ]
+            ],
+            JSON_UNESCAPED_UNICODE
+            | JSON_UNESCAPED_SLASHES
+        );
+
+    } catch (\InvalidArgumentException $e) {
+
+        http_response_code(422);
+
+        echo json_encode(
+            [
+                'success' => false,
+                'message' => $e->getMessage()
+            ],
+            JSON_UNESCAPED_UNICODE
+        );
+
+    } catch (\Throwable $e) {
+
+        error_log(
+            sprintf(
+                'GetActiveOccupation: %s in %s:%d',
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine()
+            )
+        );
+
+        http_response_code(500);
+
+        echo json_encode(
+            [
+                'success' => false,
+                'message' =>
+                    'No fue posible consultar la atención.'
+            ],
+            JSON_UNESCAPED_UNICODE
+        );
+    }
+    }
+
 }
