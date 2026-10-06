@@ -253,7 +253,7 @@
                 <input type="hidden" id="reservationClientId" name="clientId">
             </div>-->
             <div class="space-y-2">
-                <label class="text-xs font-semibold text-slate-700">Cliente</label>
+                <label class="text-lg font-semibold text-slate-700">Cliente</label>
                 <input  id="reservationClientId" type="hidden" name="clientId">
                 <!-- Cliente seleccionado -->
                 <div id="selectedCustomer" class="hidden">
@@ -273,7 +273,7 @@
                 <!-- Buscador -->
                 <div id="customerSearch">
                     <div class="relative">
-                        <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[19px] text-slate-400">
+                        <span class="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-3xl text-slate-400">
                             search
                         </span>
 
@@ -281,8 +281,8 @@
                             id="customerSearchInput"
                             type="search"
                             autocomplete="off"
-                            placeholder="Nombre, identificación o teléfono"
-                            class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-9 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                            placeholder=" Nombre, identificación o teléfono"
+                            class="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-base text-slate-700 outline-none transition placeholder:text-slate-500 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
                         >
 
                         <span
@@ -414,7 +414,7 @@
 
 <div id="reservationDetailOverlay" class="fixed inset-0 z-40 hidden bg-slate-900/30 backdrop-blur-[1px]"></div>
 <aside id="reservationDetailDrawer" class="fixed right-0 top-0 z-50 h-full w-full max-w-md translate-x-full bg-white shadow-2xl transition-transform duration-300">
-    <div class="flex h-16 items-center justify-between border-b border-slate-200 px-6">
+    <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
         <div>
             <h4 class="font-semibold text-slate-900">Detalle de reserva</h4>
             <p class="text-base text-slate-500 m-0">Información de la reserva</p>
@@ -423,7 +423,7 @@
             <span class="material-symbols-outlined">close</span>
         </button>
     </div>
-    <div id="reservationDetailContent" class="h-[calc(100%-4rem)] overflow-y-auto p-6">
+    <div id="reservationDetailContent" class="overflow-y-auto p-6">
 
     </div>
     

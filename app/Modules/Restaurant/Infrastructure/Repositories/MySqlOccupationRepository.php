@@ -136,5 +136,122 @@ class MySqlOccupationRepository implements OccupationRepository{
         $stmt->close();
         return $occupations;
     }
+
+
+    public function create(
+    ?int $reservationId,
+    ?int $clientId,
+    string $type,
+    string $startDate,
+    ?string $estimatedEndDate,
+    ?string $observations
+): int {
+
+    $sql = "
+        INSERT INTO ocupaciones (
+            reserva_id,
+            cliente_id,
+            tipo,
+            fecha_inicio,
+            fecha_fin_estimada,
+            estado,
+            observaciones
+        )
+        VALUES (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            'en_uso',
+            ?
+        )
+    ";
+
+    $stmt = $this->db->prepare($sql);
+
+    if (!$stmt) {
+        throw new \RuntimeException(
+            'Error preparando creación de ocupación: '
+            . $this->db->error
+        );
+    }
+
+    $stmt->bind_param(
+        'iissss',
+        $reservationId,
+        $clientId,
+        $type,
+        $startDate,
+        $estimatedEndDate,
+        $observations
+    );
+
+    if (!$stmt->execute()) {
+
+        $error = $stmt->error;
+
+        $stmt->close();
+
+        throw new \RuntimeException(
+            'Error creando la ocupación: '
+            . $error
+        );
+    }
+
+    $occupationId =
+        (int) $this->db->insert_id;
+
+    $stmt->close();
+
+    return $occupationId;
+}
+
+
+public function attachResource(
+    int $occupationId,
+    int $resourceId,
+    float $baseValue = 0
+): void {
+
+    $sql = "
+        INSERT INTO ocupacion_recursos (
+            ocupacion_id,
+            recurso_id,
+            valor_base
+        )
+        VALUES (?, ?, ?)
+    ";
+
+    $stmt = $this->db->prepare($sql);
+
+    if (!$stmt) {
+        throw new \RuntimeException(
+            'Error preparando recurso de ocupación: '
+            . $this->db->error
+        );
+    }
+
+    $stmt->bind_param(
+        'iid',
+        $occupationId,
+        $resourceId,
+        $baseValue
+    );
+
+    if (!$stmt->execute()) {
+
+        $error = $stmt->error;
+
+        $stmt->close();
+
+        throw new \RuntimeException(
+            'Error vinculando recurso a la ocupación: '
+            . $error
+        );
+    }
+
+    $stmt->close();
+}
     
 }

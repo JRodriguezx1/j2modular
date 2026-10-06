@@ -87,8 +87,7 @@ export function initReservationDetail(): void {
                             <div class="font-semibold text-slate-800">
                                 ${escapeHtml(resource.name)}
                             </div>
-
-                            <div class="mt-1 text-xs text-slate-500">
+                            <div class="mt-1 text-base text-slate-500">
                                 ${escapeHtml(resource.zoneName ?? 'Sin zona')}
                                 · Capacidad ${resource.capacity}
                             </div>
@@ -102,36 +101,36 @@ export function initReservationDetail(): void {
         content.innerHTML = `
             <div class="space-y-6">
                 <div>
-                    <div class="text-xs font-medium uppercase text-slate-400">Cliente</div>
-                    <div class="mt-1 text-lg font-semibold">${escapeHtml(reservation.clientName)}</div>
+                    <div class="text-base font-semibold uppercase text-slate-400">Cliente</div>
+                    <div class="text-lg font-semibold">${escapeHtml(reservation.clientName)}</div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <div class="text-xs text-slate-400">Personas</div>
+                        <div class="text-base font-semibold uppercase text-slate-400">Personas</div>
                         <div class="font-medium"> ${reservation.numberOfPeople}</div>
                     </div>
                     <div>
-                        <div class="text-xs text-slate-400">Estado</div>
+                        <div class="text-base font-semibold uppercase text-slate-400">Estado</div>
                         <div class="font-medium capitalize">${escapeHtml(reservation.status)}</div>
                     </div>
                 </div>
 
                 <div>
-                    <div class="text-xs text-slate-400">Horario</div>
+                    <div class="text-base font-semibold uppercase text-slate-400">Horario</div>
                     <div class="mt-1 font-medium">
                         ${formatDateTime(reservation.startDate)} — ${formatTime(reservation.endDate)}
                     </div>
                 </div>
 
                 <div>
-                    <div class="mb-2 text-xs text-slate-400">Mesa</div>
+                    <div class="mb-2 text-base font-semibold uppercase text-slate-400">Mesa</div>
                     <div class="space-y-2">${resources}</div>
                 </div>
 
                 <div>
-                    <div class="text-xs text-slate-400">Observaciones</div>
-                    <div class="mt-1 text-sm text-slate-700">
+                    <div class="text-base font-semibold uppercase text-slate-400">Observaciones</div>
+                    <div class="mt-1 text-lg text-slate-700">
                         ${escapeHtml(reservation.observations ?? 'Sin observaciones')}
                     </div>
                 </div>
@@ -195,7 +194,7 @@ export function initReservationDetail(): void {
             if(!buttonCancel){
                 return;
             }else{
-                reservationId = Number(buttonCancel.dataset.confirmReservation);
+                reservationId = Number(buttonCancel.dataset.cancelReservation);
             }
         }else{
             reservationId = Number(buttonconfirm.dataset.confirmReservation);

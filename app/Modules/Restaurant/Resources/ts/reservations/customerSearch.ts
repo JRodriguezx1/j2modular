@@ -115,19 +115,19 @@ export function initCustomerSearch(): void {
         const avatar = document.createElement('div');
 
         avatar.className =
-            'flex h-8 w-8 shrink-0 ' +
+            'flex h-10 w-10 shrink-0 ' +
             'items-center justify-center ' +
-            'rounded-full bg-slate-100 ' +
-            'text-[10px] font-bold text-slate-600';
+            'rounded-full p-6 bg-slate-200 ' +
+            'text-xl font-bold text-slate-600';
 
         avatar.textContent = getInitials(customer.fullName);
         const content = document.createElement('div');
         content.className = 'min-w-0 flex-1';
         const name = document.createElement('p');
-        name.className = 'truncate text-xs font-semibold ' + 'text-slate-700';
+        name.className = 'm-0 truncate text-lg font-bold ' + 'text-slate-700';
         name.textContent = customer.fullName;
         const info = document.createElement('p');
-        info.className = 'mt-0.5 truncate text-[10px] ' + 'text-slate-400';
+        info.className = 'm-0 truncate text-base ' + 'text-slate-400';
         info.textContent = buildCustomerInfo(customer);
         content.append(name, info);
         button.append(avatar, content);

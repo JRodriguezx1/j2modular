@@ -1378,6 +1378,10 @@ video {
   height: 7rem;
 }
 
+.h-\[calc\(100\%-4rem\)\] {
+  height: calc(100% - 4rem);
+}
+
 .h-auto {
   height: auto;
 }
@@ -3306,6 +3310,15 @@ video {
 
 .bg-slate-50\/90 {
   background-color: rgb(248 250 252 / 0.9);
+}
+
+.bg-slate-900 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(15 23 42 / var(--tw-bg-opacity));
+}
+
+.bg-slate-900\/30 {
+  background-color: rgb(15 23 42 / 0.3);
 }
 
 .bg-slate-950\/30 {
@@ -5403,6 +5416,16 @@ video {
   color: rgb(148 163 184 / var(--tw-text-opacity));
 }
 
+.placeholder\:text-slate-500::-moz-placeholder {
+  --tw-text-opacity: 1;
+  color: rgb(100 116 139 / var(--tw-text-opacity));
+}
+
+.placeholder\:text-slate-500::placeholder {
+  --tw-text-opacity: 1;
+  color: rgb(100 116 139 / var(--tw-text-opacity));
+}
+
 .backdrop\:bg-black\/40::backdrop {
   background-color: rgb(0 0 0 / 0.4);
 }
@@ -5834,6 +5857,11 @@ video {
   background-color: rgb(248 250 252 / 0.8);
 }
 
+.hover\:bg-slate-800:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(30 41 59 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-teal-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(240 253 250 / var(--tw-bg-opacity));
@@ -6182,6 +6210,10 @@ video {
 
 .disabled\:pointer-events-none:disabled {
   pointer-events: none;
+}
+
+.disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
 }
 
 .disabled\:opacity-50:disabled {
