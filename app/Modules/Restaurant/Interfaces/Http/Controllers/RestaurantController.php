@@ -153,6 +153,7 @@ class RestaurantController
 
 
     //////////////////        API        ///////////////////
+    //buscar mesas disponibles
     public function availableTables(): void{
         header('Content-Type: application/json; charset=utf-8');
         try{
@@ -337,7 +338,6 @@ class RestaurantController
     
 
     public function startReservationOccupation(): void{
-        
         header('Content-Type: application/json; charset=utf-8');
         try{
             $reservationId = (int)($_POST['reservationId'] ?? 0);
@@ -354,99 +354,42 @@ class RestaurantController
         }
     }
 
+    
     public function getActiveOccupation(): void{
-        header(
-        'Content-Type: application/json; charset=utf-8'
-    );
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $resourceId = (int) ($_GET['resourceId'] ?? 0);
+            $detail = $this->getActiveOccupationDetail->execute($resourceId);
+            http_response_code(200);
+            echo json_encode(
+                [
+                    'success' => true,
+                    'occupation' => [
+                        'occupationId' => $detail->occupationId,
+                        'resourceId' => $detail->resourceId,
+                        'reservationId' => $detail->reservationId,
+                        'clientId' => $detail->clientId,
+                        'clientName' => $detail->clientName,
+                        'type' => $detail->type,
+                        'startDate' => $detail->startDate,
+                        'estimatedEndDate' => $detail->estimatedEndDate,
+                        'status' => $detail->status,
+                        'numberOfPeople' => $detail->numberOfPeople,
+                        'observations' => $detail->observations
+                    ]
+                ],
+                JSON_UNESCAPED_UNICODE
+                | JSON_UNESCAPED_SLASHES
+            );
 
-    try {
-
-        $resourceId =
-            (int) ($_GET['resourceId'] ?? 0);
-
-        $detail =
-            $this->getActiveOccupationDetail
-                ->execute($resourceId);
-
-        http_response_code(200);
-
-        echo json_encode(
-            [
-                'success' => true,
-
-                'occupation' => [
-                    'occupationId' =>
-                        $detail->occupationId,
-
-                    'resourceId' =>
-                        $detail->resourceId,
-
-                    'reservationId' =>
-                        $detail->reservationId,
-
-                    'clientId' =>
-                        $detail->clientId,
-
-                    'clientName' =>
-                        $detail->clientName,
-
-                    'type' =>
-                        $detail->type,
-
-                    'startDate' =>
-                        $detail->startDate,
-
-                    'estimatedEndDate' =>
-                        $detail->estimatedEndDate,
-
-                    'status' =>
-                        $detail->status,
-
-                    'numberOfPeople' =>
-                        $detail->numberOfPeople,
-
-                    'observations' =>
-                        $detail->observations
-                ]
-            ],
-            JSON_UNESCAPED_UNICODE
-            | JSON_UNESCAPED_SLASHES
-        );
-
-    } catch (\InvalidArgumentException $e) {
-
-        http_response_code(422);
-
-        echo json_encode(
-            [
-                'success' => false,
-                'message' => $e->getMessage()
-            ],
-            JSON_UNESCAPED_UNICODE
-        );
-
-    } catch (\Throwable $e) {
-
-        error_log(
-            sprintf(
-                'GetActiveOccupation: %s in %s:%d',
-                $e->getMessage(),
-                $e->getFile(),
-                $e->getLine()
-            )
-        );
-
-        http_response_code(500);
-
-        echo json_encode(
-            [
-                'success' => false,
-                'message' =>
-                    'No fue posible consultar la atención.'
-            ],
-            JSON_UNESCAPED_UNICODE
-        );
-    }
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        } catch (\Throwable $e) {
+            error_log(sprintf('GetActiveOccupation: %s in %s:%d', $e->getMessage(), $e->getFile(), $e->getLine()));
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible consultar la atención.'], JSON_UNESCAPED_UNICODE);
+        }
     }
 
 }

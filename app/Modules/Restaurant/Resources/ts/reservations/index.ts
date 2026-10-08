@@ -7,9 +7,9 @@ import {initReservationDetail} from './reservationDetail';
 export function initReservations(): void{
     console.log('Restaurant → Reservations cargado');
     const data = getPageData();
-    initReservationDrawer(data);
-    initCustomerSearch();
-    initReservationForm();
+    initReservationDrawer(data); //inicializa el drawer de reservas
+    initCustomerSearch();  //inicializa el buscador de clientes en el formulario de reservas
+    initReservationForm(); //inicializa el formulario de reservas
     initReservationDetail()
 }
 

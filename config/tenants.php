@@ -9,12 +9,12 @@ return [
 
     'cliente1' => [
         'database' => 'j2a1',
-        'modules' => ['Pos',],
+        'modules' => ['POS',],
     ],
 
     'cliente2' => [
         'database' => 'j2a2',
-        'modules' => ['Pos', /* 'Restaurant', // todavia no existe */],
+        'modules' => ['POS', /* 'Restaurant', // todavia no existe */],
     ],
 
 ];

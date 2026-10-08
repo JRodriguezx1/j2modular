@@ -79,7 +79,6 @@ class MySqlTableRepository implements RestaurantTableRepository{
                     FROM ocupacion_recursos AS ocr
                     INNER JOIN ocupaciones AS o ON o.id = ocr.ocupacion_id
                     WHERE ocr.recurso_id = r.id AND o.estado = 'en_uso' AND o.fecha_inicio < ?
-                        AND (o.fecha_fin_estimada IS NULL OR o.fecha_fin_estimada > ?)
                 ) 
 
             ORDER BY r.capacidad ASC, r.nombre ASC";
@@ -88,7 +87,7 @@ class MySqlTableRepository implements RestaurantTableRepository{
 
         if(!$stmt)throw new \RuntimeException( 'Error preparando búsqueda de mesas disponibles: ' . $this->db->error);
 
-        $stmt->bind_param('issss', $capacity, $endDate, $startDate, $endDate, $startDate);
+        $stmt->bind_param('isss', $capacity, $endDate, $startDate, $endDate);
         $stmt->execute();
         $result = $stmt->get_result();
         $tables = [];
@@ -130,19 +129,14 @@ class MySqlTableRepository implements RestaurantTableRepository{
                     FROM ocupacion_recursos obr
                     INNER JOIN ocupaciones o ON o.id = obr.ocupacion_id
                     WHERE obr.recurso_id = r.id
-                        AND o.estado = 'en_uso'
-                        AND o.fecha_inicio < ?
-                        AND (
-                            o.fecha_fin_estimada IS NULL
-                            OR o.fecha_fin_estimada > ?
-                        )
+                        AND o.estado = 'en_uso' AND o.fecha_inicio < ?
                 )
             LIMIT 1";
 
         $stmt = $this->db->prepare($sql);
         if(!$stmt)
             throw new \RuntimeException('Error preparando validación de disponibilidad: ' . $this->db->error);
-        $stmt->bind_param('iissss',$resourceId, $capacity, $endDate, $startDate, $endDate, $startDate);
+        $stmt->bind_param('iisss',$resourceId, $capacity, $endDate, $startDate, $endDate);
 
         if(!$stmt->execute()){
             $error = $stmt->error;

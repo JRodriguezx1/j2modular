@@ -72,7 +72,7 @@ export function initReservationDrawer(pageData: ReservationsPageData):void{
 
         renderLoading();
         try{
-            const tables = await findAvailableTables({
+            const tables = await findAvailableTables({ //llamado a availability.ts para consultar disponibilidad de mesas
                     startDate: buildDateTime(date, startTime),
                     endDate: buildDateTime(date, endTime),
                     numberOfPeople

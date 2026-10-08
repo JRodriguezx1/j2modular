@@ -392,6 +392,7 @@ CREATE TABLE `clientes` (
   `ultima_compra` datetime DEFAULT NULL,
   `totaldebe` decimal(12,2) DEFAULT '0.00',
   `limitecredito` decimal(12,2) DEFAULT '100000.00',
+  `puntos` decimal(12,2) DEFAULT '0.00',
   `data1` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -405,7 +406,7 @@ CREATE TABLE `clientes` (
 
 LOCK TABLES `clientes` WRITE;
 /*!40000 ALTER TABLE `clientes` DISABLE KEYS */;
-INSERT INTO `clientes` VALUES (1,'N/a','N/a','6','N/a','N/a','N/a',NULL,NULL,NULL,0.00,100000.00,NULL,'2026-01-08 06:13:59');
+INSERT INTO `clientes` VALUES (1,'N/a','N/a','6','N/a','N/a','N/a',NULL,NULL,NULL,0.00,100000.00,0.00,NULL,'2026-01-08 06:13:59');
 /*!40000 ALTER TABLE `clientes` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1338,6 +1339,9 @@ CREATE TABLE `facturas` (
   `num_orden` int DEFAULT NULL,
   `prefijo` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci DEFAULT NULL,
   `num_consecutivo` int DEFAULT NULL,
+  `nombrecompania` varchar(77) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nit` varchar(22) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `datosrut` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci DEFAULT NULL,
   `cliente` varchar(75) CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci DEFAULT NULL,
   `vendedor` varchar(55) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `caja` varchar(33) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci DEFAULT NULL,
@@ -1373,6 +1377,8 @@ CREATE TABLE `facturas` (
   `entrega` varchar(11) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
   `entregado` tinyint(1) DEFAULT '1',
   `valortarifa` varchar(9) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL,
+  `puntos_generados` decimal(10,2) DEFAULT '0.00',
+  `puntos_descontados` decimal(10,2) DEFAULT '0.00',
   `fechaentrega` datetime DEFAULT NULL,
   `fechacreacion` datetime DEFAULT NULL,
   `fechapago` datetime DEFAULT NULL,
@@ -3342,4 +3348,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-10  9:55:16
+-- Dump completed on 2026-10-08  0:12:52

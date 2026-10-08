@@ -136,7 +136,15 @@ final class ProductosInventarioService{
         if(!is_dir($directorioFotos) && !mkdir($directorioFotos, 0755, true))
             throw new RuntimeException('No fue posible preparar el directorio de imagenes.');
 
-        $foto = $subdominio.'/productos/'.uniqid().basename((string)$imagen['name']);
+        $nombreOriginal = basename((string)$imagen['name']);
+        // Separar nombre y extensión
+        $nombre = pathinfo($nombreOriginal, PATHINFO_FILENAME);
+        $extension = strtolower(pathinfo($nombreOriginal, PATHINFO_EXTENSION));
+        // Reemplazar espacios y caracteres especiales
+        $nombre = preg_replace('/[^a-zA-Z0-9_-]+/', '_', $nombre);
+        $nombre = trim($nombre, '_');
+
+        $foto = $subdominio.'/productos/'.uniqid().'_'.$nombre.'.'.$extension;
         $rutaAbsoluta = $documentRoot.'/build/img/'.$foto;
         if(!move_uploaded_file((string)$imagen['tmp_name'], $rutaAbsoluta))
             throw new RuntimeException('No fue posible guardar la imagen.');
