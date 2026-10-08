@@ -144,14 +144,14 @@ $router->get('/admin/almacen/editartrasladoinv', [trasladosinvcontrolador::class
 $router->get('/admin/caja/pedidosguardados', [cajacontrolador::class, 'pedidosguardados']);
 $router->get('/admin/caja/trasladosRetirosDinero', [cajacontrolador::class, 'trasladosRetirosDinero']);
 $router->get('/admin/caja/despachosPendientes', [cajacontrolador::class, 'despachosPendientes']);
-$router->post('/admin/caja/ingresoGastoCaja', [cajacontrolador::class, 'ingresoGastoCaja']);
-$router->get('/admin/caja/categoriaGasto', [cajacontrolador::class, 'categoriaGasto']);
-$router->post('/admin/caja/categoriaGasto', [cajacontrolador::class, 'categoriaGasto']);
-$router->post('/admin/caja/crear_categoriaGasto', [cajacontrolador::class, 'crear_categoriaGasto']);
-$router->post('/admin/caja/editarcategoriagasto', [cajacontrolador::class, 'editarcategoriagasto']);
-$router->get('/admin/caja/ordenresumen', [cajacontrolador::class, 'ordenresumen']);  //resumen de la orden
+//$router->post('/admin/caja/ingresoGastoCaja', [cajacontrolador::class, 'ingresoGastoCaja']);
+//$router->get('/admin/caja/categoriaGasto', [cajacontrolador::class, 'categoriaGasto']);
+//$router->post('/admin/caja/categoriaGasto', [cajacontrolador::class, 'categoriaGasto']);
+//$router->post('/admin/caja/crear_categoriaGasto', [cajacontrolador::class, 'crear_categoriaGasto']);
+//$router->post('/admin/caja/editarcategoriagasto', [cajacontrolador::class, 'editarcategoriagasto']);
+//$router->get('/admin/caja/ordenresumen', [cajacontrolador::class, 'ordenresumen']);  //resumen de la orden
 //$router->get('/admin/caja/printfacturacarta', [cajacontrolador::class, 'printfacturacarta']);  //imprimir factura tipo carta
-$router->get('/admin/caja/detalleorden', [cajacontrolador::class, 'detalleorden']); //detalle de la orden
+//$router->get('/admin/caja/detalleorden', [cajacontrolador::class, 'detalleorden']); //detalle de la orden
 ///// area de ventas /////
 //$router->get('/admin/ventas', [ventascontrolador::class, 'index']);
 ///// area de ventas-modorapido /////
@@ -279,10 +279,10 @@ $router->post('/admin/api/anularnuevotrasladoinv', [trasladosinvcontrolador::cla
 $router->get('/admin/api/mediospagoXfactura', [cajacontrolador::class, 'mediospagoXfactura']); //obtener los medios de pago segun factura elegido en caja.ts
 $router->post('/admin/api/cambioMedioPago', [cajacontrolador::class, 'cambioMedioPago']);  //aip llamada desde caja.ts
 $router->post('/admin/api/eliminarPedidoGuardado', [cajacontrolador::class, 'eliminarPedidoGuardado']);  //api llamada desde pedidosguardados.ts
-$router->post('/admin/api/sendOrdenEmailToCustemer', [cajacontrolador::class, 'sendOrdenEmailToCustemer']);  //api llamada desde ordenresumen.ts para enviar detalle de orden por email
+//$router->post('/admin/api/sendOrdenEmailToCustemer', [cajacontrolador::class, 'sendOrdenEmailToCustemer']);  //api llamada desde ordenresumen.ts para enviar detalle de orden por email
 $router->get('/admin/api/getInvoice', [cajacontrolador::class, 'getInvoice']); //obtener detalle invoice en caja.ts para imprimir
-$router->get('/admin/api/caja/despacharOrden', [cajacontrolador::class, 'despacharOrden']); //despachar orden desdes ordenresumen.ts
-$router->post('/admin/api/caja/cambiarEmisor', [cajacontrolador::class, 'cambiarEmisor']); //llamada desde ordenresumen.ts
+//$router->get('/admin/api/caja/despacharOrden', [cajacontrolador::class, 'despacharOrden']); //despachar orden desdes ordenresumen.ts
+//$router->post('/admin/api/caja/cambiarEmisor', [cajacontrolador::class, 'cambiarEmisor']); //llamada desde ordenresumen.ts
 
 $router->post('/admin/api/facturarModorapido', [modorapidocontrolador::class, 'facturarModorapido']);  //aip llamada desde modorapido.ts cuando se factura en modo rapido
 

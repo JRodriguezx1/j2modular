@@ -2,33 +2,29 @@
 
 namespace App\Modules\Cash\Controllers;
 
-use App\Core\Routing\Router;
 use App\Models\parametrizacion\config_local;
 use App\services\caja\CajaCierreService;
 use App\services\caja\CajaConsultasService;
 
 /** Acciones HTTP del cierre de caja; las reglas permanecen en los servicios. */
-class CierreController
-{
+class CierreController{
+
     /** POST /admin/api/declaracionDinero. */
-    public static function declaracionDinero(Router $router): void
-    {
+    public static function declaracionDinero(): void{
         isadmin();
         $resultado = (new CajaCierreService())->registrarDeclaracion($_POST, id_sucursal());
         echo json_encode($resultado);
     }
 
     /** POST /admin/api/arqueocaja. */
-    public static function arqueocaja(Router $router): void
-    {
+    public static function arqueocaja(): void{
         isadmin();
         $resultado = (new CajaCierreService())->registrarArqueo($_POST, id_sucursal());
         echo json_encode($resultado);
     }
 
     /** POST /admin/api/cierrecajaconfirmado. */
-    public static function cierrecajaconfirmado(Router $router): void
-    {
+    public static function cierrecajaconfirmado(): void{
         isauth();
         date_default_timezone_set('America/Bogota');
         $resultado = (new CajaCierreService())->confirmarCierre(
@@ -42,8 +38,7 @@ class CierreController
     }
 
     /** POST /admin/api/datoscajaseleccionada. */
-    public static function datoscajaseleccionada(Router $router): void
-    {
+    public static function datoscajaseleccionada(): void{
         isadmin();
         $cajaId = filter_var($_POST['idcaja'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
 
@@ -60,4 +55,5 @@ class CierreController
 
         echo json_encode(['exito' => ['Cambio de caja.']] + $datos);
     }
+
 }
