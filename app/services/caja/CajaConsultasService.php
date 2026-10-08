@@ -26,7 +26,7 @@ final class CajaConsultasService
     /**
      * Prepara el panel principal de caja.
      *
-     * Llamado desde cajacontrolador::index(), ruta GET /admin/caja. Devuelve
+     * Llamado desde Cash/CajaController::index(), ruta GET /admin/caja. Devuelve
      * exactamente las variables de negocio consumidas por admin/caja/index.
      */
     public function obtenerPanelCaja(int $sucursalId, int $perfil, int $usuarioId): array{
@@ -68,7 +68,7 @@ final class CajaConsultasService
     /**
      * Prepara la pantalla de cierre para la caja principal de la sucursal.
      *
-     * Llamado desde cajacontrolador::cerrarcaja(), ruta
+     * Llamado desde Cash/CajaController::cerrarcaja(), ruta
      * GET /admin/caja/cerrarcaja. La caja principal es la primera caja activa,
      * salvo que exista una marcada como no editable.
      */
@@ -103,7 +103,7 @@ final class CajaConsultasService
      * Lista los cierres finalizados de una sucursal del más reciente al más
      * antiguo.
      *
-     * Llamado desde cajacontrolador::ultimoscierres(), ruta
+     * Llamado desde Cash/CajaController::ultimoscierres(), ruta
      * GET /admin/caja/ultimoscierres.
      */
     public function listarCierresFinalizados(int $sucursalId): array{
@@ -113,7 +113,7 @@ final class CajaConsultasService
     /**
      * Obtiene el resumen de un cierre finalizado para su vista de detalle.
      *
-     * Llamado desde cajacontrolador::detallecierrecaja(), ruta
+     * Llamado desde Cash/CajaController::detallecierrecaja(), ruta
      * GET /admin/caja/detallecierrecaja?id={id}.
      */
     public function obtenerDetalleCierreFinalizado(int $cierreId, int $sucursalId): ?array{
@@ -126,7 +126,7 @@ final class CajaConsultasService
     /**
      * Obtiene el resumen del cierre abierto de una caja elegida por el usuario.
      *
-     * Llamado desde cajacontrolador::datoscajaseleccionada(), endpoint POST
+     * Llamado desde Cash/CierreController::datoscajaseleccionada(), endpoint POST
      * /admin/api/datoscajaseleccionada, utilizado por src/ts/caja/cerrarcaja.ts.
      */
     public function obtenerCajaSeleccionada(int $cajaId, int $sucursalId): ?array{
@@ -276,6 +276,7 @@ final class CajaConsultasService
             'ultimocierre' => null,
             'facturas' => [],
             'ventasxusuarios' => [],
+            'costo_total' => 0,
         ];
     }
 

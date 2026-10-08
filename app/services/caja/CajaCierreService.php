@@ -22,7 +22,7 @@ final class CajaCierreService
     /**
      * Crea, actualiza o elimina la declaración de un medio de pago.
      *
-     * Consumidor actual: cajacontrolador::declaracionDinero(), llamado por
+     * Consumidor actual: Cash/CierreController::declaracionDinero(), llamado por
      * src/ts/caja/cerrarcaja.ts mediante POST /admin/api/declaracionDinero.
      * Un valor cero elimina la declaración existente; si aún no existía se
      * conserva el comportamiento anterior y se registra en cero.
@@ -77,7 +77,7 @@ final class CajaCierreService
     /**
      * Crea o reemplaza las denominaciones contadas en el arqueo.
      *
-     * Consumidor actual: cajacontrolador::arqueocaja(), llamado por
+     * Consumidor actual: Cash/CierreController::arqueocaja(), llamado por
      * src/ts/caja/cerrarcaja.ts mediante POST /admin/api/arqueocaja.
      * Al actualizar copia explícitamente el nuevo formulario al registro; el
      * controlador anterior omitía este paso y dejaba los valores anteriores.
@@ -122,7 +122,7 @@ final class CajaCierreService
     /**
      * Cierra el período actual y abre el siguiente de forma atómica.
      *
-     * Consumidor actual: cajacontrolador::cierrecajaconfirmado(), llamado por
+     * Consumidor actual: Cash/CierreController::cierrecajaconfirmado(), llamado por
      * src/ts/caja/cerrarcaja.ts mediante POST
      * /admin/api/cierrecajaconfirmado. Valida sucursal, estado y órdenes
      * pendientes; calcula totales, crea el nuevo período y registra la base

@@ -4,17 +4,17 @@ return [
 
     'cliente' => [
         'database' => 'contapos',
-        'modules' => ['POS', 'Restaurant'],
+        'modules' => ['POS', 'Cash', 'Restaurant'],
     ],
 
     'cliente1' => [
         'database' => 'j2a1',
-        'modules' => ['POS',],
+        'modules' => ['POS', 'Cash'],
     ],
 
     'cliente2' => [
         'database' => 'j2a2',
-        'modules' => ['POS', /* 'Restaurant', // todavia no existe */],
+        'modules' => ['POS', 'Cash', /* 'Restaurant', // todavia no existe */],
     ],
 
 ];

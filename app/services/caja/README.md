@@ -5,12 +5,17 @@
 > pruebas. Las exclusiones y deudas aceptadas se enumeran al final; la suite de
 > pruebas automatizadas corresponde a la siguiente fase.
 
+Actualización de migración: el panel, el cierre principal, cuatro consultas
+de reportes e históricos y cuatro acciones HTTP del cierre se despachan desde
+`Modules/Cash`. Las demás acciones permanecen en `cajacontrolador`. Véanse
+los documentos de `docs/cash/`.
+
 ## Alcance de esta estructura
 
 Esta carpeta concentra la separación de responsabilidades de
 `App\Controllers\cajacontrolador`, conservando sus contratos HTTP actuales.
 
-En esta fase:
+En la fase de extracción original:
 
 - `cajacontrolador.php` continúa siendo el único controlador de caja.
 - No se modifican rutas ni archivos de entrada.
@@ -48,31 +53,31 @@ El controlador contiene 29 acciones distribuidas en siete grupos de lógica:
 | Órdenes | Pedidos, pagos, despachos y cambio de emisor | `CajaOrdenesService` |
 | Documentos | Impresión, formato de factura y correo | `CajaDocumentosService` |
 
-## Estado de migración
+## Estado de extracción y migración
 
 ### `CajaConsultasService` — completado
 
 | Método del servicio | Consumidor actual | Origen HTTP |
 |---|---|---|
-| `obtenerPanelCaja` | `cajacontrolador::index` | `GET /admin/caja` |
-| `obtenerCierrePrincipal` | `cajacontrolador::cerrarcaja` | `GET /admin/caja/cerrarcaja` |
-| `listarCierresFinalizados` | `cajacontrolador::ultimoscierres` | `GET /admin/caja/ultimoscierres` |
-| `obtenerDetalleCierreFinalizado` | `cajacontrolador::detallecierrecaja` | `GET /admin/caja/detallecierrecaja` |
-| `obtenerCajaSeleccionada` | `cajacontrolador::datoscajaseleccionada` | `POST /admin/api/datoscajaseleccionada` |
+| `obtenerPanelCaja` | `CajaController::index` (`Modules/Cash`) | `GET /admin/caja` |
+| `obtenerCierrePrincipal` | `CajaController::cerrarcaja` (`Modules/Cash`) | `GET /admin/caja/cerrarcaja` |
+| `listarCierresFinalizados` | `CajaController::ultimoscierres` (`Modules/Cash`) | `GET /admin/caja/ultimoscierres` |
+| `obtenerDetalleCierreFinalizado` | `CajaController::detallecierrecaja` (`Modules/Cash`) | `GET /admin/caja/detallecierrecaja` |
+| `obtenerCajaSeleccionada` | `CierreController::datoscajaseleccionada` (`Modules/Cash`) | `POST /admin/api/datoscajaseleccionada` |
 | `obtenerCierreParaImpresion` | `CajaDocumentosService::prepararDetalleCierre` | `GET /printdetallecierre` |
 
 Los métodos privados `construirResumenCierre`, `agruparMediosPago`,
 `calcularDiferencial` y `cruzarDeclaraciones` concentran el cálculo que estaba
-repetido en cuatro lugares. El controlador conserva autenticación, entrada HTTP,
+repetido en cuatro lugares. Los controladores conservan autenticación, entrada HTTP,
 render de vistas y serialización JSON.
 
 ### `CajaCierreService` — completado
 
 | Método del servicio | Consumidor actual | Origen HTTP |
 |---|---|---|
-| `registrarDeclaracion` | `cajacontrolador::declaracionDinero` | `POST /admin/api/declaracionDinero` |
-| `registrarArqueo` | `cajacontrolador::arqueocaja` | `POST /admin/api/arqueocaja` |
-| `confirmarCierre` | `cajacontrolador::cierrecajaconfirmado` | `POST /admin/api/cierrecajaconfirmado` |
+| `registrarDeclaracion` | `CierreController::declaracionDinero` (`Modules/Cash`) | `POST /admin/api/declaracionDinero` |
+| `registrarArqueo` | `CierreController::arqueocaja` (`Modules/Cash`) | `POST /admin/api/arqueocaja` |
+| `confirmarCierre` | `CierreController::cierrecajaconfirmado` (`Modules/Cash`) | `POST /admin/api/cierrecajaconfirmado` |
 
 `confirmarCierre` bloquea el cierre abierto y guarda en una única transacción
 el cierre actual, el siguiente período y la base automática. La notificación de
@@ -110,8 +115,8 @@ controlador reutiliza un único método privado para reconstruir la vista.
 
 | Método del servicio | Consumidor actual | Origen HTTP |
 |---|---|---|
-| `obtenerIndiceZ` | `cajacontrolador::zetadiario` | `GET /admin/caja/zetadiario` |
-| `obtenerDetalleZ` | `cajacontrolador::fechazetadiario` | `GET /admin/caja/fechazetadiario?id={selector}` |
+| `obtenerIndiceZ` | `CajaController::zetadiario` (`Modules/Cash`) | `GET /admin/caja/zetadiario` |
+| `obtenerDetalleZ` | `CajaController::fechazetadiario` (`Modules/Cash`) | `GET /admin/caja/fechazetadiario?id={selector}` |
 | `consultarZPorRango` | `reportescontrolador::consultafechazetadiario` | `POST /admin/api/consultafechazetadiario` |
 
 `obtenerDetalleZ` diferencia tres contratos: `-1` consolida todas las cajas

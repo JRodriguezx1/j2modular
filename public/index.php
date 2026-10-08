@@ -138,15 +138,12 @@ $router->get('/admin/almacen/solicitarinventario', [trasladosinvcontrolador::cla
 $router->get('/admin/almacen/nuevotrasladoinv', [trasladosinvcontrolador::class, 'nuevotrasladoinv']);
 $router->get('/admin/almacen/editartrasladoinv', [trasladosinvcontrolador::class, 'editartrasladoinv']);
 ///// area de caja /////
-$router->get('/admin/caja', [cajacontrolador::class, 'index']);
-$router->get('/admin/caja/cerrarcaja', [cajacontrolador::class, 'cerrarcaja']);
-$router->get('/admin/caja/zetadiario', [cajacontrolador::class, 'zetadiario']);
-$router->get('/admin/caja/fechazetadiario', [cajacontrolador::class, 'fechazetadiario']); ////--------pasar a controlador de reportes
-$router->get('/admin/caja/ultimoscierres', [cajacontrolador::class, 'ultimoscierres']);
+// GET /admin/caja se registra en Modules/Cash/routes.php; el controlador antiguo se conserva.
+// GET /admin/caja/cerrarcaja se registra en Modules/Cash/routes.php.
+// Las consultas de reportes Z y cierres históricos se registran en Modules/Cash/routes.php.
 $router->get('/admin/caja/pedidosguardados', [cajacontrolador::class, 'pedidosguardados']);
 $router->get('/admin/caja/trasladosRetirosDinero', [cajacontrolador::class, 'trasladosRetirosDinero']);
 $router->get('/admin/caja/despachosPendientes', [cajacontrolador::class, 'despachosPendientes']);
-$router->get('/admin/caja/detallecierrecaja', [cajacontrolador::class, 'detallecierrecaja']);
 $router->post('/admin/caja/ingresoGastoCaja', [cajacontrolador::class, 'ingresoGastoCaja']);
 $router->get('/admin/caja/categoriaGasto', [cajacontrolador::class, 'categoriaGasto']);
 $router->post('/admin/caja/categoriaGasto', [cajacontrolador::class, 'categoriaGasto']);
@@ -278,10 +275,7 @@ $router->post('/admin/api/confirmarnuevotrasladoinv', [trasladosinvcontrolador::
 $router->post('/admin/api/confirmaringresoinv', [trasladosinvcontrolador::class, 'confirmaringresoinv']); //api llamada desde solicitudesrecibidasinv.ts para confirmar lista de productos a recibir y sumar de inventario y pasar a estado en entregado
 $router->post('/admin/api/anularnuevotrasladoinv', [trasladosinvcontrolador::class, 'anularnuevotrasladoinv']); //api llamada desde trasladarinv.ts y solicitudesrecibidasinv para cancelar orden de traslado o solicitud
 
-$router->post('/admin/api/declaracionDinero', [cajacontrolador::class, 'declaracionDinero']);  //aip llamada desde cerrarcaja.ts
-$router->post('/admin/api/arqueocaja', [cajacontrolador::class, 'arqueocaja']);  //aip llamada desde cerrarcaja.ts
-$router->post('/admin/api/cierrecajaconfirmado', [cajacontrolador::class, 'cierrecajaconfirmado']);  //aip llamada desde cerrarcaja.ts
-$router->post('/admin/api/datoscajaseleccionada', [cajacontrolador::class, 'datoscajaseleccionada']);  //aip llamada desde cerrarcaja.ts
+// Las cuatro acciones HTTP del cierre se registran en Modules/Cash/routes.php.
 $router->get('/admin/api/mediospagoXfactura', [cajacontrolador::class, 'mediospagoXfactura']); //obtener los medios de pago segun factura elegido en caja.ts
 $router->post('/admin/api/cambioMedioPago', [cajacontrolador::class, 'cambioMedioPago']);  //aip llamada desde caja.ts
 $router->post('/admin/api/eliminarPedidoGuardado', [cajacontrolador::class, 'eliminarPedidoGuardado']);  //api llamada desde pedidosguardados.ts

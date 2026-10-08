@@ -20,7 +20,7 @@ final class CajaReportesService
     /**
      * Prepara el índice del reporte Z.
      *
-     * Consumidor actual: cajacontrolador::zetadiario(), ruta
+     * Consumidor actual: Cash/CajaController::zetadiario(), ruta
      * GET /admin/caja/zetadiario. Lista primero los cierres más recientes y
      * conserva -1 como selector convencional del consolidado de cajas abiertas.
      */
@@ -34,7 +34,7 @@ final class CajaReportesService
     /**
      * Prepara la pantalla de detalle según el selector recibido.
      *
-     * Consumidor actual: cajacontrolador::fechazetadiario(), ruta
+     * Consumidor actual: Cash/CajaController::fechazetadiario(), ruta
      * GET /admin/caja/fechazetadiario?id={selector}. Los modos son:
      * - -1: consolida todos los cierres abiertos de la sucursal;
      * -  0: entrega la pantalla vacía para consultar un rango por JavaScript;
