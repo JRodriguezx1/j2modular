@@ -91,9 +91,9 @@ $router->get('/confirmar-cuenta', [logincontrolador::class, 'confirmar_cuenta'])
 //$router->get('/', [paginacontrolador::class, 'index']);
 ///////////     print     ////////////
 $router->get('/', [logincontrolador::class, 'login']);
-$router->get('/printfacturacarta', [cajacontrolador::class, 'printfacturacarta']); //llamado desde ordenresumen y desde index caja
-$router->get('/printcotizacion', [cajacontrolador::class, 'printcotizacion']); //llamado desde ordenresumen
-$router->get('/printdetallecierre', [cajacontrolador::class, 'printdetallecierre']); //llamado desde cerrarcaja
+//$router->get('/printfacturacarta', [cajacontrolador::class, 'printfacturacarta']); //llamado desde ordenresumen y desde index caja
+//$router->get('/printcotizacion', [cajacontrolador::class, 'printcotizacion']); //llamado desde ordenresumen
+//$router->get('/printdetallecierre', [cajacontrolador::class, 'printdetallecierre']); //llamado desde cerrarcaja
 $router->get('/printDetalleCompra', [reportescontrolador::class, 'printDetalleCompra']);  //lamada desde detalle compra.
 
 
@@ -141,9 +141,9 @@ $router->get('/admin/almacen/editartrasladoinv', [trasladosinvcontrolador::class
 // GET /admin/caja se registra en Modules/Cash/routes.php; el controlador antiguo se conserva.
 // GET /admin/caja/cerrarcaja se registra en Modules/Cash/routes.php.
 // Las consultas de reportes Z y cierres históricos se registran en Modules/Cash/routes.php.
-$router->get('/admin/caja/pedidosguardados', [cajacontrolador::class, 'pedidosguardados']);
-$router->get('/admin/caja/trasladosRetirosDinero', [cajacontrolador::class, 'trasladosRetirosDinero']);
-$router->get('/admin/caja/despachosPendientes', [cajacontrolador::class, 'despachosPendientes']);
+//$router->get('/admin/caja/pedidosguardados', [cajacontrolador::class, 'pedidosguardados']);
+//$router->get('/admin/caja/trasladosRetirosDinero', [cajacontrolador::class, 'trasladosRetirosDinero']);
+//$router->get('/admin/caja/despachosPendientes', [cajacontrolador::class, 'despachosPendientes']);
 //$router->post('/admin/caja/ingresoGastoCaja', [cajacontrolador::class, 'ingresoGastoCaja']);
 //$router->get('/admin/caja/categoriaGasto', [cajacontrolador::class, 'categoriaGasto']);
 //$router->post('/admin/caja/categoriaGasto', [cajacontrolador::class, 'categoriaGasto']);
@@ -276,11 +276,11 @@ $router->post('/admin/api/confirmaringresoinv', [trasladosinvcontrolador::class,
 $router->post('/admin/api/anularnuevotrasladoinv', [trasladosinvcontrolador::class, 'anularnuevotrasladoinv']); //api llamada desde trasladarinv.ts y solicitudesrecibidasinv para cancelar orden de traslado o solicitud
 
 // Las cuatro acciones HTTP del cierre se registran en Modules/Cash/routes.php.
-$router->get('/admin/api/mediospagoXfactura', [cajacontrolador::class, 'mediospagoXfactura']); //obtener los medios de pago segun factura elegido en caja.ts
-$router->post('/admin/api/cambioMedioPago', [cajacontrolador::class, 'cambioMedioPago']);  //aip llamada desde caja.ts
-$router->post('/admin/api/eliminarPedidoGuardado', [cajacontrolador::class, 'eliminarPedidoGuardado']);  //api llamada desde pedidosguardados.ts
+//$router->get('/admin/api/mediospagoXfactura', [cajacontrolador::class, 'mediospagoXfactura']); //obtener los medios de pago segun factura elegido en caja.ts
+//$router->post('/admin/api/cambioMedioPago', [cajacontrolador::class, 'cambioMedioPago']);  //aip llamada desde caja.ts
+//$router->post('/admin/api/eliminarPedidoGuardado', [cajacontrolador::class, 'eliminarPedidoGuardado']);  //api llamada desde pedidosguardados.ts
 //$router->post('/admin/api/sendOrdenEmailToCustemer', [cajacontrolador::class, 'sendOrdenEmailToCustemer']);  //api llamada desde ordenresumen.ts para enviar detalle de orden por email
-$router->get('/admin/api/getInvoice', [cajacontrolador::class, 'getInvoice']); //obtener detalle invoice en caja.ts para imprimir
+//$router->get('/admin/api/getInvoice', [cajacontrolador::class, 'getInvoice']); //obtener detalle invoice en caja.ts para imprimir
 //$router->get('/admin/api/caja/despacharOrden', [cajacontrolador::class, 'despacharOrden']); //despachar orden desdes ordenresumen.ts
 //$router->post('/admin/api/caja/cambiarEmisor', [cajacontrolador::class, 'cambiarEmisor']); //llamada desde ordenresumen.ts
 

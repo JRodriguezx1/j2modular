@@ -97,6 +97,15 @@ class IngresosGastosController{
     self::renderCategoriasGasto($router, $alertas);
   }
 
+
+  public static function trasladosRetirosDinero(Router $router){
+    isadmin();
+    //if(!tienePermiso('Habilitar modulo de caja')&&userPerfil()>3)return;
+    $alertas = [];
+    $router->render('admin/caja/trasladosRetiros', ['titulo'=>'Caja', 'alertas'=>$alertas, 'sucursales'=>sucursales::all(), 'user'=>$_SESSION]);
+  }
+
+  
   /**
    * POST /admin/caja/editarcategoriagasto.
    *
