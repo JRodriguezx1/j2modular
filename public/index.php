@@ -155,7 +155,7 @@ $router->get('/admin/almacen/editartrasladoinv', [trasladosinvcontrolador::class
 ///// area de ventas /////
 //$router->get('/admin/ventas', [ventascontrolador::class, 'index']);
 ///// area de ventas-modorapido /////
-$router->get('/admin/ventas/modorapido', [modorapidocontrolador::class, 'index']);
+//$router->get('/admin/ventas/modorapido', [modorapidocontrolador::class, 'index']);
 ///// print ticket //////
 $router->get('/admin/printPDFPOS', [printcontrolador::class, 'printPDFPOS']);  //llamada desde ventas.ts cuando se realiza una venta exitosa
 $router->get('/admin/printPDFPOSSeparado', [printcontrolador::class, 'printPDFPOSSeparado']);  //llamada desde separado.ts cuando se realiza un separado exitoso
@@ -284,7 +284,7 @@ $router->post('/admin/api/anularnuevotrasladoinv', [trasladosinvcontrolador::cla
 //$router->get('/admin/api/caja/despacharOrden', [cajacontrolador::class, 'despacharOrden']); //despachar orden desdes ordenresumen.ts
 //$router->post('/admin/api/caja/cambiarEmisor', [cajacontrolador::class, 'cambiarEmisor']); //llamada desde ordenresumen.ts
 
-$router->post('/admin/api/facturarModorapido', [modorapidocontrolador::class, 'facturarModorapido']);  //aip llamada desde modorapido.ts cuando se factura en modo rapido
+//$router->post('/admin/api/facturarModorapido', [modorapidocontrolador::class, 'facturarModorapido']);  //aip llamada desde modorapido.ts cuando se factura en modo rapido
 
 $router->get('/admin/api/allcredits', [creditoscontrolador::class, 'allcredits']);
 $router->post('/admin/api/creditos/registrarAbono', [creditoscontrolador::class, 'registrarAbono']);
