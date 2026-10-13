@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\sucursales;
 use App\Models\suscripcioncuenta\suscripcion_pagos;
 use App\Repositories\suscripcioncuenta\suscripcionPagosRepository;
-use MVC\Router;  //namespace\clase
+use App\Core\Routing\Router;
  
 class suscripcioncontrolador{
 

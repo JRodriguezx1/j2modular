@@ -2,7 +2,9 @@
 
 Este archivo conserva como referencia la implementación transaccional de `almacencontrolador::registrarCompra()` anterior a su futura delegación al servicio.
 
-> Este código es documentación y no se ejecuta. El método activo permanece en `app/Controllers/almacencontrolador.php`.
+> Este código es documentación y no se ejecuta. Para `cliente`, la ruta activa
+> de compra apunta a `app/Modules/Inventory/Controllers/ApiInventoryController.php`;
+> `app/Controllers/almacencontrolador.php` se conserva como referencia.
 
 ```php
   public static function registrarCompra(){  //asociar un o unos subproductos a un producto principal

@@ -184,7 +184,7 @@ class DocumentsCajaController{
 
         $id = $_POST['id'];
         $sendEmail = $_POST['email'];
-        $path = __DIR__ . "/../../views/templates/plantillafacturaemail.php";
+        $path = dirname(__DIR__, 4) . '/views/templates/plantillafacturaemail.php';
 
         if($_SERVER['REQUEST_METHOD'] === 'POST' ){
         $factura = facturas::find('id', $id);

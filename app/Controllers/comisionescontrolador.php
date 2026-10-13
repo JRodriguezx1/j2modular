@@ -35,7 +35,7 @@ use App\services\creditosService;
 use App\services\stockService;
 use App\services\whatsAppService;
 //use App\Models\configuraciones\negocio;
-use MVC\Router;  //namespace\clase
+use App\Core\Routing\Router;
 use stdClass;
 
 class comisionescontrolador{

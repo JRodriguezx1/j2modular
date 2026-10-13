@@ -32,16 +32,16 @@ $whatsappText = rawurlencode('Hola, acabo de realizar el pago de mi suscripcion.
 
                             <div class="min-w-0">
                                 <p class="mb-1 text-sm font-black uppercase tracking-[.16em] text-white/75 md:tracking-[.22em]">Estado del servicio</p>
-                                <h1 class="m-0 text-3xl font-black leading-tight md:text-4xl"><?= $estadoLabel; ?></h1>
+                                <h1 class="m-0 text-3xl font-bold leading-tight md:text-4xl"><?= $estadoLabel; ?></h1>
                                 <p class="mb-0 mt-1 text-base font-medium leading-snug text-white/90 md:text-lg"><?= $estadoTexto; ?></p>
                             </div>
                         </div>
                     </div>
 
                     <div class="rounded-2xl bg-white/15 px-5 py-4 text-left ring-1 ring-white/20 backdrop-blur md:min-w-72 md:px-6 md:py-5">
-                        <p class="mb-1 text-sm font-black uppercase tracking-[.18em] text-white/70">Valor a renovar</p>
-                        <p class="m-0 text-4xl font-black">$<?= number_format($sucursal->valorplan, 2, ',', '.'); ?></p>
-                        <p class="mb-0 mt-1 text-sm font-semibold text-white/80"><?= $sucursal->plan->nombre; ?></p>
+                        <p class="mb-1 text-base font-bold uppercase tracking-[.18em] text-white/70">Valor a renovar</p>
+                        <p class="m-0 text-4xl font-bold">$<?= number_format($sucursal->valorplan, 2, ',', '.'); ?></p>
+                        <p class="mb-0 mt-1 text-base font-semibold text-white/80"><?= $sucursal->plan->nombre; ?></p>
                     </div>
                 </div>
             </div>
@@ -50,10 +50,10 @@ $whatsappText = rawurlencode('Hola, acabo de realizar el pago de mi suscripcion.
                 <section class="rounded-2xl border border-slate-200 bg-slate-50 p-6 lg:p-8">
                     <div class="mb-5 flex items-start justify-between gap-4">
                         <div>
-                            <p class="mb-1 text-sm font-black uppercase tracking-[.18em] text-indigo-600">Cuenta</p>
-                            <h2 class="m-0 text-3xl font-black text-slate-900">Detalle de suspension</h2>
+                            <p class="mb-1 text-sm font-bold uppercase tracking-[.18em] text-indigo-600">Cuenta</p>
+                            <h2 class="m-0 text-3xl font-bold text-slate-900">Detalle de suspension</h2>
                         </div>
-                        <span class="rounded-full bg-rose-100 px-4 py-2 text-sm font-black uppercase tracking-wide text-rose-700">
+                        <span class="rounded-full bg-rose-100 px-4 py-2 text-sm font-bold uppercase tracking-wide text-rose-700">
                             <?= $estaVencido ? 'Vencida' : 'Activa'; ?>
                         </span>
                     </div>
@@ -89,8 +89,8 @@ $whatsappText = rawurlencode('Hola, acabo de realizar el pago de mi suscripcion.
 
                 <section class="rounded-2xl border border-slate-200 bg-white p-6 lg:p-8">
                     <div class="mb-5">
-                        <p class="mb-1 text-sm font-black uppercase tracking-[.18em] text-indigo-600">Pago</p>
-                        <h2 class="m-0 text-3xl font-black text-slate-900">Medios disponibles</h2>
+                        <p class="mb-1 text-sm font-bold uppercase tracking-[.18em] text-indigo-600">Pago</p>
+                        <h2 class="m-0 text-3xl font-bold text-slate-900">Medios disponibles</h2>
                         <p class="mb-0 mt-1 text-base text-slate-500">Realiza el pago y envia el comprobante para acelerar la validacion.</p>
                     </div>
 
@@ -101,8 +101,8 @@ $whatsappText = rawurlencode('Hola, acabo de realizar el pago de mi suscripcion.
                                     <i class="fa-solid fa-building-columns text-xl"></i>
                                 </span>
                                 <div>
-                                    <h3 class="m-0 text-xl font-black text-slate-900">Transferencia bancaria</h3>
-                                    <p class="m-0 text-sm font-semibold text-slate-500">Bancolombia</p>
+                                    <h3 class="m-0 text-xl font-bold text-slate-900">Transferencia bancaria</h3>
+                                    <p class="m-0 text-base font-semibold text-slate-500">Bancolombia</p>
                                 </div>
                             </div>
                             <div class="mt-4 grid gap-2 text-base text-slate-600">
@@ -117,9 +117,9 @@ $whatsappText = rawurlencode('Hola, acabo de realizar el pago de mi suscripcion.
                                     <span class="grid h-11 w-11 place-items-center rounded-xl bg-cyan-100 text-cyan-700">
                                         <i class="fa-solid fa-mobile-screen-button text-xl"></i>
                                     </span>
-                                    <h3 class="m-0 text-xl font-black text-slate-900">Nequi / Daviplata</h3>
+                                    <h3 class="m-0 text-xl font-bold text-slate-900">Nequi / Daviplata</h3>
                                 </div>
-                                <p class="mb-0 mt-4 text-base font-bold text-slate-700">3022016786 / 304 2029683</p>
+                                <p class="mb-0 mt-4 text-lg font-semibold text-slate-700">3022016786 / 304 2029683</p>
                             </div>
 
                             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 lg:p-6">
@@ -127,9 +127,9 @@ $whatsappText = rawurlencode('Hola, acabo de realizar el pago de mi suscripcion.
                                     <span class="grid h-11 w-11 place-items-center rounded-xl bg-violet-100 text-violet-700">
                                         <i class="fa-solid fa-at text-xl"></i>
                                     </span>
-                                    <h3 class="m-0 text-xl font-black text-slate-900">Bre-B</h3>
+                                    <h3 class="m-0 text-xl font-bold text-slate-900">Bre-B</h3>
                                 </div>
-                                <p class="mb-0 mt-4 text-base font-bold text-slate-700">@3022016786</p>
+                                <p class="mb-0 mt-4 text-lg font-semibold text-slate-700">@3022016786</p>
                             </div>
                         </div>
                     </div>
@@ -143,14 +143,14 @@ $whatsappText = rawurlencode('Hola, acabo de realizar el pago de mi suscripcion.
                     <a
                         href="https://wa.me/573234433298?text=<?= $whatsappText; ?>"
                         target="_blank"
-                        class="inline-flex min-h-16 items-center justify-center gap-3 rounded-xl bg-emerald-500 px-7 py-4 text-xl font-black text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600 lg:px-8">
+                        class="inline-flex min-h-16 items-center justify-center gap-3 rounded-xl bg-emerald-500 px-7 py-4 text-xl font-bold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-600 lg:px-8">
                         <i class="fa-brands fa-whatsapp"></i>
                         Enviar comprobante
                     </a>
 
                     <a
                         href="/login"
-                        class="inline-flex min-h-16 items-center justify-center gap-3 rounded-xl bg-indigo-600 px-7 py-4 text-xl font-black text-white shadow-lg shadow-indigo-500/20 transition hover:bg-indigo-700 lg:px-8">
+                        class="inline-flex min-h-16 items-center justify-center gap-3 rounded-xl bg-indigo-600 px-7 py-4 text-xl font-bold text-white shadow-lg shadow-indigo-500/20 transition hover:bg-indigo-700 lg:px-8">
                         <i class="fa-solid fa-rotate-right"></i>
                         Ya realice el pago
                     </a>

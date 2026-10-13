@@ -16,7 +16,7 @@ use App\Controllers\contabilidadcontrolador;
 use App\Controllers\almacencontrolador;
 use App\Controllers\apidiancontrolador;
 use App\Controllers\archivocontroller;
-use App\Controllers\cajacontrolador;
+//use App\Controllers\cajacontrolador;
 //use App\Controllers\ventascontrolador;
 use App\Controllers\reportescontrolador;
 use App\Controllers\clientescontrolador;
@@ -25,9 +25,9 @@ use App\Controllers\direccionescontrolador;
 use App\Controllers\configcontrolador;
 use App\Controllers\creditoscontrolador;
 use App\Controllers\parqueaderocontrolador;
-use App\Controllers\modorapidocontrolador;
+//use App\Controllers\modorapidocontrolador;
 use App\Controllers\nominaelectcontrolador;
-use App\Controllers\paginacontrolador;
+//use App\Controllers\paginacontrolador;
 use App\Controllers\parametroscontrolador;
 use App\Controllers\printcontrolador;
 use App\Controllers\suscripcioncontrolador;
@@ -107,30 +107,30 @@ $router->get('/admin/contabilidad', [contabilidadcontrolador::class, 'index']);
 ///// area de nomina electronica /////
 $router->get('/admin/nominaelectronica', [nominaelectcontrolador::class, 'index']);
 ///// area de almacen categorias, productos, subproductos, compras etc /////
-$router->get('/admin/almacen', [almacencontrolador::class, 'index']);
-$router->get('/admin/almacen/categorias', [almacencontrolador::class, 'categorias']);
-$router->post('/admin/almacen/crear_categoria', [almacencontrolador::class, 'crear_categoria']);
-$router->get('/admin/almacen/productos', [almacencontrolador::class, 'productos']);
-$router->post('/admin/almacen/crear_producto', [almacencontrolador::class, 'crear_producto']);
-$router->get('/admin/almacen/subproductos', [almacencontrolador::class, 'subproductos']);
-$router->post('/admin/almacen/crear_subproducto', [almacencontrolador::class, 'crear_subproducto']);
-$router->get('/admin/almacen/componer', [almacencontrolador::class, 'componer']);
-$router->get('/admin/almacen/ajustarcostos', [almacencontrolador::class, 'ajustarcostos']);
-$router->get('/admin/almacen/compras', [almacencontrolador::class, 'compras']);
-$router->get('/admin/almacen/distribucion', [almacencontrolador::class, 'distribucion']);
-$router->get('/admin/almacen/inventariar', [almacencontrolador::class, 'inventariar']);
-$router->get('/admin/almacen/unidadesmedida', [almacencontrolador::class, 'unidadesmedida']);
-$router->post('/admin/almacen/unidadesmedida', [almacencontrolador::class, 'unidadesmedida']);
-$router->post('/admin/almacen/crear_unidadmedida', [almacencontrolador::class, 'crear_unidadmedida']);
-$router->post('/admin/almacen/editarunidademedida', [almacencontrolador::class, 'editarunidademedida']);
-$router->post('/admin/almacen/downexcelproducts', [almacencontrolador::class, 'downexcelproducts']);
-$router->post('/admin/almacen/uploadExcel', [almacencontrolador::class, 'uploadExcel']);
-$router->post('/admin/almacen/uploadInsumosExcel', [almacencontrolador::class, 'uploadInsumosExcel']);
-$router->post('/admin/almacen/downexcelinsumos', [almacencontrolador::class, 'downexcelinsumos']);
-$router->get('/admin/almacen/cambioPrecios', [almacencontrolador::class, 'cambioPrecios']);
-$router->get('/admin/almacen/estadisticas', [almacencontrolador::class, 'estadisticas']);
-$router->get('/admin/almacen/productosParaFormulas', [almacencontrolador::class, 'productosParaFormulas']);
-$router->get('/admin/almacen/conversionUnidades', [almacencontrolador::class, 'conversionUnidades']);
+//$router->get('/admin/almacen', [almacencontrolador::class, 'index']);
+//$router->get('/admin/almacen/categorias', [almacencontrolador::class, 'categorias']);
+//$router->post('/admin/almacen/crear_categoria', [almacencontrolador::class, 'crear_categoria']);
+//$router->get('/admin/almacen/productos', [almacencontrolador::class, 'productos']);
+//$router->post('/admin/almacen/crear_producto', [almacencontrolador::class, 'crear_producto']);
+//$router->get('/admin/almacen/subproductos', [almacencontrolador::class, 'subproductos']);
+//$router->post('/admin/almacen/crear_subproducto', [almacencontrolador::class, 'crear_subproducto']);
+//$router->get('/admin/almacen/componer', [almacencontrolador::class, 'componer']);
+//$router->get('/admin/almacen/ajustarcostos', [almacencontrolador::class, 'ajustarcostos']);
+//$router->get('/admin/almacen/compras', [almacencontrolador::class, 'compras']);
+//$router->get('/admin/almacen/distribucion', [almacencontrolador::class, 'distribucion']);
+//$router->get('/admin/almacen/inventariar', [almacencontrolador::class, 'inventariar']);
+//$router->get('/admin/almacen/unidadesmedida', [almacencontrolador::class, 'unidadesmedida']);
+//$router->post('/admin/almacen/unidadesmedida', [almacencontrolador::class, 'unidadesmedida']);
+//$router->post('/admin/almacen/crear_unidadmedida', [almacencontrolador::class, 'crear_unidadmedida']);
+//$router->post('/admin/almacen/editarunidademedida', [almacencontrolador::class, 'editarunidademedida']);
+//$router->post('/admin/almacen/downexcelproducts', [almacencontrolador::class, 'downexcelproducts']);
+//$router->post('/admin/almacen/uploadExcel', [almacencontrolador::class, 'uploadExcel']);
+//$router->post('/admin/almacen/uploadInsumosExcel', [almacencontrolador::class, 'uploadInsumosExcel']);
+//$router->post('/admin/almacen/downexcelinsumos', [almacencontrolador::class, 'downexcelinsumos']);
+//$router->get('/admin/almacen/cambioPrecios', [almacencontrolador::class, 'cambioPrecios']);
+//$router->get('/admin/almacen/estadisticas', [almacencontrolador::class, 'estadisticas']);
+//$router->get('/admin/almacen/productosParaFormulas', [almacencontrolador::class, 'productosParaFormulas']);
+//$router->get('/admin/almacen/conversionUnidades', [almacencontrolador::class, 'conversionUnidades']);
 ////// area de traslados de inventario  //////
 $router->get('/admin/almacen/solicitudesrecibidas', [trasladosinvcontrolador::class, 'solicitudesrecibidas']);
 $router->get('/admin/almacen/trasladarinventario', [trasladosinvcontrolador::class, 'trasladarinventario']);
@@ -234,37 +234,37 @@ $router->post('/admin/api/changeSucursal/select', [logincontrolador::class, 'cha
 $router->get('/admin/api/ventasVsGastos', [dashboardcontrolador::class, 'ventasVsGastos']);
 $router->get('/admin/api/ultimos7dias', [dashboardcontrolador::class, 'ultimos7dias']);
 
-$router->post('/admin/api/actualizar_categoria', [almacencontrolador::class, 'actualizar_categoria']);
-$router->post('/admin/api/eliminarCategoria', [almacencontrolador::class, 'eliminarCategoria']);
-$router->get('/admin/api/allproducts', [almacencontrolador::class, 'allproducts']); //trae todos los productos
-$router->post('/admin/api/actualizarproducto', [almacencontrolador::class, 'actualizarproducto']);  //actualizar en general el producto
-$router->post('/admin/api/eliminarProducto', [almacencontrolador::class, 'eliminarProducto']);
-$router->get('/admin/api/allsubproducts', [almacencontrolador::class, 'allsubproducts']); //trae todos los sub-productos
-$router->post('/admin/api/actualizarsubproducto', [almacencontrolador::class, 'actualizarsubproducto']);  //actualizar en general el producto
-$router->post('/admin/api/eliminarSubProducto', [almacencontrolador::class, 'eliminarSubProducto']);
-$router->post('/admin/api/setrendimientoestandar', [almacencontrolador::class, 'setrendimientoestandar']);  //establecer rendimiento estandar de la formula de salida
-$router->post('/admin/api/ensamblar', [almacencontrolador::class, 'ensamblar']);  //asociar un o unos subproductos a un producto principal
-$router->get('/admin/api/desasociarsubproducto', [almacencontrolador::class, 'desasociarsubproducto']);
-$router->get('/admin/api/almacen/allUnidadesMedida', [almacencontrolador::class, 'allUnidadesMedida']); //trae todas las unidades de medida
-$router->get('/admin/api/allConversionesUnidades', [almacencontrolador::class, 'allConversionesUnidades']); //trae todos los sub-productos con todas las unidades equivalentes
-$router->post('/admin/api/almacen/crearNuevaConversionUnidad', [almacencontrolador::class, 'crearNuevaConversionUnidad']);
-$router->get('/admin/api/almacen/eliminarConversionUnidad', [almacencontrolador::class, 'eliminarConversionUnidad']);
-$router->post('/admin/api/actualizarcostos', [almacencontrolador::class, 'actualizarcostos']);  //actualizar costos, api llamada desde ajustarcostos.ts
-$router->post('/admin/api/actualizarPreciosVenta', [almacencontrolador::class, 'actualizarPreciosVenta']);  //actualizar precios, api llamada desde ajustarprecios.ts
-$router->get('/admin/api/totalitems', [almacencontrolador::class, 'totalitems']);  //api llamada desde compras.ts para obtener los productos simples y subproductos
-$router->post('/admin/api/registrarCompra', [almacencontrolador::class, 'registrarCompra']);  //
-$router->post('/admin/api/descontarstock', [almacencontrolador::class, 'descontarstock']);  //descontar unidades de inventario
-$router->post('/admin/api/aumentarstock', [almacencontrolador::class, 'aumentarstock']);  //ingresar o aumentar unidades de inventario
-$router->post('/admin/api/ajustarstock', [almacencontrolador::class, 'ajustarstock']);  //reiniciar o ajustar inventario
-$router->post('/admin/api/reiniciarinv', [almacencontrolador::class, 'reiniciarinv']);  //reiniciar inv a cero, llamada desde almacen.ts
-$router->post('/admin/api/cambiarestadoproducto', [almacencontrolador::class, 'cambiarestadoproducto']);  //cambiar el estado del producto desde producto.ts
-$router->get('/admin/api/getStockproductosXsucursal', [almacencontrolador::class, 'getStockproductosXsucursal']);  //reiniciar inv a cero, llamada desde almacen.ts
-$router->get('/admin/api/allproveedores', [almacencontrolador::class, 'allproveedores']); // me trae todos los proveedores desde gestionproveedores.js
-$router->post('/admin/api/crearProveedor', [almacencontrolador::class, 'crearProveedor']); //api llamada desde gestionproveedores.js para crear proveedores
-$router->post('/admin/api/actualizarProveedor', [almacencontrolador::class, 'actualizarProveedor']); //api llamada desde gestionproveedores.js para actualizar proveedores
-$router->post('/admin/api/eliminarProveedor', [almacencontrolador::class, 'eliminarProveedor']); //api llamada desde gestionproveedores.js para eliminar proveedores
-$router->post('/admin/api/generarBarCode', [almacencontrolador::class, 'generarBarCode']); // me trae todos los proveedores desde gestionproveedores.js
-$router->get('/admin/api/getItemsBajoStock', [almacencontrolador::class, 'getItemsBajoStock']);
+//$router->post('/admin/api/actualizar_categoria', [almacencontrolador::class, 'actualizar_categoria']);
+//$router->post('/admin/api/eliminarCategoria', [almacencontrolador::class, 'eliminarCategoria']);
+//$router->get('/admin/api/allproducts', [almacencontrolador::class, 'allproducts']); //trae todos los productos
+//$router->post('/admin/api/actualizarproducto', [almacencontrolador::class, 'actualizarproducto']);  //actualizar en general el producto
+//$router->post('/admin/api/eliminarProducto', [almacencontrolador::class, 'eliminarProducto']);
+//$router->get('/admin/api/allsubproducts', [almacencontrolador::class, 'allsubproducts']); //trae todos los sub-productos
+//$router->post('/admin/api/actualizarsubproducto', [almacencontrolador::class, 'actualizarsubproducto']);  //actualizar en general el producto
+//$router->post('/admin/api/eliminarSubProducto', [almacencontrolador::class, 'eliminarSubProducto']);
+//$router->post('/admin/api/setrendimientoestandar', [almacencontrolador::class, 'setrendimientoestandar']);  //establecer rendimiento estandar de la formula de salida
+//$router->post('/admin/api/ensamblar', [almacencontrolador::class, 'ensamblar']);  //asociar un o unos subproductos a un producto principal
+//$router->get('/admin/api/desasociarsubproducto', [almacencontrolador::class, 'desasociarsubproducto']);
+//$router->get('/admin/api/almacen/allUnidadesMedida', [almacencontrolador::class, 'allUnidadesMedida']); //trae todas las unidades de medida
+//$router->get('/admin/api/allConversionesUnidades', [almacencontrolador::class, 'allConversionesUnidades']); //trae todos los sub-productos con todas las unidades equivalentes
+//$router->post('/admin/api/almacen/crearNuevaConversionUnidad', [almacencontrolador::class, 'crearNuevaConversionUnidad']);
+//$router->get('/admin/api/almacen/eliminarConversionUnidad', [almacencontrolador::class, 'eliminarConversionUnidad']);
+//$router->post('/admin/api/actualizarcostos', [almacencontrolador::class, 'actualizarcostos']);  //actualizar costos, api llamada desde ajustarcostos.ts
+//$router->post('/admin/api/actualizarPreciosVenta', [almacencontrolador::class, 'actualizarPreciosVenta']);  //actualizar precios, api llamada desde ajustarprecios.ts
+//$router->get('/admin/api/totalitems', [almacencontrolador::class, 'totalitems']);  //api llamada desde compras.ts para obtener los productos simples y subproductos
+//$router->post('/admin/api/registrarCompra', [almacencontrolador::class, 'registrarCompra']);  //
+//$router->post('/admin/api/descontarstock', [almacencontrolador::class, 'descontarstock']);  //descontar unidades de inventario
+//$router->post('/admin/api/aumentarstock', [almacencontrolador::class, 'aumentarstock']);  //ingresar o aumentar unidades de inventario
+//$router->post('/admin/api/ajustarstock', [almacencontrolador::class, 'ajustarstock']);  //reiniciar o ajustar inventario
+//$router->post('/admin/api/reiniciarinv', [almacencontrolador::class, 'reiniciarinv']);  //reiniciar inv a cero, llamada desde almacen.ts
+//$router->post('/admin/api/cambiarestadoproducto', [almacencontrolador::class, 'cambiarestadoproducto']);  //cambiar el estado del producto desde producto.ts
+//$router->get('/admin/api/getStockproductosXsucursal', [almacencontrolador::class, 'getStockproductosXsucursal']);  //reiniciar inv a cero, llamada desde almacen.ts
+//$router->get('/admin/api/allproveedores', [almacencontrolador::class, 'allproveedores']); // me trae todos los proveedores desde gestionproveedores.js
+//$router->post('/admin/api/crearProveedor', [almacencontrolador::class, 'crearProveedor']); //api llamada desde gestionproveedores.js para crear proveedores
+//$router->post('/admin/api/actualizarProveedor', [almacencontrolador::class, 'actualizarProveedor']); //api llamada desde gestionproveedores.js para actualizar proveedores
+//$router->post('/admin/api/eliminarProveedor', [almacencontrolador::class, 'eliminarProveedor']); //api llamada desde gestionproveedores.js para eliminar proveedores
+//$router->post('/admin/api/generarBarCode', [almacencontrolador::class, 'generarBarCode']); // me trae todos los proveedores desde gestionproveedores.js
+//$router->get('/admin/api/getItemsBajoStock', [almacencontrolador::class, 'getItemsBajoStock']);
 
 //$router->get('/admin/api/allordenestrasladoinv', [trasladosinvcontrolador::class, 'allordenestrasladoinv']); //trae todos las ordenes de traslados
 $router->get('/admin/api/idOrdenTrasladoSolicitudInv', [trasladosinvcontrolador::class, 'idOrdenTrasladoSolicitudInv']); //trae todos las ordenes de traslados

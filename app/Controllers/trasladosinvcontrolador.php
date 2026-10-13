@@ -10,7 +10,7 @@ use App\services\trasladosinventario\TrasladosConsultaService;
 use App\services\trasladosinventario\TrasladosInventarioService;
 use App\services\trasladosinventario\TrasladosOrdenService;
 use App\services\whatsAppService;
-use MVC\Router;  //namespace\clase
+use App\Core\Routing\Router;
 
 /*
  * ÓRDENES EN LAS QUE LA SUCURSAL ACTUAL FIGURA COMO DESTINO

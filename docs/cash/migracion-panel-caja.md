@@ -30,4 +30,4 @@ El script consulta `contapos` y `j2a1` sin escribir datos; omite la base local `
 
 Resultado: **2 tenants comprobados**. `cliente` mostró 4 cajas y 20 facturas; `cliente1`, 1 caja y 0 facturas. `cliente2` quedó omitido por la condición indicada arriba. También se renderizó el HTML completo de la ruta nueva en las dos bases comprobadas: título `Gestion de Caja` presente y **0 advertencias PHP**.
 
-Los movimientos siguen registrados en `public/index.php`; los comandos HTTP de cierre se migraron después en `migracion-acciones-cierre.md`. Las acciones antiguas que declaran `MVC\Router` conservan la misma incompatibilidad con el despachador activo y deben priorizarse en esos cortes. Esta prueba se ejecutó en PHP CLI y no comprueba JavaScript ni navegación en un navegador autenticado.
+Los movimientos y las demás acciones HTTP se migraron después, como se resume en `revision-migracion-restante.md`. Las acciones antiguas que declaran `MVC\Router` conservan la misma incompatibilidad con el despachador activo, por lo que siguen únicamente como referencia. Esta prueba se ejecutó en PHP CLI y no comprueba JavaScript ni navegación en un navegador autenticado.

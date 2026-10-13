@@ -4,8 +4,8 @@ namespace App\Modules\Restaurant\Application\UseCases;
 
 use App\Modules\Restaurant\Domain\Repositories\CustomerRepository;
 
-class SearchCustomers
-{
+class SearchCustomers{
+    
     public function __construct(private CustomerRepository $customerRepository)
     {}
 

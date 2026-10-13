@@ -108,8 +108,7 @@ class MySqlOccupationRepository implements OccupationRepository{
 
         $occupations = [];
 
-        while ($row = $result->fetch_assoc()) {
-
+        while($row = $result->fetch_assoc()){
             $resourceId = (int) $row['recurso_id'];
 
             /*
@@ -138,120 +137,66 @@ class MySqlOccupationRepository implements OccupationRepository{
     }
 
 
-    public function create(
-    ?int $reservationId,
-    ?int $clientId,
-    string $type,
-    string $startDate,
-    ?string $estimatedEndDate,
-    ?string $observations
-): int {
-
-    $sql = "
-        INSERT INTO ocupaciones (
-            reserva_id,
-            cliente_id,
-            tipo,
-            fecha_inicio,
-            fecha_fin_estimada,
-            estado,
-            observaciones
-        )
-        VALUES (
-            ?,
-            ?,
-            ?,
-            ?,
-            ?,
-            'en_uso',
-            ?
-        )
-    ";
-
-    $stmt = $this->db->prepare($sql);
-
-    if (!$stmt) {
-        throw new \RuntimeException(
-            'Error preparando creación de ocupación: '
-            . $this->db->error
-        );
-    }
-
-    $stmt->bind_param(
-        'iissss',
-        $reservationId,
-        $clientId,
-        $type,
-        $startDate,
-        $estimatedEndDate,
-        $observations
-    );
-
-    if (!$stmt->execute()) {
-
-        $error = $stmt->error;
-
+    public function create(?int $reservationId, ?int $clientId, string $type, string $startDate, ?string $estimatedEndDate, ?string $observations): int{
+        $sql = "INSERT INTO ocupaciones (reserva_id, cliente_id, tipo, fecha_inicio, fecha_fin_estimada, estado, observaciones) VALUES (?, ?, ?, ?, ?, 'en_uso', ?)";
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando creación de ocupación: ' . $this->db->error);
+        $stmt->bind_param('iissss', $reservationId, $clientId, $type, $startDate, $estimatedEndDate, $observations);
+        if(!$stmt->execute()){
+            $error = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException('Error creando la ocupación: ' . $error);
+        }
+        $occupationId = (int)$this->db->insert_id;
         $stmt->close();
-
-        throw new \RuntimeException(
-            'Error creando la ocupación: '
-            . $error
-        );
+        return $occupationId;
     }
 
-    $occupationId =
-        (int) $this->db->insert_id;
 
-    $stmt->close();
+    public function attachResource( int $occupationId, int $resourceId, float $baseValue = 0): void{
+        $sql = "INSERT INTO ocupacion_recursos (ocupacion_id, recurso_id, valor_base) VALUES (?, ?, ?)";
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando recurso de ocupación: ' . $this->db->error);
+        $stmt->bind_param('iid', $occupationId, $resourceId, $baseValue);
 
-    return $occupationId;
-}
-
-
-public function attachResource(
-    int $occupationId,
-    int $resourceId,
-    float $baseValue = 0
-): void {
-
-    $sql = "
-        INSERT INTO ocupacion_recursos (
-            ocupacion_id,
-            recurso_id,
-            valor_base
-        )
-        VALUES (?, ?, ?)
-    ";
-
-    $stmt = $this->db->prepare($sql);
-
-    if (!$stmt) {
-        throw new \RuntimeException(
-            'Error preparando recurso de ocupación: '
-            . $this->db->error
-        );
-    }
-
-    $stmt->bind_param(
-        'iid',
-        $occupationId,
-        $resourceId,
-        $baseValue
-    );
-
-    if (!$stmt->execute()) {
-
-        $error = $stmt->error;
-
+        if(!$stmt->execute()){
+            $error = $stmt->error;
+            $stmt->close();
+            throw new \RuntimeException('Error vinculando recurso a la ocupación: ' . $error);
+        }
         $stmt->close();
-
-        throw new \RuntimeException(
-            'Error vinculando recurso a la ocupación: '
-            . $error
-        );
     }
 
-    $stmt->close();
-}
+
+    public function findById(int $id): ?Occupation{ //? indica que puede retornar null
+        $sql = "SELECT id, reserva_id, cliente_id, tipo, fecha_inicio, fecha_fin_estimada, fecha_fin_real, estado_ocupacion, observaciones
+                FROM ocupaciones WHERE id = ? LIMIT 1";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('i', $id);
+
+        try{
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            if(!$row)return null;
+
+            return new Occupation(
+                id: (int) $row['id'],
+                reservationId: $row['reserva_id'] !== null ? (int)$row['reserva_id'] : null,
+                clientId: $row['cliente_id'] !== null ? (int)$row['cliente_id'] : null,
+                type: $row['tipo'],
+                startDate: $row['fecha_inicio'],
+                estimatedEndDate: $row['fecha_fin_estimada'],
+                actualEndDate: $row['fecha_fin_real'],
+                status: $row['estado_ocupacion'],
+                observations: $row['observaciones']
+            );
+        }finally{
+            $stmt->close();
+        }
+    }
     
 }

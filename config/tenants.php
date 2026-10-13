@@ -4,7 +4,7 @@ return [
 
     'cliente' => [
         'database' => 'contapos',
-        'modules' => ['POS', 'Cash', 'Restaurant'],
+        'modules' => ['POS', 'Cash', 'Inventory', 'Restaurant'],
     ],
 
     'cliente1' => [

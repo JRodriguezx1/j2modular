@@ -26,7 +26,8 @@ use App\Repositories\creditos\creditosRepository;
 use App\Repositories\creditos\cuotasRepository;
 use App\services\caja\CajaReportesService;
 use App\services\whatsAppService;
-use MVC\Router;  //namespace\clase
+
+use App\Core\Routing\Router;
  
 class reportescontrolador{
 

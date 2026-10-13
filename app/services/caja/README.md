@@ -5,10 +5,11 @@
 > pruebas. Las exclusiones y deudas aceptadas se enumeran al final; la suite de
 > pruebas automatizadas corresponde a la siguiente fase.
 
-Actualización de migración: el panel, el cierre principal, cuatro consultas
-de reportes e históricos y cuatro acciones HTTP del cierre se despachan desde
-`Modules/Cash`. Las demás acciones permanecen en `cajacontrolador`. Véanse
-los documentos de `docs/cash/`.
+Actualización de migración: las 29 acciones públicas de
+`cajacontrolador` ya tienen ruta en `Modules/Cash`. El controlador antiguo se
+conserva como referencia y respaldo de comparación. El inventario de
+consumidores que sigue documenta la fase de extracción original; el estado
+actual de las rutas se resume en `docs/cash/revision-migracion-restante.md`.
 
 ## Alcance de esta estructura
 

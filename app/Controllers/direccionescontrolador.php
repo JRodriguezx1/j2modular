@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use MVC\Router;  //namespace\clase
+use App\Core\Routing\Router;
 use App\Models\configuraciones\tarifas;
 use App\Repositories\clientes\clientesRepository;
 use App\services\clientesService;

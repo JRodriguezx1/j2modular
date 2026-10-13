@@ -56,7 +56,7 @@ class IngresosGastosController{
         return ['ruta'=>null, 'rutaAbsoluta'=>null, 'alertas'=>['Seleccione una imagen en formato jpeg o png.']];
 
         $subdominio = preg_replace('/[^a-zA-Z0-9_-]/', '', explode('.', (string)($_SERVER['HTTP_HOST'] ?? 'cliente'))[0]) ?: 'cliente';
-        $documentRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? dirname(__DIR__, 2).'/public'), '/\\');
+        $documentRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? dirname(__DIR__, 4).'/public'), '/\\');
         $directorio = $documentRoot.'/build/img/'.$subdominio.'/comprobantes';
         if(!is_dir($directorio) && !mkdir($directorio, 0755, true) && !is_dir($directorio))
         return ['ruta'=>null, 'rutaAbsoluta'=>null, 'alertas'=>['No fue posible preparar la carpeta de comprobantes.']];

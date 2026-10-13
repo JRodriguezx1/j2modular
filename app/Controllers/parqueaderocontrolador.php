@@ -7,7 +7,7 @@ use App\Models\ActiveRecord;
 use App\Models\parametrizacion\config_local;
 use App\Models\sucursales;
 use App\services\parqueaderoService;
-use MVC\Router;  //namespace\clase
+use App\Core\Routing\Router;
 use stdClass;
 
 class parqueaderocontrolador{

@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\sucursales;
-use MVC\Router;  //namespace\clase
+use App\Core\Routing\Router;
  
 class nominaelectcontrolador{
 

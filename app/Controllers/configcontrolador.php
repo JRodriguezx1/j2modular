@@ -21,7 +21,7 @@ use App\services\configuracion\ImpresorasConfiguracionService;
 use App\services\configuracion\MediosPagoConfiguracionService;
 use App\services\configuracion\NegocioConfiguracionService;
 use App\services\configuracion\TarifasConfiguracionService;
-use MVC\Router;  //namespace\clase
+use App\Core\Routing\Router;
  
 class configcontrolador{
 

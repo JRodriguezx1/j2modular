@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\classes\Email;
-use MVC\Router;  //namespace\clase
+use App\Core\Routing\Router;
 use App\Models\configuraciones\usuarios;
 use App\Models\clientes\clientes;
 use App\Models\empleados;

@@ -27,7 +27,7 @@ use App\Repositories\creditos\cuotasRepository;
 use App\Repositories\creditos\productsSeparadosRepository;
 use App\services\cajaService;
 use App\services\creditosService;
-use MVC\Router;  //namespace\clase
+
 use ticketPOS;
 
 class printcontrolador{

@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Models\parametrizacion\config_local;
 use App\services\whatsAppService;
-use stdClass;
 
 class whatsAppControlador{
   

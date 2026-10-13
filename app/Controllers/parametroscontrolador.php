@@ -11,7 +11,7 @@ use App\Models\parametrizacion\monedas;
 use App\Models\sucursales;
 use App\Models\ventas\ventas;
 use App\Models\configuraciones\tarifas;
-use MVC\Router;  //namespace\clase
+
 
 class parametroscontrolador{
     

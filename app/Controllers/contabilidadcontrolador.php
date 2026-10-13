@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\classes\Email;
 use App\Models\configuraciones\usuarios; //namespace\clase hija
 //use Model\configuraciones\negocio;
-use MVC\Router;  //namespace\clase
+use App\Core\Routing\Router;
  
 class contabilidadcontrolador{
 

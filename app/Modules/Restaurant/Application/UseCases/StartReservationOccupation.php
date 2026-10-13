@@ -11,6 +11,7 @@ use App\Core\Database\TransactionManager;
 use App\Modules\Restaurant\Domain\Repositories\OccupationRepository;
 use App\Modules\Restaurant\Domain\Repositories\ReservationRepository;
 use App\Modules\Restaurant\Domain\Repositories\RestaurantTableRepository;
+use App\Modules\Restaurant\Domain\Repositories\AccountRepository;
 
 
 class StartReservationOccupation{
@@ -19,7 +20,8 @@ class StartReservationOccupation{
         private ReservationRepository $reservationRepository,
         private OccupationRepository $occupationRepository,
         private RestaurantTableRepository $tableRepository,
-        private TransactionManager $transactionManager
+        private TransactionManager $transactionManager,
+        private AccountRepository $accountRepository
     ) {}
 
 
@@ -97,6 +99,8 @@ class StartReservationOccupation{
              */
             foreach($resources as $resource)
                 $this->occupationRepository->attachResource($occupationId, (int)$resource['id'], 0);
+
+            $accountId = $this->accountRepository->createMain($occupationId);
             /*
              * La reserva ya fue atendida.
              */

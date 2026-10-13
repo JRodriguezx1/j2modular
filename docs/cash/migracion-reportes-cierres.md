@@ -39,5 +39,5 @@ se omitió por estar desactualizada; se asume el esquema de `contapos`.
 
 La consulta por rango enviada desde la vista sigue en
 `reportescontrolador::consultafechazetadiario`. Los comandos de cierre y arqueo
-se migraron después en `migracion-acciones-cierre.md`. Los movimientos
-continúan en las rutas antiguas.
+se migraron después en `migracion-acciones-cierre.md`. Los movimientos y demás
+acciones se revisan en `revision-migracion-restante.md`.
