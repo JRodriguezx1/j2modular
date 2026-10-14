@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Restaurant\Interfaces\Http\Controllers\RestaurantController;
+use App\Modules\Restaurant\Interfaces\Http\Controllers\OccupationAccountController;
 
 
 $router->get('/restaurant/tables', [RestaurantController::class, 'index']);
@@ -15,3 +16,4 @@ $router->post('/restaurant/api/reservations/confirm', [RestaurantController::cla
 $router->post('/restaurant/api/reservations/cancel', [RestaurantController::class, 'cancelReservation']); //cancelar reservacion
 $router->post('/restaurant/api/reservations/start-occupation', [RestaurantController::class, 'startReservationOccupation']); //iniciar ocupacion de reservacion
 $router->get('/restaurant/api/occupations/active', [RestaurantController::class, 'getActiveOccupation']);
+$router->get('/restaurant/api/occupations/accounts', [OccupationAccountController::class, 'index']);

@@ -18,6 +18,28 @@ interface ActiveOccupationResponse {
     message?: string;
 }
 
+///---------------------------/--------------------------------///
+
+interface OccupationAccount {
+    id: number;
+    occupationId: number;
+    invoiceId: number | null;
+    name: string;
+    status: string;
+}
+
+interface OccupationAccountsData {
+    occupationId: number;
+    occupationStatus: string;
+    accounts: OccupationAccount[];
+}
+
+interface OccupationAccountsResponse {
+    success: boolean;
+    data?: OccupationAccountsData;
+    message?: string;
+}
+
 
 async function fetchActiveOccupation(resourceId: number): Promise<ActiveOccupation>{
     const response = await fetch( `/restaurant/api/occupations/active?resourceId=${resourceId}`,
@@ -30,6 +52,22 @@ async function fetchActiveOccupation(resourceId: number): Promise<ActiveOccupati
     if(!response.ok || !result.success || !result.occupation)
         throw new Error(result.message ?? 'No fue posible consultar la atención.');
     return result.occupation;
+}
+
+
+async function getOccupationAccounts(occupationId: number): Promise<OccupationAccountsData>{
+    const url = `/restaurant/api/occupations/accounts?occupationId=${encodeURIComponent(occupationId)}`;
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    });
+
+    const result: OccupationAccountsResponse = await response.json();
+    if(!response.ok || !result.success || !result.data)
+        throw new Error(result.message ?? 'No fue posible consultar las cuentas.');
+    return result.data;
 }
 
 
@@ -131,6 +169,7 @@ function formatDateTime(value: string): string{
 }
 
 
+let requestVersion = 0;
 
 export function initActiveOccupation(): void{
     const drawerElement = document.getElementById('activeOccupationDrawer');
@@ -153,13 +192,23 @@ export function initActiveOccupation(): void{
     
         const resourceId = Number(card.dataset.resourceId);
         if(!resourceId)return;
-        
+        const currentRequest = ++requestVersion;
+
         openDrawer();
         renderLoading();
         actions.classList.add('hidden');
         try {
             const occupation = await fetchActiveOccupation(resourceId);
+            if(currentRequest !== requestVersion)return;
             renderOccupation(occupation);
+
+            try {
+                const data = await getOccupationAccounts(occupation.occupationId);
+                //renderAccounts(data.accounts);
+            }catch(error){
+                //renderAccountsError(error instanceof Error ? error.message : 'No fue posible consultar las cuentas.');
+            }
+
         } catch (error) {
             content.innerHTML = `
                 <div class="rounded-xl bg-red-50 p-4 text-sm text-red-700">

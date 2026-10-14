@@ -85,21 +85,21 @@ class StartReservationOccupation{
              * previsto de finalización.
              */
             $estimatedEndDate = $reservation->getEndDate();
-            $occupationId = $this->occupationRepository
-                    ->create(
-                        reservationId: $reservation->getId(),
-                        clientId: $reservation->getClientId(),
-                        type: 'reserva',
-                        startDate: $now->format('Y-m-d H:i:s'),
-                        estimatedEndDate: $estimatedEndDate,
-                        observations: $reservation->getObservations()
-                    );
+            $occupationId = $this->occupationRepository->create(
+                                reservationId: $reservation->getId(),
+                                clientId: $reservation->getClientId(),
+                                type: 'reserva',
+                                startDate: $now->format('Y-m-d H:i:s'),
+                                estimatedEndDate: $estimatedEndDate,
+                                observations: $reservation->getObservations()
+                            );
             /*
              * Vincular recursos a la ocupación.
              */
             foreach($resources as $resource)
                 $this->occupationRepository->attachResource($occupationId, (int)$resource['id'], 0);
 
+            // Crear la cuenta principal de la ocupación.
             $accountId = $this->accountRepository->createMain($occupationId);
             /*
              * La reserva ya fue atendida.

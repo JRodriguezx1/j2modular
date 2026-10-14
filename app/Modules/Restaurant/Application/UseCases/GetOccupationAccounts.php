@@ -15,16 +15,11 @@ class GetOccupationAccounts{
     public function execute(int $occupationId): array{
         if($occupationId <= 0)
             throw new InvalidArgumentException('La ocupación indicada no es válida.');
-        
-
         $occupation = $this->occupationRepository->findById($occupationId);
 
         if($occupation === null)
             throw new InvalidArgumentException('La ocupación no existe.');
-        
-
         $accounts = $this->accountRepository->findByOccupationId($occupationId);
-
         $result = [];
 
         foreach ($accounts as $account) {
@@ -43,4 +38,5 @@ class GetOccupationAccounts{
             'accounts' => $result
         ];
     }
+
 }

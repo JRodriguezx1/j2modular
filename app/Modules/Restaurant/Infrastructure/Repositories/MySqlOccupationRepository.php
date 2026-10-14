@@ -171,7 +171,7 @@ class MySqlOccupationRepository implements OccupationRepository{
 
 
     public function findById(int $id): ?Occupation{ //? indica que puede retornar null
-        $sql = "SELECT id, reserva_id, cliente_id, tipo, fecha_inicio, fecha_fin_estimada, fecha_fin_real, estado_ocupacion, observaciones
+        $sql = "SELECT id, reserva_id, cliente_id, tipo, fecha_inicio, fecha_fin_estimada, fecha_fin_real, estado, observaciones
                 FROM ocupaciones WHERE id = ? LIMIT 1";
 
         $stmt = $this->db->prepare($sql);
@@ -191,7 +191,7 @@ class MySqlOccupationRepository implements OccupationRepository{
                 startDate: $row['fecha_inicio'],
                 estimatedEndDate: $row['fecha_fin_estimada'],
                 actualEndDate: $row['fecha_fin_real'],
-                status: $row['estado_ocupacion'],
+                status: $row['estado'],
                 observations: $row['observaciones']
             );
         }finally{
