@@ -50,6 +50,38 @@ class MySqlAccountRepository implements AccountRepository{
         }
     }
 
+    public function findByIdForUpdate(int $accountId): ?Account{
+        $sql = "
+            SELECT id, ocupacion_id, idfactura, nombre, estado
+            FROM cuentas WHERE id = ? LIMIT 1 FOR UPDATE";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('i', $accountId);
+
+        try {
+            $stmt->execute();
+            $row = $stmt->get_result()->fetch_assoc();
+            return $row ? $this->mapToEntity($row) : null;
+        } finally {
+            $stmt->close();
+        }
+    }
+
+    public function linkOpenOrder(int $accountId, int $orderId): void{
+        $sql = "UPDATE cuentas SET idfactura = ?
+                WHERE id = ? AND estado = 'abierta' AND idfactura IS NULL";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param('ii', $orderId, $accountId);
+
+        try {
+            $stmt->execute();
+            if ($stmt->affected_rows !== 1) {
+                throw new RuntimeException('La cuenta ya no admite enlazar una orden abierta.');
+            }
+        } finally {
+            $stmt->close();
+        }
+    }
+
     public function create(int $occupationId, string $name = 'General'): int{
         $sql = "INSERT INTO cuentas (ocupacion_id, nombre, estado) VALUES (?, ?, 'abierta')";
         $stmt = $this->db->prepare($sql);

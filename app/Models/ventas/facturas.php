@@ -79,6 +79,31 @@ class facturas extends \App\Models\ActiveRecord {
         return self::$alertas;
     }
 
+    public static function crearOrdenAbierta(int $sucursalId, ?int $clienteId, int $vendedorId): int {
+        $db = self::getDB();
+        if (!$db instanceof \mysqli)
+            throw new \RuntimeException('No hay conexión disponible para crear la orden abierta.');
+
+        $sql = "INSERT INTO facturas (
+                    id_sucursal, idcliente, idvendedor, estado, cotizacion, remision,
+                    subtotal, base, valorimpuestototal, descuento, total, totalunidades,
+                    fechacreacion, entregado, idcanaldeventa
+                ) VALUES (
+                    ?, ?, ?, 'Abierta', 0, 0,
+                    0, 0, 0, 0, 0, 0,
+                    NOW(), 0, NULL
+                )";
+
+        $stmt = $db->prepare($sql);
+        try {
+            $stmt->bind_param('iii', $sucursalId, $clienteId, $vendedorId);
+            $stmt->execute();
+            return (int) $db->insert_id;
+        } finally {
+            $stmt->close();
+        }
+    }
+
 
     public static function zDiarioTotalVentas($cajas, $consecutivos, $idsucursal, $fechaini="", $fechafin=""){
         $sql = "SELECT SUM(subtotal) as subtotalventa, SUM(base) as base, SUM(valorimpuestototal) as valorimpuestototal, SUM(total) as totalventa,
