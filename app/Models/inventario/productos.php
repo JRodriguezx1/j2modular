@@ -185,5 +185,27 @@ class productos extends \App\Models\ActiveRecord {
         $array = self::camposJoinObj($sql);
         return $array;
     }
+
+
+/////////// Metodos usados por restaurant /////////////
+
+    //Consultar el producto vendible
+    public static function buscarSimpleParaOrden(int $productoId, int $sucursalId): ?array{
+        $db = self::getDB();
+        $sql = "SELECT p.id, p.nombre, p.foto, p.tipoproducto, p.tipoproduccion, p.rendimientoestandar,
+                    p.precio_compra, p.precio_venta, p.impuesto, p.percentcomision, p.prioridadcomision, s.promediostock
+                FROM productos p
+                JOIN stockproductossucursal s ON s.productoid = p.id AND s.sucursalid = ?
+                WHERE p.id = ? AND p.estado = 1 AND p.visible = 1 AND p.tipoproducto = 0 AND s.habilitarventa = 1 LIMIT 1";
+
+        $stmt = $db->prepare($sql);
+        try{
+            $stmt->bind_param('ii', $sucursalId, $productoId);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_assoc() ?: null;
+        }finally{
+            $stmt->close();
+        }
+    }
     
 }

@@ -44,4 +44,30 @@ class ventas extends \App\Models\ActiveRecord {
 
         return self::$alertas;
     }
+
+    
+    /////////// Metodos usados por restaurant /////////////
+    public static function insertarLineaOrdenAbierta(array $linea): int{
+        $columnas = [
+            'idfactura', 'idproducto', 'tipoproducto', 'tipoproduccion',
+            'rendimientoestandar', 'nombreproducto', 'foto', 'costo',
+            'valorunidad', 'cantidad', 'promediostock', 'percentcomision',
+            'valorcomision', 'subtotal', 'base', 'impuesto', 'valorimp',
+            'descuento', 'total'
+        ];
+
+        $valores = [];
+        foreach($columnas as $columna)$valores[] = $linea[$columna];
+
+        $sql = 'INSERT INTO ventas (' . implode(', ', $columnas) . ') VALUES (' . implode(', ', array_fill(0, count($columnas), '?')) . ')';
+        $db = self::getDB();
+        $stmt = $db->prepare($sql);
+        try{
+            $stmt->execute($valores); // PHP 8.1+
+            return (int)$db->insert_id;
+        }finally{
+            $stmt->close();
+        }
+    }
+
 }

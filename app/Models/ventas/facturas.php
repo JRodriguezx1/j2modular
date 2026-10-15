@@ -79,32 +79,6 @@ class facturas extends \App\Models\ActiveRecord {
         return self::$alertas;
     }
 
-    public static function crearOrdenAbierta(int $sucursalId, ?int $clienteId, int $vendedorId): int {
-        $db = self::getDB();
-        if (!$db instanceof \mysqli)
-            throw new \RuntimeException('No hay conexión disponible para crear la orden abierta.');
-
-        $sql = "INSERT INTO facturas (
-                    id_sucursal, idcliente, idvendedor, estado, cotizacion, remision,
-                    subtotal, base, valorimpuestototal, descuento, total, totalunidades,
-                    fechacreacion, entregado, idcanaldeventa
-                ) VALUES (
-                    ?, ?, ?, 'Abierta', 0, 0,
-                    0, 0, 0, 0, 0, 0,
-                    NOW(), 0, NULL
-                )";
-
-        $stmt = $db->prepare($sql);
-        try {
-            $stmt->bind_param('iii', $sucursalId, $clienteId, $vendedorId);
-            $stmt->execute();
-            return (int) $db->insert_id;
-        } finally {
-            $stmt->close();
-        }
-    }
-
-
     public static function zDiarioTotalVentas($cajas, $consecutivos, $idsucursal, $fechaini="", $fechafin=""){
         $sql = "SELECT SUM(subtotal) as subtotalventa, SUM(base) as base, SUM(valorimpuestototal) as valorimpuestototal, SUM(total) as totalventa,
                 SUM(CASE WHEN consecutivos.idtipofacturador = 1 THEN 1 ELSE 0 END) AS ELECTRONICAS, /*cuantas facturas electronicas hay*/
@@ -215,4 +189,95 @@ class facturas extends \App\Models\ActiveRecord {
         $result = self::camposJoinObj($sql);
         return $result;
     }
+
+
+
+    /////////// Metodos usados por restaurant /////////////
+
+    public static function crearOrdenAbierta(int $sucursalId, ?int $clienteId, int $vendedorId): int {
+        $db = self::getDB();
+        if (!$db instanceof \mysqli)
+            throw new \RuntimeException('No hay conexión disponible para crear la orden abierta.');
+        $sql = "INSERT INTO facturas (
+                    id_sucursal, idcliente, idvendedor, estado, cotizacion, remision,
+                    subtotal, base, valorimpuestototal, descuento, total, totalunidades,
+                    fechacreacion, entregado, idcanaldeventa
+                ) VALUES (?, ?, ?, 'Abierta', 0, 0, 0, 0, 0, 0, 0, 0, NOW(), 0, NULL)";
+        $stmt = $db->prepare($sql);
+        try{
+            $stmt->bind_param('iii', $sucursalId, $clienteId, $vendedorId);
+            $stmt->execute();
+            return (int)$db->insert_id;
+        }finally{
+            $stmt->close();
+        }
+    }
+
+    //impide añadir líneas a una factura pagada o de otra sucursal.
+    public static function bloquearOrdenAbierta(int $ordenId, int $sucursalId): ?array{
+        $db = self::getDB();
+        $sql = "SELECT f.id, f.idvendedor, u.porcentajeganancia
+                FROM facturas f
+                JOIN usuarios u ON u.id = f.idvendedor
+                WHERE f.id = ? AND f.id_sucursal = ? AND f.estado = 'Abierta' LIMIT 1 FOR UPDATE";
+        $stmt = $db->prepare($sql);
+        try{
+            $stmt->bind_param('ii', $ordenId, $sucursalId);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_assoc() ?: null;
+        }finally{
+            $stmt->close();
+        }
+    }
+
+    //recalcular la factura
+    public static function recalcularTotalesOrdenAbierta(int $ordenId, int $sucursalId): array{
+        $db = self::getDB();
+        $sql = "UPDATE facturas f
+                JOIN (
+                    SELECT idfactura,
+                        COALESCE(SUM(cantidad), 0) AS unidades,
+                        COALESCE(SUM(subtotal), 0) AS suma_subtotal,
+                        COALESCE(SUM(base), 0) AS suma_base,
+                        COALESCE(SUM(valorimp), 0) AS suma_impuesto,
+                        COALESCE(SUM(descuento), 0) AS suma_descuento,
+                        COALESCE(SUM(total), 0) AS suma_total,
+                        COALESCE(SUM(valorcomision), 0) AS suma_comision
+                    FROM ventas
+                    WHERE idfactura = ?
+                    GROUP BY idfactura
+                ) t ON t.idfactura = f.id
+                SET f.totalunidades = t.unidades,
+                    f.subtotal = t.suma_subtotal,
+                    f.base = t.suma_base,
+                    f.valorimpuestototal = t.suma_impuesto,
+                    f.descuento = t.suma_descuento,
+                    f.total = t.suma_total,
+                    f.valorgananciauser = t.suma_comision,
+                    f.porcentgananciauser = CASE WHEN t.suma_subtotal > 0 THEN ROUND(100 * t.suma_comision / t.suma_subtotal, 2) ELSE 0 END
+                WHERE f.id = ? AND f.id_sucursal = ? AND f.estado = 'Abierta'";
+
+        $stmt = $db->prepare($sql);
+        try{
+            $stmt->bind_param('iii', $ordenId, $ordenId, $sucursalId);
+            $stmt->execute();
+            if($stmt->affected_rows !== 1)
+                throw new \RuntimeException('No fue posible actualizar la orden abierta.');
+        }finally{
+            $stmt->close();
+        }
+
+        $stmt = $db->prepare(
+            "SELECT totalunidades, subtotal, base, valorimpuestototal, descuento, total, valorgananciauser
+            FROM facturas WHERE id = ? AND id_sucursal = ? AND estado = 'Abierta'"
+        );
+        try{
+            $stmt->bind_param('ii', $ordenId, $sucursalId);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_assoc() ?: throw new \RuntimeException('No se encontraron los totales de la orden.');
+        }finally{
+            $stmt->close();
+        }
+    }
+
 }
