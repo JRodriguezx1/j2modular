@@ -22,7 +22,7 @@ class OpenOrderService{
      * compartida. Este método no hace commit ni rollback.
      */
     public function addSimpleProduct(int $orderId, int $productId, string $quantity, int $branchId): array{
-        if($orderId <= 0 || $productId <= 0 || $branchId <= 0 || preg_match('/\A(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?\z/', $quantity) !== 1 || (float) $quantity <= 0)
+        if($orderId <= 0 || $productId <= 0 || $branchId <= 0 || preg_match('/\A(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?\z/', $quantity) !== 1 || (float)$quantity <= 0)
             throw new InvalidArgumentException('Orden, producto o cantidad no válidos.');
 
         $orden = facturas::bloquearOrdenAbierta($orderId, $branchId);

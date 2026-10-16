@@ -15,6 +15,8 @@ use App\Modules\Restaurant\Infrastructure\Repositories\MySqlOccupationRepository
 use App\Modules\Restaurant\Infrastructure\Repositories\MySqlReservationRepository;
 use App\Modules\Restaurant\Infrastructure\Repositories\MySqlCustomerRepository;
 use App\Modules\Restaurant\Infrastructure\Repositories\MySqlAccountRepository;
+use App\Modules\Restaurant\Application\Ports\OpenOrderPort;
+use App\Modules\Restaurant\Infrastructure\Adapters\PosOpenOrderAdapter;
 
 class RestaurantServiceProvider{
 
@@ -25,6 +27,7 @@ class RestaurantServiceProvider{
         $container->bind(ReservationRepository::class, MySqlReservationRepository::class);
         $container->bind(CustomerRepository::class, MySqlCustomerRepository::class);
         $container->bind(AccountRepository::class, MySqlAccountRepository::class);
+        $container->bind(OpenOrderPort::class, PosOpenOrderAdapter::class);
     }
 
 }

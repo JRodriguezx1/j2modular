@@ -12,6 +12,7 @@ class CreateAdditionalAccount{
     public function __construct(private AccountRepository $accountRepository, private OccupationRepository $occupationRepository)
     {}
 
+    //Crea una cuenta adicional para una ocupación en_uso
     public function execute(int $occupationId, string $name): int{
         if($occupationId <= 0)
             throw new InvalidArgumentException('La ocupación indicada no es válida.');

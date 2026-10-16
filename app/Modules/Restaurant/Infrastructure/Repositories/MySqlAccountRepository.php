@@ -66,6 +66,7 @@ class MySqlAccountRepository implements AccountRepository{
         }
     }
 
+    // Enlaza una orden abierta a la cuenta, solo si la cuenta está abierta y no tiene ya una orden enlazada.
     public function linkOpenOrder(int $accountId, int $orderId): void{
         $sql = "UPDATE cuentas SET idfactura = ?
                 WHERE id = ? AND estado = 'abierta' AND idfactura IS NULL";

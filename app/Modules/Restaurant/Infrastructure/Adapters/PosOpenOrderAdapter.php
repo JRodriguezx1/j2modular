@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Modules\Restaurant\Infrastructure\Adapters;
+
+use App\Modules\POS\Services\OpenOrderService;
+use App\Modules\Restaurant\Application\Ports\OpenOrderPort;
+
+class PosOpenOrderAdapter implements OpenOrderPort{
+
+    public function __construct(private OpenOrderService $openOrderService)
+    {}
+
+    public function create(int $branchId, ?int $customerId, int $sellerId): int{
+        return $this->openOrderService->create($branchId, $customerId, $sellerId);
+    }
+
+    public function addSimpleProduct(int $orderId, int $productId, string $quantity, int $branchId): array{
+        return $this->openOrderService->addSimpleProduct($orderId, $productId, $quantity, $branchId);
+    }
+    
+}

@@ -802,7 +802,7 @@ class facturacionService
     /** Crea el credito y devuelve el id de la cuota para los medios de pago. */
     private function registrarCredito(facturas $factura, int $idFactura):int|string{
         if($this->tipoVenta !== 'Credito')return 'NULL';
-        $resultado = creditosService::crearCredito( $this->valoresCredito, $idFactura, (int)is_numeric((int)$factura->idcliente), $factura->totalunidades, $factura->base, $factura->valorimpuestototal, (int)$factura->dctox100, $factura->descuento, (int)$factura->idcierrecaja, (int)$factura->idcaja, (int)$factura->idvendedor, $factura->idemisor );
+        $resultado = creditosService::crearCredito( $this->valoresCredito, $idFactura, (int)$factura->idcliente, $factura->totalunidades, $factura->base, $factura->valorimpuestototal, (int)$factura->dctox100, $factura->descuento, (int)$factura->idcierrecaja, (int)$factura->idcaja, (int)$factura->idvendedor, $factura->idemisor );
         if(!empty($resultado['error']))throw new RuntimeException(implode(' ', $resultado['error']));
         return $resultado['idcuota'] ?? 'NULL';
     }

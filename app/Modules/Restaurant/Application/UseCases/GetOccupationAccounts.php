@@ -12,13 +12,13 @@ class GetOccupationAccounts{
     public function __construct(private AccountRepository $accountRepository, private OccupationRepository $occupationRepository)
     {}
 
-    public function execute(int $occupationId): array{
-        if($occupationId <= 0)
-            throw new InvalidArgumentException('La ocupación indicada no es válida.');
+    public function execute(int $occupationId, int $branchId): array{
+        if($occupationId <= 0 || $branchId <= 0)
+            throw new InvalidArgumentException('Los datos de la consulta no son válidos.');
         $occupation = $this->occupationRepository->findById($occupationId);
 
-        if($occupation === null)
-            throw new InvalidArgumentException('La ocupación no existe.');
+        if($occupation === null || $occupation->getSucursalId() !== $branchId)
+            throw new InvalidArgumentException('La ocupación no existe en esta sucursal.');
         $accounts = $this->accountRepository->findByOccupationId($occupationId);
         $result = [];
 

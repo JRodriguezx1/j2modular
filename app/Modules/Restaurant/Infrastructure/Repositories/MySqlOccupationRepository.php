@@ -16,6 +16,7 @@ class MySqlOccupationRepository implements OccupationRepository{
         $sql = "
             SELECT
                 o.id,
+                o.sucursal_id,
                 o.reserva_id,
                 o.cliente_id,
                 o.tipo,
@@ -25,17 +26,9 @@ class MySqlOccupationRepository implements OccupationRepository{
                 o.estado,
                 o.observaciones
             FROM ocupaciones AS o
-
-            INNER JOIN ocupacion_recursos AS obr
-                ON obr.ocupacion_id = o.id
-
-            WHERE obr.recurso_id = ?
-              AND o.estado = 'en_uso'
-
-            ORDER BY o.fecha_inicio DESC
-
-            LIMIT 1
-        ";
+            INNER JOIN ocupacion_recursos AS obr ON obr.ocupacion_id = o.id
+            WHERE obr.recurso_id = ? AND o.estado = 'en_uso'
+            ORDER BY o.fecha_inicio DESC LIMIT 1";
 
         $stmt = $this->db->prepare($sql);
 
@@ -43,18 +36,16 @@ class MySqlOccupationRepository implements OccupationRepository{
 
         $stmt->bind_param('i', $resourceId);
         $stmt->execute();
-
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
-
         $stmt->close();
-
         if(!$row)return null;
 
         return new Occupation(
-            id: (int) $row['id'],
-            reservationId: $row['reserva_id'] !== null ? (int) $row['reserva_id'] : null,
-            clientId: $row['cliente_id'] !== null ? (int) $row['cliente_id'] : null,
+            id: (int)$row['id'],
+            sucursalId: (int)$row['sucursal_id'],
+            reservationId: $row['reserva_id'] !== null ? (int)$row['reserva_id'] : null,
+            clientId: $row['cliente_id'] !== null ? (int)$row['cliente_id'] : null,
             type: $row['tipo'],
             startDate: $row['fecha_inicio'],
             estimatedEndDate: $row['fecha_fin_estimada'],
@@ -74,6 +65,7 @@ class MySqlOccupationRepository implements OccupationRepository{
         $sql = "
             SELECT
                 o.id,
+                o.sucursal_id,
                 o.reserva_id,
                 o.cliente_id,
                 o.tipo,
@@ -85,27 +77,18 @@ class MySqlOccupationRepository implements OccupationRepository{
                 obr.recurso_id
 
             FROM ocupaciones AS o
-
-            INNER JOIN ocupacion_recursos AS obr
-                ON obr.ocupacion_id = o.id
-
+            INNER JOIN ocupacion_recursos AS obr ON obr.ocupacion_id = o.id
             WHERE o.estado = 'en_uso'
             AND obr.recurso_id IN ($placeholders)
-
-            ORDER BY o.fecha_inicio DESC
-        ";
+            ORDER BY o.fecha_inicio DESC";
 
         $stmt = $this->db->prepare($sql);
-
         if(!$stmt)
             throw new \RuntimeException('Error preparando consulta de ocupaciones: '. $this->db->error);
-
         $types = str_repeat('i', count($resourceIds));
-
         $stmt->bind_param($types, ...$resourceIds);
         $stmt->execute();
         $result = $stmt->get_result();
-
         $occupations = [];
 
         while($row = $result->fetch_assoc()){
@@ -121,6 +104,7 @@ class MySqlOccupationRepository implements OccupationRepository{
 
             $occupations[$resourceId] = new Occupation(
                 id: (int) $row['id'],
+                sucursalId: (int)$row['sucursal_id'],
                 reservationId: $row['reserva_id'] !== null ? (int) $row['reserva_id'] : null,
                 clientId: $row['cliente_id'] !== null ? (int) $row['cliente_id'] : null,
                 type: $row['tipo'],
@@ -137,12 +121,12 @@ class MySqlOccupationRepository implements OccupationRepository{
     }
 
 
-    public function create(?int $reservationId, ?int $clientId, string $type, string $startDate, ?string $estimatedEndDate, ?string $observations): int{
-        $sql = "INSERT INTO ocupaciones (reserva_id, cliente_id, tipo, fecha_inicio, fecha_fin_estimada, estado, observaciones) VALUES (?, ?, ?, ?, ?, 'en_uso', ?)";
+    public function create(int $sucursalId, ?int $reservationId, ?int $clientId, string $type, string $startDate, ?string $estimatedEndDate, ?string $observations): int{
+        $sql = "INSERT INTO ocupaciones (sucursal_id, reserva_id, cliente_id, tipo, fecha_inicio, fecha_fin_estimada, estado, observaciones) VALUES (?, ?, ?, ?, ?, ?, 'en_uso', ?)";
         $stmt = $this->db->prepare($sql);
         if(!$stmt)
             throw new \RuntimeException('Error preparando creación de ocupación: ' . $this->db->error);
-        $stmt->bind_param('iissss', $reservationId, $clientId, $type, $startDate, $estimatedEndDate, $observations);
+        $stmt->bind_param('iiissss', $sucursalId, $reservationId, $clientId, $type, $startDate, $estimatedEndDate, $observations);
         if(!$stmt->execute()){
             $error = $stmt->error;
             $stmt->close();
@@ -154,7 +138,7 @@ class MySqlOccupationRepository implements OccupationRepository{
     }
 
 
-    public function attachResource( int $occupationId, int $resourceId, float $baseValue = 0): void{
+    public function attachResource(int $occupationId, int $resourceId, float $baseValue = 0): void{
         $sql = "INSERT INTO ocupacion_recursos (ocupacion_id, recurso_id, valor_base) VALUES (?, ?, ?)";
         $stmt = $this->db->prepare($sql);
         if(!$stmt)
@@ -171,7 +155,7 @@ class MySqlOccupationRepository implements OccupationRepository{
 
 
     public function findById(int $id): ?Occupation{ //? indica que puede retornar null
-        $sql = "SELECT id, reserva_id, cliente_id, tipo, fecha_inicio, fecha_fin_estimada, fecha_fin_real, estado, observaciones
+        $sql = "SELECT id, sucursal_id, reserva_id, cliente_id, tipo, fecha_inicio, fecha_fin_estimada, fecha_fin_real, estado, observaciones
                 FROM ocupaciones WHERE id = ? LIMIT 1";
 
         $stmt = $this->db->prepare($sql);
@@ -185,6 +169,7 @@ class MySqlOccupationRepository implements OccupationRepository{
 
             return new Occupation(
                 id: (int) $row['id'],
+                sucursalId: (int)$row['sucursal_id'],
                 reservationId: $row['reserva_id'] !== null ? (int)$row['reserva_id'] : null,
                 clientId: $row['cliente_id'] !== null ? (int)$row['cliente_id'] : null,
                 type: $row['tipo'],

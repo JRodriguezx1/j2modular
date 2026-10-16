@@ -5,6 +5,7 @@ namespace App\Modules\Restaurant\Domain\Entities;
 class Occupation{
     public function __construct(
         private int $id,
+        private int $sucursalId,
         private ?int $reservationId,
         private ?int $clientId,
         private string $type,
@@ -18,6 +19,10 @@ class Occupation{
 
     public function getId(): int{
         return $this->id;
+    }
+
+    public function getSucursalId(): int{
+        return $this->sucursalId;
     }
 
     public function getReservationId(): ?int{

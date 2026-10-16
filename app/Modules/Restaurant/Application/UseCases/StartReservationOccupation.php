@@ -26,6 +26,7 @@ class StartReservationOccupation{
 
 
     public function execute(int $reservationId): int{
+        $sucursalid = id_sucursal();
         if($reservationId <= 0)
             throw new InvalidArgumentException('La reserva indicada no es válida.');
         /*
@@ -86,6 +87,7 @@ class StartReservationOccupation{
              */
             $estimatedEndDate = $reservation->getEndDate();
             $occupationId = $this->occupationRepository->create(
+                                sucursalId: $sucursalid,
                                 reservationId: $reservation->getId(),
                                 clientId: $reservation->getClientId(),
                                 type: 'reserva',
@@ -99,7 +101,7 @@ class StartReservationOccupation{
             foreach($resources as $resource)
                 $this->occupationRepository->attachResource($occupationId, (int)$resource['id'], 0);
 
-            // Crear la cuenta principal de la ocupación.
+            // Crear la cuenta principal o general de la ocupación.
             $accountId = $this->accountRepository->createMain($occupationId);
             /*
              * La reserva ya fue atendida.
