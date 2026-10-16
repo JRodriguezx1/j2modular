@@ -43,8 +43,8 @@ class StartReservationOccupation{
         if(empty($resources))
             throw new InvalidArgumentException('La reserva debe tener una mesa asignada antes de iniciar atención.');
         $this->transactionManager->begin();
-        try {
-             usort($resources, fn (array $a, array $b): int => ((int) $a['id']) <=> ((int) $b['id'])); //ordenar por id de recurso para evitar deadlocks
+        try{
+            usort($resources, fn (array $a, array $b): int => ((int) $a['id']) <=> ((int) $b['id'])); //ordenar por id de recurso para evitar deadlocks
             /*
              * Bloqueamos primero todos los recursos.
              */
@@ -109,7 +109,7 @@ class StartReservationOccupation{
             $this->reservationRepository->updateStatus($reservationId,'atendida');
             $this->transactionManager->commit();
             return $occupationId;
-        } catch (Throwable $e) {
+        }catch (Throwable $e){
             $this->transactionManager->rollback();
             throw $e;
         }
