@@ -8,7 +8,7 @@ export function initTables(): void {
     document.addEventListener('click', event => {
         const target = event.target as HTMLElement;
         const action = target.closest<HTMLElement>('[data-open-active-detail], [data-open-order-workspace]');
-        const card = action?.closest<HTMLElement>('[data-table-id]');
+        const card = action?.closest<HTMLElement>('[data-table-id]');  //data-table-id del articule de la mesa
 
         if(!action || !card)return;
 

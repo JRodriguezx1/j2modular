@@ -40,7 +40,8 @@ interface OccupationAccountsResponse {
 
 //consultar la atencion/mesa
 export async function fetchActiveOccupation(resourceId: number): Promise<ActiveOccupation> {
-    const response = await fetch(`/restaurant/api/occupations/active?resourceId=${encodeURIComponent(resourceId)}`, {
+    const url = `/restaurant/api/occupations/active?resourceId=${encodeURIComponent(resourceId)}`; //RestaurantController -> getActiveOccupation
+    const response = await fetch(url, {
         headers: { Accept: 'application/json' }
     });
     const result = await response.json() as ActiveOccupationResponse;

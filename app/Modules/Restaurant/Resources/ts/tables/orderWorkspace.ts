@@ -41,7 +41,8 @@ function renderWorkspace(occupation: ActiveOccupation): void {
         </option>
     `).join('');
 
-    content.innerHTML = `
+
+    /*content.innerHTML = `
         <div class="mb-5 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
             Atención #${occupation.occupationId} · Estado: ${escapeHtml(occupation.status)}
         </div>
@@ -68,7 +69,7 @@ function renderWorkspace(occupation: ActiveOccupation): void {
                     El carrito y las acciones de venta se incorporarán en el siguiente paso.
                 </div>
             </section>
-        </div>`;
+        </div>`;*/
 }
 
 export async function openOrderWorkspace(resourceId: number, tableName: string): Promise<void> {
@@ -77,21 +78,23 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
     accounts = [];
     selectedAccountId = null;
     title.textContent = tableName;
-    content.innerHTML = '<p class="text-sm text-slate-500">Cargando atención y cuentas...</p>';
+    //content.innerHTML = '<p class="text-sm text-slate-500">Cargando atención y cuentas...</p>';
     openDrawer();
 
-    try {
+    try{
         const occupation = await fetchActiveOccupation(resourceId);
         if (currentRequest !== requestVersion) return;
         const data = await getOccupationAccounts(occupation.occupationId);
         if (currentRequest !== requestVersion) return;
         accounts = data.accounts;
         selectedAccountId = accounts.find(account => account.status === 'abierta')?.id ?? accounts[0]?.id ?? null;
+        document.querySelector('#atencionNoActiva')!.textContent = "";
         renderWorkspace(occupation);
-    } catch (error) {
+    }catch(error){
         if (currentRequest !== requestVersion) return;
         const message = error instanceof Error ? error.message : 'No fue posible consultar la mesa.';
-        content.innerHTML = `<p class="rounded-xl bg-red-50 p-4 text-sm text-red-700">${escapeHtml(message)}</p>`;
+        //content.innerHTML = `<p class="rounded-xl bg-red-50 p-4 text-sm text-red-700">${escapeHtml(message)}</p>`;
+        document.querySelector('#atencionNoActiva')!.textContent = `${escapeHtml(message)}`;
     }
 }
 
