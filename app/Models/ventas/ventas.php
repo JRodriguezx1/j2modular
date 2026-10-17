@@ -46,7 +46,7 @@ class ventas extends \App\Models\ActiveRecord {
     }
 
     
-    /////////// Metodos usados por restaurant /////////////
+    /////////// METODOS USADOS POR RESTAURANT /////////////
     public static function insertarLineaOrdenAbierta(array $linea): int{
         $columnas = [
             'idfactura', 'idproducto', 'tipoproducto', 'tipoproduccion',
@@ -66,6 +66,31 @@ class ventas extends \App\Models\ActiveRecord {
             $stmt->execute($valores); // PHP 8.1+
             return (int)$db->insert_id;
         }finally{
+            $stmt->close();
+        }
+    }
+
+
+    public static function listarConsumosOrden(int $ordenId, int $sucursalId): array{
+        if ($ordenId <= 0 || $sucursalId <= 0)
+            throw new \InvalidArgumentException('La orden o la sucursal no es válida.');
+        $db = self::getDB();
+        if (!$db instanceof \mysqli)
+            throw new \RuntimeException('No hay conexión disponible para consultar los consumos.');
+
+        $sql = "SELECT v.id, v.idfactura, v.idproducto, v.nombreproducto,
+                    v.cantidad, v.valorunidad, v.subtotal, v.base,
+                    v.impuesto, v.valorimp, v.descuento, v.total, v.anotacion
+                FROM ventas AS v
+                INNER JOIN facturas AS f ON f.id = v.idfactura
+                WHERE v.idfactura = ? AND f.id_sucursal = ? AND f.estado = 'Abierta'
+                ORDER BY v.id ASC";
+        $stmt = $db->prepare($sql);
+        try {
+            $stmt->bind_param('ii', $ordenId, $sucursalId);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        } finally {
             $stmt->close();
         }
     }

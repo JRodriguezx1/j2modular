@@ -75,4 +75,16 @@ class OpenOrderService{
         return ['lineId' => $lineId, 'totales' => $totales];
     }
 
+
+    //Este método reúne la cabecera y sus productos sin modificar datos. Una orden abierta sin productos devolverá consumos: [] y los totales iniciales de su cabecera.
+    public function getSummary(int $orderId, int $branchId): array{
+        if ($orderId <= 0 || $branchId <= 0)
+            throw new InvalidArgumentException('La orden o la sucursal no es válida.');
+        $order = facturas::buscarResumenOrdenAbierta($orderId, $branchId);
+        if ($order === null)
+            throw new InvalidArgumentException('La orden no está abierta en esta sucursal.');
+
+        return ['orden' => $order, 'consumos' => ventas::listarConsumosOrden($orderId, $branchId)];
+    }
+
 }

@@ -1,18 +1,26 @@
-import {initActiveOccupation} from './activeOccupation';
-
+import {closeActiveOccupation, initActiveOccupation, openActiveOccupationDetails} from './activeOccupation';
+import {closeOrderWorkspace, initOrderWorkspace, openOrderWorkspace} from './orderWorkspace';
 
 export function initTables(): void {
-
-    console.log('Restaurant → Tables cargado x');
     initActiveOccupation();
-    /*const tables = document.querySelectorAll('.restaurant-table');
+    initOrderWorkspace();
 
-    tables.forEach(table => {
+    document.addEventListener('click', event => {
+        const target = event.target as HTMLElement;
+        const action = target.closest<HTMLElement>('[data-open-active-detail], [data-open-order-workspace]');
+        const card = action?.closest<HTMLElement>('[data-table-id]');
 
-        table.addEventListener('click', () => {
-            console.log('Mesa seleccionada');
-        });
+        if(!action || !card)return;
 
-    });*/
+        const resourceId = Number(card.dataset.resourceId);
+        if(!resourceId)return;
 
+        if(action.hasAttribute('data-open-active-detail')){
+            closeOrderWorkspace();
+            void openActiveOccupationDetails(resourceId); //abrir panel de detalle de mesa y cuenta
+        }else{
+            closeActiveOccupation();
+            void openOrderWorkspace(resourceId, card.dataset.tableName ?? 'Mesa'); //abrir panel de operaciones para la mesa
+        }
+    });
 }

@@ -89,62 +89,71 @@
                             };
                         ?>
 
-                        <button
-                            type="button"
+                        <article
                             data-table-id="<?= (int) $table['id'] ?>"
-                            data-active-occupation
-                            data-resource-id="<?=(int) $table['resourceId']?>"
-                            data-zone="<?=$table['zoneId'] !== null ? (int) $table['zoneId'] : ''?>"
+                            data-resource-id="<?= (int) $table['resourceId'] ?>"
+                            data-table-name="<?= htmlspecialchars($table['name'], ENT_QUOTES, 'UTF-8') ?>"
+                            data-zone="<?= $table['zoneId'] !== null ? (int) $table['zoneId'] : '' ?>"
                             data-status="<?= htmlspecialchars($status) ?>"
-                            data-reservation-id="<?= $table['reservationId'] !== null ? (int) $table['reservationId'] : ''?>"
+                            data-reservation-id="<?= $table['reservationId'] !== null ? (int) $table['reservationId'] : '' ?>"
+                            class="group relative min-h-[145px] rounded-2xl border p-4 text-left shadow-sm <?= $status === 'ocupada' ? 'transition duration-200 hover:-translate-y-0.5 hover:shadow-md' : '' ?> <?= $statusClasses ?>">
+                            <button 
+                                type="button" 
+                                data-open-order-workspace
+                                aria-label="Abrir venta de <?= htmlspecialchars($table['name'], ENT_QUOTES, 'UTF-8') ?>"
+                                class="absolute inset-0 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            >
+                            </button>
+                            <div class="relative top-1/2 -translate-y-1/2 pointer-events-none">
+                                <!-- Nombre + estado visual -->
+                                <div class="flex items-start justify-between gap-3">
+                                    <h2 class=" text-base font-semibold text-slate-900"><?= htmlspecialchars($table['name']) ?></h2>
+                                    <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full <?= $status === 'disponible' ? 'bg-emerald-500' : ($status === 'ocupada' ? 'bg-amber-500' : 'bg-slate-400')?>"></span>
+                                </div>
 
-                            class="group relative min-h-[145px] rounded-2xl border p-4 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md <?= $statusClasses ?>">
-                            <!-- Nombre + estado visual -->
-                            <div class="flex items-start justify-between gap-3">
-                                <h2 class=" text-base font-semibold text-slate-900"><?= htmlspecialchars($table['name']) ?></h2>
-                                <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full <?= $status === 'disponible' ? 'bg-emerald-500' : ($status === 'ocupada' ? 'bg-amber-500' : 'bg-slate-400')?>"></span>
-                            </div>
+                                <!-- Capacidad -->
+                                <div class="my-7 flex items-center justify-center gap-2 text-slate-500">
+                                    <span class=" material-symbols-outlined text-4xl">group</span>
+                                    <span class="text-lg font-semibold"><?= (int) $table['capacity'] ?></span>
+                                </div>
 
-                            <!-- Capacidad -->
-                            <div class="my-7 flex items-center justify-center gap-2 text-slate-500">
-                                <span class=" material-symbols-outlined text-4xl">group</span>
-                                <span class="text-lg font-semibold"><?= (int) $table['capacity'] ?></span>
+                                <!-- Estado -->
+                                <div class="flex items-center justify-between gap-2">
+                                    <button type="button" data-open-active-detail
+                                        aria-label="Ver detalle de <?= htmlspecialchars($table['name'], ENT_QUOTES, 'UTF-8') ?>"
+                                        class="pointer-events-auto relative rounded-lg px-2.5 py-1.5 text-lg leading-4 font-semibold uppercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 <?= $badgeClasses ?>">
+                                        <?= htmlspecialchars(str_replace('_', ' ', $status)) ?>
+                                    </button>
+                                    <?php if ($status === 'ocupada' && !empty($table['occupiedSince'])): ?>
+                                        <div class="flex items-center gap-1.5 text-base font-medium text-slate-500">
+                                            <span class="material-symbols-outlined text-3xl">schedule</span>
+                                            En uso
+                                        </div>
+                                    <?php elseif ($status === 'reservada' && !empty($table['reservationStart'])):
+                                        $reservationTime = date('g:i A', strtotime($table['reservationStart']));  ?>
+                                        <div class="flexitems-center gap-1.5 text-base font-semibold text-indigo-700">
+                                            <span class="material-symbols-outlined text-3xl">event</span>
+                                            <?= htmlspecialchars($reservationTime) ?>
+                                        </div>
+                                    <?php elseif ($status === 'limpieza'): ?>
+                                        <div class="flex items-center gap-1.5 text-base font-medium text-slate-500">
+                                            <span class="material-symbols-outlined text-3xl">cleaning_services</span>
+                                            Pendiente de limpieza
+                                        </div>
+                                    <?php elseif ($status === 'mantenimiento'): ?>
+                                        <div class="flex items-center gap-1.5 text-base font-medium text-slate-500">
+                                            <span class="material-symbols-outlined text-3xl">build</span>
+                                            En mantenimiento
+                                        </div>
+                                    <?php elseif ($status === 'fuera_servicio'): ?>
+                                        <div class="flex items-center gap-1.5 text-base font-medium text-slate-500">
+                                            <span class="material-symbols-outlined text-3xl">block</span>
+                                            Fuera de servicio
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-
-                            <!-- Estado -->
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="rounded-lg px-2.5 py-1.5 text-lg leading-4 font-semibold uppercase <?= $badgeClasses ?>">
-                                    <?= htmlspecialchars(str_replace('_', ' ', $status)) ?>
-                                </span>
-                                <?php if ($status === 'ocupada' && !empty($table['occupiedSince'])): ?>
-                                    <div class="flex items-center gap-1.5 text-base font-medium text-slate-500">
-                                        <span class="material-symbols-outlined text-3xl">schedule</span>
-                                        En uso
-                                    </div>
-                                <?php elseif ($status === 'reservada' && !empty($table['reservationStart'])):
-                                    $reservationTime = date('g:i A', strtotime($table['reservationStart']));  ?>
-                                    <div class="flexitems-center gap-1.5 text-base font-semibold text-indigo-700">
-                                        <span class="material-symbols-outlined text-3xl">event</span>
-                                        <?= htmlspecialchars($reservationTime) ?>
-                                    </div>
-                                <?php elseif ($status === 'limpieza'): ?>
-                                    <div class="flex items-center gap-1.5 text-base font-medium text-slate-500">
-                                        <span class="material-symbols-outlined text-3xl">cleaning_services</span>
-                                        Pendiente de limpieza
-                                    </div>
-                                <?php elseif ($status === 'mantenimiento'): ?>
-                                    <div class="flex items-center gap-1.5 text-base font-medium text-slate-500">
-                                        <span class="material-symbols-outlined text-3xl">build</span>
-                                        En mantenimiento
-                                    </div>
-                                <?php elseif ($status === 'fuera_servicio'): ?>
-                                    <div class="flex items-center gap-1.5 text-base font-medium text-slate-500">
-                                        <span class="material-symbols-outlined text-3xl">block</span>
-                                        Fuera de servicio
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                        </button>
+                        </article>
                     <?php endforeach; ?>
 
                 </div>
@@ -318,4 +327,21 @@
     <div id="activeOccupationContent" class="min-h-0 flex-1 overflow-y-auto p-5"></div>
 
     <div id="activeOccupationActions" class=" hidden shrink-0 border-t border-slate-200 bg-white p-4"></div>
+</aside>
+
+<div id="orderWorkspaceOverlay" class="fixed inset-0 z-[60] hidden bg-slate-950/40"></div>
+<aside id="orderWorkspaceDrawer"
+    class="fixed right-0 top-0 z-[70] flex h-full w-full max-w-6xl translate-x-full flex-col bg-slate-50 shadow-2xl transition-transform duration-300"
+    role="dialog" aria-modal="true" aria-labelledby="orderWorkspaceTitle" aria-hidden="true">
+    <header class="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
+        <div>
+            <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Operación de mesa</p>
+            <h2 id="orderWorkspaceTitle" class="text-xl font-semibold text-slate-900">Mesa</h2>
+        </div>
+        <button type="button" data-close-order-workspace aria-label="Cerrar operación de mesa"
+            class="flex size-10 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
+    </header>
+    <div id="orderWorkspaceContent" class="min-h-0 flex-1 overflow-y-auto p-5"></div>
 </aside>

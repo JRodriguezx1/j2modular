@@ -7,10 +7,15 @@ use Throwable;
 
 use App\Modules\Restaurant\Application\UseCases\GetOccupationAccounts;
 use App\Modules\Restaurant\Application\UseCases\AddProductToAccount;
+use App\Modules\Restaurant\Application\UseCases\GetAccountSummary;
 
 class OccupationAccountController{
 
-    public function __construct(private GetOccupationAccounts $getOccupationAccounts, private AddProductToAccount $addProductToAccount) {}
+    public function __construct(
+        private GetOccupationAccounts $getOccupationAccounts, 
+        private AddProductToAccount $addProductToAccount,
+        private GetAccountSummary $getAccountSummary
+    ){}
 
     public function index(): void{
         header('Content-Type: application/json; charset=utf-8');
@@ -76,5 +81,36 @@ class OccupationAccountController{
         }
     }
     
+
+    public function summary(): void{
+        header('Content-Type: application/json; charset=utf-8');
+
+        if(($_SESSION['login'] ?? false) !== true){
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Debes iniciar sesión.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        try{
+            $accountId = filter_input(INPUT_GET, 'accountId', FILTER_VALIDATE_INT);
+            $branchId = filter_var($_SESSION['idsucursal'] ?? null, FILTER_VALIDATE_INT);
+            if(!is_int($accountId) || $accountId <= 0)
+                throw new InvalidArgumentException('El ID de la cuenta no es válido.');
+
+            if(!is_int($branchId) || $branchId <= 0)
+                throw new InvalidArgumentException('La sucursal de la sesión no es válida.');
+
+            $result = $this->getAccountSummary->execute($accountId, $branchId);
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $result], JSON_UNESCAPED_UNICODE);
+        }catch (InvalidArgumentException $e){
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }catch(Throwable $e){
+            error_log('GetAccountSummary: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible consultar la cuenta.'], JSON_UNESCAPED_UNICODE);
+        }
+    }
 
 }

@@ -192,7 +192,7 @@ class facturas extends \App\Models\ActiveRecord {
 
 
 
-    /////////// Metodos usados por restaurant /////////////
+    /////////// METODOS USADOS POR RESTAURANT /////////////
 
     public static function crearOrdenAbierta(int $sucursalId, ?int $clienteId, int $vendedorId): int {
         $db = self::getDB();
@@ -276,6 +276,28 @@ class facturas extends \App\Models\ActiveRecord {
             $stmt->execute();
             return $stmt->get_result()->fetch_assoc() ?: throw new \RuntimeException('No se encontraron los totales de la orden.');
         }finally{
+            $stmt->close();
+        }
+    }
+
+
+    public static function buscarResumenOrdenAbierta(int $ordenId, int $sucursalId): ?array{
+        if ($ordenId <= 0 || $sucursalId <= 0)
+            throw new \InvalidArgumentException('La orden o la sucursal no es válida.');
+
+        $db = self::getDB();
+        if (!$db instanceof \mysqli)
+            throw new \RuntimeException('No hay conexión disponible para consultar la orden.');
+
+        $sql = "SELECT id, id_sucursal, estado, totalunidades, subtotal,
+                    base, valorimpuestototal, descuento, total, fechacreacion
+                FROM facturas WHERE id = ? AND id_sucursal = ? AND estado = 'Abierta' LIMIT 1";
+        $stmt = $db->prepare($sql);
+        try {
+            $stmt->bind_param('ii', $ordenId, $sucursalId);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_assoc() ?: null;
+        } finally {
             $stmt->close();
         }
     }

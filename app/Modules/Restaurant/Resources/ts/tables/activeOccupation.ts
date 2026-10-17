@@ -1,84 +1,18 @@
-interface ActiveOccupation {
-    occupationId: number;
-    resourceId: number;
-    reservationId: number | null;
-    clientId: number | null;
-    clientName: string | null;
-    type: string;
-    startDate: string;
-    estimatedEndDate: string | null;
-    status: string;
-    numberOfPeople: number | null;
-    observations: string | null;
-}
-
-interface ActiveOccupationResponse {
-    success: boolean;
-    occupation?: ActiveOccupation;
-    message?: string;
-}
-
-///---------------------------/--------------------------------///
-
-interface OccupationAccount {
-    id: number;
-    occupationId: number;
-    invoiceId: number | null;
-    name: string;
-    status: string;
-}
-
-interface OccupationAccountsData {
-    occupationId: number;
-    occupationStatus: string;
-    accounts: OccupationAccount[];
-}
-
-interface OccupationAccountsResponse {
-    success: boolean;
-    data?: OccupationAccountsData;
-    message?: string;
-}
-
-
-async function fetchActiveOccupation(resourceId: number): Promise<ActiveOccupation>{
-    const response = await fetch( `/restaurant/api/occupations/active?resourceId=${resourceId}`,
-            { 
-                headers: {Accept: 'application/json'} 
-            }
-        );
-
-    const result = await response.json() as ActiveOccupationResponse;
-    if(!response.ok || !result.success || !result.occupation)
-        throw new Error(result.message ?? 'No fue posible consultar la atención.');
-    return result.occupation;
-}
-
-
-async function getOccupationAccounts(occupationId: number): Promise<OccupationAccountsData>{
-    const url = `/restaurant/api/occupations/accounts?occupationId=${encodeURIComponent(occupationId)}`;
-    const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json'
-        }
-    });
-
-    const result: OccupationAccountsResponse = await response.json();
-    if(!response.ok || !result.success || !result.data)
-        throw new Error(result.message ?? 'No fue posible consultar las cuentas.');
-    return result.data;
-}
+import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
+import type {ActiveOccupation, OccupationAccount} from './occupationApi';
 
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
 let content: HTMLElement;
 let actions: HTMLElement;
+let hideOverlayTimer: number | undefined;
 
 
 function openDrawer(): void{
+    window.clearTimeout(hideOverlayTimer);
     overlay.classList.remove('hidden');
+    drawer.inert = false;
     requestAnimationFrame(() => {
         drawer.classList.remove('translate-x-full');
     });
@@ -86,10 +20,13 @@ function openDrawer(): void{
 }
 
 
-function closeDrawer(): void{
+export function closeActiveOccupation(): void{
+    if(drawer.getAttribute('aria-hidden') === 'true')return;
+    ++requestVersion;
     drawer.classList.add('translate-x-full');
     drawer.setAttribute('aria-hidden','true');
-    window.setTimeout(() => {overlay.classList.add('hidden');}, 300);
+    drawer.inert = true;
+    hideOverlayTimer = window.setTimeout(() => {overlay.classList.add('hidden');}, 300);
 }
 
 
@@ -169,6 +106,32 @@ function formatDateTime(value: string): string{
 }
 
 
+function renderAccounts(accounts: OccupationAccount[]): void{
+    const section = document.createElement('section');
+    section.className = 'mt-8 border-t border-slate-200 pt-5';
+    section.innerHTML = `
+        <h3 class="mb-3 font-semibold text-slate-900">Cuentas</h3>
+        ${accounts.length === 0
+            ? '<p class="text-sm text-slate-500">Esta atención no tiene cuentas.</p>'
+            : accounts.map(account => `
+                <article class="mb-2 rounded-xl border border-slate-200 p-3">
+                    <p class="font-medium text-slate-900">${escapeHtml(account.name)}</p>
+                    <p class="text-xs text-slate-500">
+                        ${escapeHtml(account.status)} · ${account.invoiceId === null ? 'Sin orden todavía' : `Orden #${account.invoiceId}`}
+                    </p>
+                </article>
+            `).join('')}`;
+    content.appendChild(section);
+}
+
+function renderAccountsError(message: string): void{
+    const error = document.createElement('p');
+    error.className = 'mt-5 rounded-xl bg-red-50 p-3 text-sm text-red-700';
+    error.textContent = message;
+    content.appendChild(error);
+}
+
+
 let requestVersion = 0;
 
 export function initActiveOccupation(): void{
@@ -184,51 +147,48 @@ export function initActiveOccupation(): void{
     overlay = overlayElement;
     content = contentElement;
     actions = actionsElement;
-
-    document.addEventListener('click', async event => {
-        const target = event.target as HTMLElement;
-        const card = target.closest<HTMLElement>('[data-active-occupation]');
-        if(!card)return;
-    
-        const resourceId = Number(card.dataset.resourceId);
-        if(!resourceId)return;
-        const currentRequest = ++requestVersion;
-
-        openDrawer();
-        renderLoading();
-        actions.classList.add('hidden');
-        try {
-            const occupation = await fetchActiveOccupation(resourceId);
-            if(currentRequest !== requestVersion)return;
-            renderOccupation(occupation);
-
-            try {
-                const data = await getOccupationAccounts(occupation.occupationId);
-                //renderAccounts(data.accounts);
-            }catch(error){
-                //renderAccountsError(error instanceof Error ? error.message : 'No fue posible consultar las cuentas.');
-            }
-
-        } catch (error) {
-            content.innerHTML = `
-                <div class="rounded-xl bg-red-50 p-4 text-sm text-red-700">
-                    ${escapeHtml(error instanceof Error ? error.message : 'Ocurrió un error inesperado.')}
-                </div>`;
-        }
-    });
-
+    drawer.inert = true;
 
     drawer.addEventListener('click', event => {
-            const target = event.target as HTMLElement;
-            if(target.closest('[data-close-active-occupation]'))closeDrawer();    
+        const target = event.target as HTMLElement;
+        if(target.closest('[data-close-active-occupation]'))closeActiveOccupation();
     });
 
-
-    overlay.addEventListener('click', closeDrawer);
-
+    overlay.addEventListener('click', closeActiveOccupation);
 
     document.addEventListener('keydown', event => {
         if(event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false')
-            closeDrawer();  
+            closeActiveOccupation();
     });
+}
+
+
+export async function openActiveOccupationDetails(resourceId: number): Promise<void>{
+    if(!resourceId)return;
+    const currentRequest = ++requestVersion;
+
+    openDrawer();
+    renderLoading();
+    actions.classList.add('hidden');
+    try{
+        const occupation = await fetchActiveOccupation(resourceId);
+        if(currentRequest !== requestVersion)return;
+        renderOccupation(occupation);
+
+        try{
+            const data = await getOccupationAccounts(occupation.occupationId);
+            if(currentRequest !== requestVersion)return;
+            renderAccounts(data.accounts);
+        }catch(error){
+            if(currentRequest !== requestVersion)return;
+            renderAccountsError(error instanceof Error ? error.message : 'No fue posible consultar las cuentas.');
+        }
+
+    }catch(error){
+        if(currentRequest !== requestVersion)return;
+        content.innerHTML = `
+            <div class="rounded-xl bg-red-50 p-4 text-sm text-red-700">
+                ${escapeHtml(error instanceof Error ? error.message : 'Ocurrió un error inesperado.')}
+            </div>`;
+    }
 }

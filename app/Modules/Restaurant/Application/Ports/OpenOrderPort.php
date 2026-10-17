@@ -12,5 +12,6 @@ interface OpenOrderPort{
      * @return array{lineId: int, totales: array}
      */
     public function addSimpleProduct(int $orderId, int $productId, string $quantity, int $branchId): array;
+    public function getSummary(int $orderId, int $branchId): array;
 
 }
