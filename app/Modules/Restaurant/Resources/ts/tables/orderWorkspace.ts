@@ -78,7 +78,7 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
     accounts = [];
     selectedAccountId = null;
     title.textContent = tableName;
-    //content.innerHTML = '<p class="text-sm text-slate-500">Cargando atención y cuentas...</p>';
+    content.innerHTML = '<p class="text-sm text-slate-500">Cargando atención y cuentas...</p>';
     openDrawer();
 
     try{

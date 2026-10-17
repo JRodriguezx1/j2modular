@@ -1,12 +1,15 @@
 <div id="orderWorkspaceOverlay" class="fixed inset-0 z-[60] hidden bg-slate-950/40"></div>
 <aside 
     id="orderWorkspaceDrawer"
-    class="fixed right-0 top-0 z-[70] flex h-full w-full max-w-6xl translate-x-full flex-col bg-slate-50 shadow-2xl transition-transform duration-300"
+    class="fixed right-0 top-0 z-[70] flex h-full w-full tlg:max-w-screen-md xl:max-w-screen-lg 2xl:max-w-screen-xl translate-x-full flex-col bg-slate-50 shadow-2xl transition-transform duration-300"
     role="dialog" aria-modal="true" aria-labelledby="orderWorkspaceTitle" aria-hidden="true">
     <header class="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
         <div>
             <p class="text-xs font-medium uppercase tracking-wide text-slate-500">Operación de mesa</p>
-            <h2 id="orderWorkspaceTitle" class="text-xl font-semibold text-slate-900">Mesa <span id="atencionNoActiva"></span></h2>
+            <div class="flex gap-4">
+                <h2 id="orderWorkspaceTitle" class="text-xl font-semibold text-slate-900">Mesa 2 </h2>
+                <span id="atencionNoActiva" class="rounded-xl bg-red-50 p-4 text-sm text-red-700"> Atencion #1</span>
+            </div>
         </div>
         <button type="button" data-close-order-workspace aria-label="Cerrar operación de mesa" class="flex size-10 items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100">
             <span class="material-symbols-outlined" aria-hidden="true">close</span>
