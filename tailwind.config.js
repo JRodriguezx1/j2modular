@@ -8,9 +8,12 @@ module.exports = {
         'xsp': '530px',
         'xxs': '480px',
         'xs': '540px',
+        'xsm': '640px',
+        'xmd': '768px',
         'tlg': '992px',
         'xlg': '1024px',
         '2xlg': '1280px',
+        '3xlg': '1536px',
         'between1200and1600': { 'raw': '(min-width: 1200px) and (max-width: 1600px)' },
       },
 

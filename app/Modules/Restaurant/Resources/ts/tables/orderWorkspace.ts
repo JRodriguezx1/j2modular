@@ -10,6 +10,8 @@ let hideOverlayTimer: number | undefined;
 let accounts: OccupationAccount[] = [];
 let selectedAccountId: number | null = null;
 
+const atencionMesaText = document.querySelector('#atencionMesaText') as HTMLSpanElement;
+
 function escapeHtml(value: string): string {
     const element = document.createElement('div');
     element.textContent = value;
@@ -20,16 +22,20 @@ function openDrawer(): void {
     window.clearTimeout(hideOverlayTimer);
     overlay.classList.remove('hidden');
     drawer.inert = false;
-    requestAnimationFrame(() => drawer.classList.remove('translate-x-full'));
     drawer.setAttribute('aria-hidden', 'false');
+    requestAnimationFrame(() => drawer.classList.remove('translate-x-full'));
 }
 
 export function closeOrderWorkspace(): void {
-    if (drawer.getAttribute('aria-hidden') === 'true') return;
+    if(drawer.getAttribute('aria-hidden') === 'true') return;
     ++requestVersion;
+    // Quitar el foco si está dentro del drawer
+    const activeElement = document.activeElement;
+    if(activeElement instanceof HTMLElement && drawer.contains(activeElement))activeElement.blur();
+
     drawer.classList.add('translate-x-full');
-    drawer.setAttribute('aria-hidden', 'true');
     drawer.inert = true;
+    drawer.setAttribute('aria-hidden', 'true');
     hideOverlayTimer = window.setTimeout(() => overlay.classList.add('hidden'), 300);
 }
 
@@ -78,7 +84,7 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
     accounts = [];
     selectedAccountId = null;
     title.textContent = tableName;
-    content.innerHTML = '<p class="text-sm text-slate-500">Cargando atención y cuentas...</p>';
+    //content.innerHTML = '<p class="text-sm text-slate-500">Cargando atención y cuentas...</p>';
     openDrawer();
 
     try{
@@ -88,13 +94,15 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
         if (currentRequest !== requestVersion) return;
         accounts = data.accounts;
         selectedAccountId = accounts.find(account => account.status === 'abierta')?.id ?? accounts[0]?.id ?? null;
-        document.querySelector('#atencionNoActiva')!.textContent = "";
+        atencionMesaText.classList.add('bg-emerald-50', 'text-emerald-700');
+        atencionMesaText.textContent = "En atención";
         renderWorkspace(occupation);
     }catch(error){
         if (currentRequest !== requestVersion) return;
         const message = error instanceof Error ? error.message : 'No fue posible consultar la mesa.';
         //content.innerHTML = `<p class="rounded-xl bg-red-50 p-4 text-sm text-red-700">${escapeHtml(message)}</p>`;
-        document.querySelector('#atencionNoActiva')!.textContent = `${escapeHtml(message)}`;
+        atencionMesaText.classList.add('bg-red-50', 'text-red-700');
+        atencionMesaText!.textContent = `${escapeHtml(message)}`;
     }
 }
 
@@ -103,7 +111,7 @@ export function initOrderWorkspace(): void {
     const overlayElement = document.getElementById('orderWorkspaceOverlay');
     const contentElement = document.getElementById('orderWorkspaceContent');
     const titleElement = document.getElementById('orderWorkspaceTitle');
-    if (!drawerElement || !overlayElement || !contentElement || !titleElement) return;
+    if(!drawerElement || !overlayElement || !contentElement || !titleElement)return;
 
     drawer = drawerElement;
     overlay = overlayElement;
