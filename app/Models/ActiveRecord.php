@@ -457,7 +457,10 @@ class ActiveRecord {
     }
 
 
-    public static function all(){ //se trae todos los registros de la tabla de la bd
+    /**
+    * @return static[]
+    */
+    public static function all():array{ //se trae todos los registros de la tabla de la bd
         $sql = "SELECT *FROM ".static::$tabla;  //accede al atributo protegido, static es un modificador de acceso, static busca el atributo tabla en la clase el cual se hereda
         $resultado = self::consultar_Sql($sql); 
         return $resultado;  //$resultado es un arreglo de objetos
@@ -694,7 +697,10 @@ class ActiveRecord {
     }
 
     //// busqueda con where con multiples opciones
-    public static function whereArray($array = [], $orden = "ASC"){ //$array = ['confirmado'=>1, 'admin'=>0]
+    /**
+    * @return static[]
+    */
+    public static function whereArray($array = [], $orden = "ASC"):array{ //$array = ['confirmado'=>1, 'admin'=>0]
         $sql = "SELECT *FROM ".static::$tabla." WHERE ";
         foreach($array as $key => $value){
             if(array_key_last($array) == $key){
@@ -837,7 +843,10 @@ class ActiveRecord {
         return $array;
     }
 
-    public static function consultar_sql($sql){
+    /**
+     * @return static[]
+     */
+    public static function consultar_sql($sql):array{
         $resultado = self::$db->query($sql);  // consulta la bd se trae toda la tabla 
         $array = []; 
         while($row = $resultado->fetch_assoc()){  //$row obtiene un registro a la vez desde el primero de la tabla de la bd
@@ -848,7 +857,11 @@ class ActiveRecord {
     }
 
 
-    public static function crear_objeto($row){
+    /**
+     * @param array<string, mixed> $row
+     * @return static
+     */
+    public static function crear_objeto($row):static{
         $objeto = new static;  //crea un objeto con los atributos vacios y el tipo depende si se llamada del padre o del hijo
         foreach($row as $key => $value){  //Row es un arreglo asociativo donde las llaves son los atributos del objeto o clase
             if(property_exists($objeto, $key)){   // Esta función comprueba si la propiedad dada por $key existe en la clase o objeto especificada

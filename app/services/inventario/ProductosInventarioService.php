@@ -18,6 +18,17 @@ use Throwable;
 
 final class ProductosInventarioService{
 
+    private const PAGE_SIZE = 24;
+    
+    public function listSimpleProducts(int $branchId, int $page = 1, ?int $categoryId = null): array{
+        if($branchId <= 0 || $page < 1 || ($categoryId !== null && $categoryId <= 0))
+            throw new \InvalidArgumentException('Sucursal o página no válida.');
+        $items = productos::listarSimplesVendiblesParaCatalogo($branchId, self::PAGE_SIZE+1, $page, $categoryId, self::PAGE_SIZE);
+        $hasMore = count($items) > self::PAGE_SIZE;
+        $hasMore && array_pop($items);
+        return ['page' => $page, 'pageSize' => self::PAGE_SIZE, 'hasMore' => $hasMore, 'products' => $items];
+    }
+
     //////////  crear producto  ////////////
     public function crearProducto(array $datos, array $archivos, array $servidor, int $sucursalId): array{
         $producto = new productos($datos);

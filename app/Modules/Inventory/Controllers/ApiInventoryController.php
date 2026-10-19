@@ -42,6 +42,12 @@ class ApiInventoryController{
 
 
   ////////////////////////////   API   //////////////////////////////
+  public static function getAllcategorias(){ //obtener todas las categorias menos las de visible = 0.
+    isadmin();
+    echo json_encode((new CategoriasInventarioService())->getAllcategorias());
+    return;
+  }
+
   public static function actualizar_categoria(){ //actualizar editar categoria
     if(!self::autorizarComandoInventario())return;
     if($_SERVER['REQUEST_METHOD'] !== 'POST'){
@@ -60,6 +66,32 @@ class ApiInventoryController{
     }
     echo json_encode((new CategoriasInventarioService())->eliminarCategoria($_POST));
     return;
+  }
+
+  public static function listSimpleProducts():void{
+    header('Content-Type: application/json; charset=utf-8');
+        if(($_SESSION['login'] ?? false) !== true){
+            http_response_code(401);
+            echo json_encode([ 'success' => false, 'message' => 'Debes iniciar sesión.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+        try{
+            $branchId = filter_var($_SESSION['idsucursal'] ?? null, FILTER_VALIDATE_INT);
+            $page = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
+            $categoryId = array_key_exists('categoriaId', $_GET) ? filter_var($_GET['categoriaId'], FILTER_VALIDATE_INT) : null;
+
+            if(!is_int($branchId) || $branchId <= 0 || !is_int($page) || $page <= 0 || ($categoryId !== null && (!is_int($categoryId) || $categoryId <= 0)))
+                throw new \InvalidArgumentException('Sucursal o página no válida.');
+            $result = (new ProductosInventarioService())->listSimpleProducts($branchId, $page, $categoryId);
+            echo json_encode(['success' => true, 'data' => $result], JSON_UNESCAPED_UNICODE);
+        }catch(\InvalidArgumentException $e){
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }catch(\Throwable $e){
+            error_log('ProductCatalogController: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible consultar los productos.'], JSON_UNESCAPED_UNICODE);
+        }
   }
 
   public static function allproducts():void{

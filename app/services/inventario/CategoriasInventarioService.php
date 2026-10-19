@@ -91,5 +91,13 @@ final class CategoriasInventarioService{
             return ['error'=>["Error al eliminar la categoria, intenta nuevamente - {$error->getMessage()}"]];
         }
     }
+
+
+    /**
+    * @return categorias[]
+    */
+    public function getAllcategorias():array{
+        return categorias::whereArray(['visible'=>1]);
+    }
     
 }

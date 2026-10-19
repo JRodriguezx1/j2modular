@@ -30,8 +30,10 @@ $router->get('/admin/almacen/productosParaFormulas', [InventoryController::class
 $router->get('/admin/almacen/conversionUnidades', [InventoryController::class, 'conversionUnidades']);
 
 //////////////////////     API     //////////////////////////
+$router->get('/admin/api/inventory/getAllcategorias', [ApiInventoryController::class, 'getAllcategorias']);
 $router->post('/admin/api/actualizar_categoria', [ApiInventoryController::class, 'actualizar_categoria']);
 $router->post('/admin/api/eliminarCategoria', [ApiInventoryController::class, 'eliminarCategoria']);
+$router->get('/admin/api/inventory/listSimpleProducts', [ApiInventoryController::class, 'listSimpleProducts']); //trae todos los productos
 $router->get('/admin/api/allproducts', [ApiInventoryController::class, 'allproducts']); //trae todos los productos
 $router->post('/admin/api/actualizarproducto', [ApiInventoryController::class, 'actualizarproducto']);  //actualizar en general el producto
 $router->post('/admin/api/eliminarProducto', [ApiInventoryController::class, 'eliminarProducto']);

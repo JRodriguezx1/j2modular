@@ -207,5 +207,55 @@ class productos extends \App\Models\ActiveRecord {
             $stmt->close();
         }
     }
+
+
+    /**
+    * Primera página del catálogo de productos simples vendibles.
+    * Devuelve únicamente los campos necesarios para mostrar las tarjetas.
+    */
+    public static function listarSimplesVendiblesParaCatalogo(int $sucursalId, int $limite = 24, int $pagina = 1, ?int $categoriaId = null, ?int $tamanoPagina = null, ?string $busqueda = null): array{
+        if($sucursalId <= 0 || $limite < 1 || $limite > 30 || $pagina < 1 || ($categoriaId !== null && $categoriaId <= 0))
+            throw new \InvalidArgumentException('Parámetros de catálogo no válidos.');
+        $tamanoPagina ??= $limite;
+
+        if($tamanoPagina < 1 || $tamanoPagina > $limite)
+            throw new \InvalidArgumentException('Tamaño de página no válido.');
+        $offset = ($pagina - 1) * $tamanoPagina;
+
+        $termino = trim($busqueda ?? '');
+        $like = null;
+
+        $sql = "SELECT p.id, p.idcategoria AS categoriaId, p.nombre, p.sku, p.foto, p.precio_venta AS precioVenta
+                FROM productos p
+                INNER JOIN stockproductossucursal s ON s.productoid = p.id
+                AND s.sucursalid = ? WHERE p.estado = 1 AND p.visible = 1 AND p.tipoproducto = 0 AND s.habilitarventa = 1";
+        
+        if($categoriaId !== null)$sql .= " AND p.idcategoria = ?";
+        if ($termino !== ''){
+        // % y _ escritos por el usuario se buscan como caracteres normales.
+            $escapado = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $termino);
+            $like = '%' . $escapado . '%';
+            $sql .= " AND (p.nombre LIKE ? ESCAPE '!' OR p.sku LIKE ? ESCAPE '!')";
+        }
+
+        $sql .= " ORDER BY p.nombre ASC, p.id ASC LIMIT ? OFFSET ?";
+        $stmt = self::getDB()->prepare($sql);
+        try{
+            if($categoriaId === null && $like === null){
+                $stmt->bind_param('iii', $sucursalId, $limite, $offset);
+            }elseif ($categoriaId !== null && $like === null){
+                $stmt->bind_param('iiii', $sucursalId, $categoriaId, $limite, $offset);
+            }elseif ($categoriaId === null){
+                $stmt->bind_param('issii', $sucursalId, $like, $like, $limite, $offset);
+            }else{
+                $stmt->bind_param('iissii', $sucursalId, $categoriaId, $like, $like, $limite, $offset);
+            }
+            
+            $stmt->execute();
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        }finally{
+            $stmt->close();
+        }
+    }
     
 }

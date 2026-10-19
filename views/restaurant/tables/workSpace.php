@@ -70,52 +70,37 @@
                 <h3 class="text-xl font-bold text-slate-900">Catálogo de productos</h3>
                 <p class="mt-0.5 text-base text-slate-500">Selecciona productos para la mesa</p>
               </div>
-              <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-base font-medium text-slate-600">24 productos</span>
+              <span id="catalogProductCount" class="rounded-lg bg-slate-100 px-2.5 py-1 text-base font-medium text-slate-600">Cargando...</span>
             </div>
 
             <!-- Buscar -->
             <div class="relative mt-4">
               <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">search</span>
               <input
+                id="searchItem"
                 type="search"
                 placeholder="Buscar por nombre o código..."
                 class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100">
             </div>
 
             <!-- Categorías -->
-            <div class="mt-3 flex gap-2 overflow-x-auto pb-1 text-base">
-              <button type="button" class="shrink-0 rounded-lg bg-indigo-600 px-3 py-2 font-semibold text-white">
-                Todos
-              </button>
-              <button type="button" class="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 font-medium text-slate-600 hover:bg-slate-50">
-                Hamburguesas
-              </button>
-              <button type="button" class="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 font-medium text-slate-600 hover:bg-slate-50">
-                Pizzas
-              </button>
-              <button type="button" class="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 font-medium text-slate-600 hover:bg-slate-50">
-                Bebidas
-              </button>
-              <button type="button" class="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 font-medium text-slate-600 hover:bg-slate-50">
-                Postres
-              </button>
-            </div>
+            <div id="divCategorias" class="mt-3 flex gap-2 overflow-x-auto pb-1 text-base"></div>
           </div>
 
           <!-- Productos con scroll independiente -->
-          <div class="min-h-0 flex-1 overflow-y-auto p-4">
+          <div id="catalogoPaginador" class="min-h-0 flex-1 overflow-y-auto p-4">
             <div class="mb-3 flex items-center justify-between">
-              <p class="text-base font-medium text-slate-500">Mostrando todos los productos</p>
+              <p id="catalogProductStatus" class="text-base font-medium text-slate-500">Cargando productos...</p>
               <button type="button" class="flex items-center gap-1 text-base font-medium text-slate-600">
                 <span class="material-symbols-outlined text-2xl">tune</span>
                 Filtros
               </button>
             </div>
 
-            <div class="grid grid-cols-1 gap-3 xxs:grid-cols-2 xs:grid-cols-3 xsm:grid-cols-4 xmd:grid-cols-3 2xlg:grid-cols-4">
+            <div id="catalogProductGrid" class="grid grid-cols-1 gap-3 xxs:grid-cols-2 xs:grid-cols-3 xsm:grid-cols-4 xmd:grid-cols-3 2xlg:grid-cols-4">
 
               <!-- PRODUCTO 1 -->
-              <article class="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
+              <!--<article class="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
                 <div class="relative h-32 bg-slate-100">
                   <img
                     src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&amp;fit=crop&amp;w=600&amp;q=80"
@@ -136,10 +121,10 @@
                     </button>
                   </div>
                 </div>
-              </article>
+              </article>-->
 
               <!-- PRODUCTO 2 -->
-              <article class="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
+              <!--<article class="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
                 <div class="h-32 bg-slate-100">
                   <img
                     src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&amp;fit=crop&amp;w=600&amp;q=80"
@@ -160,10 +145,10 @@
                     </button>
                   </div>
                 </div>
-              </article>
+              </article>-->
 
               <!-- PRODUCTO 3 -->
-              <article class="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
+              <!--<article class="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
                 <div class="h-32 bg-slate-100">
                   <img
                     src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&amp;fit=crop&amp;w=600&amp;q=80"
@@ -183,10 +168,10 @@
                     </button>
                   </div>
                 </div>
-              </article>
+              </article>-->
 
               <!-- PRODUCTO 4 -->
-              <article class="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
+              <!--<article class="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
                 <div class="h-32 bg-slate-100">
                   <img
                     src="https://images.unsplash.com/photo-1513558161293-cdaf765edfd4?auto=format&amp;fit=crop&amp;w=600&amp;q=80"
@@ -207,8 +192,18 @@
                     </button>
                   </div>
                 </div>
-              </article>
+              </article>-->
 
+            </div>
+
+            <div class="mt-5 text-center">
+              <button
+                id="catalogLoadMore"
+                type="button"
+                aria-controls="catalogProductGrid"
+                class="hidden rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-wait disabled:opacity-60">
+                Cargar más
+              </button>
             </div>
           </div>
         </section>
@@ -256,13 +251,13 @@
               <!-- Ítem registrado 1 -->
               <div class="border-b border-slate-100 pb-3">
                 <div class="flex items-start gap-3">
-                  <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-600">2</span>
+                  <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-600">2</span>
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold text-slate-800">Hamburguesa clásica</p>
-                    <p class="mt-0.5 text-xs text-slate-500">$24.000 c/u</p>
+                    <p class="m-0 text-base font-semibold text-slate-900">Hamburguesa clásica</p>
+                    <p class="mt-0.5 mb-0 text-sm text-slate-500">$24.000 c/u</p>
                     <span class="mt-1 inline-block text-lg font-medium text-emerald-600">Registrado</span>
                   </div>
-                  <span class="text-sm font-semibold text-slate-800">$48.000</span>
+                  <span class="text-lg font-semibold text-slate-900">$48.000</span>
                 </div>
               </div>
 
@@ -374,10 +369,10 @@
 
             <button
               type="button"
-              class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700">
+              class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-base font-bold text-white shadow-sm transition hover:bg-indigo-700">
               <span class="material-symbols-outlined text-xl">payments</span>
               Cobrar cuenta
-              <span class="ml-auto">$88.000</span>
+              <span class="ml-auto text-xl font-semibold">$88.000</span>
             </button>
           </div>
         </section>

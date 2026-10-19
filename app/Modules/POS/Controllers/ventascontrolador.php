@@ -10,8 +10,6 @@ use App\Models\configuraciones\mediospago;
 use App\Models\clientes\clientes;
 use App\Models\ventas\facturas;
 use App\Models\ventas\ventas;
-use App\Models\configuraciones\tarifas;
-use App\Models\clientes\departments;
 use App\Models\configuraciones\consecutivos;
 use App\Models\configuraciones\caja;
 use App\Models\parametrizacion\config_local;
@@ -22,7 +20,6 @@ use App\services\facturacionService;
 use App\services\ventasService;
 
 use App\Core\Routing\Router;
-use stdClass;
 
 class ventascontrolador{
 
