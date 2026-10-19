@@ -18,6 +18,9 @@ let catalogCurrentPage = 0;
 let catalogSelectedCategory: number | null = null;
 let catalogHasMore = false;
 let catalogLoading = false;
+// Variables de búsqueda
+let itemSearch = '';
+let catalogSearchTimer: number | undefined;
 
 const atencionMesaText = document.querySelector('#atencionMesaText') as HTMLSpanElement;
 
@@ -88,9 +91,7 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
     accounts = [];
     selectedAccountId = null;
     title.textContent = tableName;
-    //content.innerHTML = '<p class="text-sm text-slate-500">Cargando atención y cuentas...</p>';
     openDrawer();
-
     try{
         const occupation = await fetchActiveOccupation(resourceId);
         if (currentRequest !== requestVersion) return;
@@ -104,7 +105,6 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
     }catch(error){
         if (currentRequest !== requestVersion) return;
         const message = error instanceof Error ? error.message : 'No fue posible consultar la mesa.';
-        //content.innerHTML = `<p class="rounded-xl bg-red-50 p-4 text-sm text-red-700">${escapeCreateDOMHtml(message)}</p>`;
         atencionMesaText.classList.add('bg-red-50', 'text-red-700');
         atencionMesaText!.textContent = `${escapeCreateDOMHtml(message)}`;
     }
@@ -143,7 +143,29 @@ export function initOrderWorkspace(): void {
         if (event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') closeOrderWorkspace();
     });
 
-    btnLoadMore?.addEventListener('click', () => {
+    //evento al input de busqueda
+    const searchItem = document.querySelector<HTMLInputElement>('#searchItem');
+    searchItem?.addEventListener('input', () => {
+        window.clearTimeout(catalogSearchTimer);
+        const termino = searchItem.value.trim();
+
+        if(termino === itemSearch)return;
+        // Invalidar las respuestas anteriores inmediatamente
+        ++catalogRequestVersion;
+        // Impedir cargar más mientras cambia la búsqueda
+        catalogLoading = true;
+
+        //const btnLoadMore = document.querySelector<HTMLButtonElement>('#catalogLoadMore');
+        if(btnLoadMore)btnLoadMore.disabled = true;
+    
+        catalogSearchTimer = window.setTimeout(() => {
+            //if(termino === itemSearch)return;
+            itemSearch = termino;
+            void precargarProductos(catalogSelectedCategory);
+        }, 350);
+    });
+
+    btnLoadMore?.addEventListener('click', () => { //boton de cargar mas productos.
         void cargarMasProductos();
     });
 
@@ -174,9 +196,9 @@ async function cargaCategorias(){
         `).join('')}
     `;
 
+    //evento a los btns de la categoria
     divCategorias.addEventListener('click', event => {
         const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-categoria-id]');
-
         if(!button || !divCategorias.contains(button))return;
 
         const rawId = button.dataset.categoriaId;
@@ -253,11 +275,11 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
     }
 
     try {
-        const page: ProductPage = await listSimpleProducts(numeroPagina, categoriaId);
+        const page: ProductPage = await listSimpleProducts(numeroPagina, categoriaId, itemSearch);
         if(currentRequest !== catalogRequestVersion)return;
 
-        count.textContent = `${page.products.length} en esta página`;
-        status.textContent = page.products.length > 0 ? `Mostrando página ${page.page}` : 'No hay productos vendibles en esta sucursal.';
+        //count.textContent = `${page.products.length} en esta página`;
+        //status.textContent = page.products.length > 0 ? `Mostrando página ${page.page}` : 'No hay productos vendibles en esta sucursal.';
 
         const html = page.products.map(product => {
             const name = escapeCreateDOMHtml(product.nombre);
@@ -299,10 +321,14 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
         catalogCurrentPage = page.page;
         catalogHasMore = page.hasMore;
 
-        const totalMostrados = grid.querySelectorAll('article').length;
+        /*const totalMostrados = grid.querySelectorAll('article').length;
         count.textContent = `${totalMostrados} productos mostrados`;
-
         status.textContent = totalMostrados > 0 ? `Mostrando ${totalMostrados} productos` : 'No hay productos vendibles en esta sucursal.';
+        */
+        //const totalMostrados = grid.children.length;
+        count.textContent = `${page.products.length} en esta página`;
+        status.textContent = page.products.length > 0 ? `Mostrando página ${page.page}` : 'No hay productos vendibles en esta sucursal.';
+        
         btnLoadMore.classList.toggle('hidden', !catalogHasMore);
     }catch(error){
         if(currentRequest !== catalogRequestVersion)return;

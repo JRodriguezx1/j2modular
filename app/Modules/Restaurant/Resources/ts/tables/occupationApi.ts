@@ -52,9 +52,8 @@ export async function fetchActiveOccupation(resourceId: number): Promise<ActiveO
 
 //consultar las cuentas asociadas a la ocupacion
 export async function getOccupationAccounts(occupationId: number): Promise<OccupationAccountsData> {
-    const response = await fetch(`/restaurant/api/occupations/accounts?occupationId=${encodeURIComponent(occupationId)}`, {
-        headers: { Accept: 'application/json' }
-    });
+    const url = `/restaurant/api/occupations/accounts?occupationId=${encodeURIComponent(occupationId)}`;
+    const response = await fetch(url, { headers: { Accept: 'application/json' } });
     const result = await response.json() as OccupationAccountsResponse;
     if (!response.ok || !result.success || !result.data)
         throw new Error(result.message ?? 'No fue posible consultar las cuentas.');

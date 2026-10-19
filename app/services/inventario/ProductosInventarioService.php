@@ -20,10 +20,10 @@ final class ProductosInventarioService{
 
     private const PAGE_SIZE = 24;
     
-    public function listSimpleProducts(int $branchId, int $page = 1, ?int $categoryId = null): array{
+    public function listSimpleProducts(int $branchId, string $busqueda, int $page = 1, ?int $categoryId = null): array{
         if($branchId <= 0 || $page < 1 || ($categoryId !== null && $categoryId <= 0))
             throw new \InvalidArgumentException('Sucursal o página no válida.');
-        $items = productos::listarSimplesVendiblesParaCatalogo($branchId, self::PAGE_SIZE+1, $page, $categoryId, self::PAGE_SIZE);
+        $items = productos::listarSimplesVendiblesParaCatalogo($branchId, self::PAGE_SIZE+1, $page, $categoryId, self::PAGE_SIZE, $busqueda);
         $hasMore = count($items) > self::PAGE_SIZE;
         $hasMore && array_pop($items);
         return ['page' => $page, 'pageSize' => self::PAGE_SIZE, 'hasMore' => $hasMore, 'products' => $items];

@@ -1,3 +1,4 @@
+import { escapeCreateDOMHtml } from '../appFunction';
 import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
 import type {ActiveOccupation, OccupationAccount} from './occupationApi';
 
@@ -42,18 +43,12 @@ function renderLoading(): void{
         </div>`;
 }
 
-function escapeHtml(value: string): string {
-    const element = document.createElement('div');
-    element.textContent = value;
-    return element.innerHTML;
-}
-
 
 function renderOccupation(occupation: ActiveOccupation): void {
-    const client = occupation.clientName ? escapeHtml(occupation.clientName) : 'Sin cliente asociado';
+    const client = occupation.clientName ? escapeCreateDOMHtml(occupation.clientName) : 'Sin cliente asociado';
     const people = occupation.numberOfPeople !== null ? String(occupation.numberOfPeople) : '—';
     const reservation = occupation.reservationId !== null ? `#${occupation.reservationId}` : 'Atención directa';
-    const observations = occupation.observations ? escapeHtml(occupation.observations) : 'Sin observaciones';
+    const observations = occupation.observations ? escapeCreateDOMHtml(occupation.observations) : 'Sin observaciones';
     content.innerHTML = `
         <div class="space-y-6">
             <div class="rounded-2xl bg-emerald-50 p-4">
@@ -115,9 +110,9 @@ function renderAccounts(accounts: OccupationAccount[]): void{
             ? '<p class="text-sm text-slate-500">Esta atención no tiene cuentas.</p>'
             : accounts.map(account => `
                 <article class="mb-2 rounded-xl border border-slate-200 p-3">
-                    <p class="font-medium text-slate-900">${escapeHtml(account.name)}</p>
+                    <p class="font-medium text-slate-900">${escapeCreateDOMHtml(account.name)}</p>
                     <p class="text-xs text-slate-500">
-                        ${escapeHtml(account.status)} · ${account.invoiceId === null ? 'Sin orden todavía' : `Orden #${account.invoiceId}`}
+                        ${escapeCreateDOMHtml(account.status)} · ${account.invoiceId === null ? 'Sin orden todavía' : `Orden #${account.invoiceId}`}
                     </p>
                 </article>
             `).join('')}`;
@@ -188,7 +183,7 @@ export async function openActiveOccupationDetails(resourceId: number): Promise<v
         if(currentRequest !== requestVersion)return;
         content.innerHTML = `
             <div class="rounded-xl bg-red-50 p-4 text-sm text-red-700">
-                ${escapeHtml(error instanceof Error ? error.message : 'Ocurrió un error inesperado.')}
+                ${escapeCreateDOMHtml(error instanceof Error ? error.message : 'Ocurrió un error inesperado.')}
             </div>`;
     }
 }

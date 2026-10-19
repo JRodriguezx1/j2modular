@@ -232,7 +232,7 @@ class productos extends \App\Models\ActiveRecord {
         
         if($categoriaId !== null)$sql .= " AND p.idcategoria = ?";
         if ($termino !== ''){
-        // % y _ escritos por el usuario se buscan como caracteres normales.
+            // % y _ escritos por el usuario se buscan como caracteres normales.
             $escapado = str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $termino);
             $like = '%' . $escapado . '%';
             $sql .= " AND (p.nombre LIKE ? ESCAPE '!' OR p.sku LIKE ? ESCAPE '!')";

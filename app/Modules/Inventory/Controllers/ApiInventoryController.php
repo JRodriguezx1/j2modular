@@ -68,6 +68,7 @@ class ApiInventoryController{
     return;
   }
 
+  //obtener productos para paginador
   public static function listSimpleProducts():void{
     header('Content-Type: application/json; charset=utf-8');
         if(($_SESSION['login'] ?? false) !== true){
@@ -79,10 +80,11 @@ class ApiInventoryController{
             $branchId = filter_var($_SESSION['idsucursal'] ?? null, FILTER_VALIDATE_INT);
             $page = filter_var($_GET['page'] ?? 1, FILTER_VALIDATE_INT);
             $categoryId = array_key_exists('categoriaId', $_GET) ? filter_var($_GET['categoriaId'], FILTER_VALIDATE_INT) : null;
+            $busqueda = trim((string)($_GET['search'] ?? ''));
 
             if(!is_int($branchId) || $branchId <= 0 || !is_int($page) || $page <= 0 || ($categoryId !== null && (!is_int($categoryId) || $categoryId <= 0)))
                 throw new \InvalidArgumentException('Sucursal o página no válida.');
-            $result = (new ProductosInventarioService())->listSimpleProducts($branchId, $page, $categoryId);
+            $result = (new ProductosInventarioService())->listSimpleProducts($branchId, $busqueda, $page, $categoryId);
             echo json_encode(['success' => true, 'data' => $result], JSON_UNESCAPED_UNICODE);
         }catch(\InvalidArgumentException $e){
             http_response_code(422);

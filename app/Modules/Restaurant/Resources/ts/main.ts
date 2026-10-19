@@ -5,7 +5,7 @@ async function bootstrap(): Promise<void> {
     switch (page) {
 
         case 'tables': {
-            const module = await import('./tables');
+            const module = await import('./tables'); //esbuild resuelve ./tables hacia ./tables/index.ts.
             module.initTables();
             break;
         }

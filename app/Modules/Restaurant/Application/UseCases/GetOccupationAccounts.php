@@ -12,6 +12,7 @@ class GetOccupationAccounts{
     public function __construct(private AccountRepository $accountRepository, private OccupationRepository $occupationRepository)
     {}
 
+    //llamada desdes occupationApi.ts, consultar las cuentas asociadas a la ocupacion
     public function execute(int $occupationId, int $branchId): array{
         if($occupationId <= 0 || $branchId <= 0)
             throw new InvalidArgumentException('Los datos de la consulta no son válidos.');

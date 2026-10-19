@@ -44,9 +44,10 @@ export async function getAllCategorias(): Promise<I_Categorias[]>{
 }
 
 // Consultar las categorías visibles del inventario.
-export async function listSimpleProducts(page = 1, categoriaId: number | null = null): Promise<ProductPage>{
+export async function listSimpleProducts(page = 1, categoriaId: number | null = null, search:string = ''): Promise<ProductPage>{
     const params = new URLSearchParams({page: String(page)});
     if(categoriaId!=null)params.set('categoriaId', String(categoriaId));
+    if(search)params.set('search', search);
 
     const url = `/admin/api/inventory/listSimpleProducts?${params.toString()}`; //ApiInventoryController -> listSimpleProducts
     const response = await fetch(url);

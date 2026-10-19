@@ -16,6 +16,6 @@ $router->post('/restaurant/api/reservations/confirm', [RestaurantController::cla
 $router->post('/restaurant/api/reservations/cancel', [RestaurantController::class, 'cancelReservation']); //cancelar reservacion
 $router->post('/restaurant/api/reservations/start-occupation', [RestaurantController::class, 'startReservationOccupation']); //iniciar ocupacion de reservacion
 $router->get('/restaurant/api/occupations/active', [RestaurantController::class, 'getActiveOccupation']);
-$router->get('/restaurant/api/occupations/accounts', [OccupationAccountController::class, 'index']);
+$router->get('/restaurant/api/occupations/accounts', [OccupationAccountController::class, 'index']);  //llamada desdes occupationApi.ts, consultar las cuentas asociadas a la ocupacion
 $router->post('/restaurant/api/accounts/products', [OccupationAccountController::class, 'addProduct']); //añadir producto
 $router->get('/restaurant/api/accounts/summary', [OccupationAccountController::class, 'summary']);

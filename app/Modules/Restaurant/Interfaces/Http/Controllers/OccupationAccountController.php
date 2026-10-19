@@ -17,6 +17,7 @@ class OccupationAccountController{
         private GetAccountSummary $getAccountSummary
     ){}
 
+    //llamada desdes occupationApi.ts, consultar las cuentas asociadas a la ocupacion
     public function index(): void{
         header('Content-Type: application/json; charset=utf-8');
         if(($_SESSION['login'] ?? false) !== true){
