@@ -21,6 +21,7 @@ export function initTables(): void {
         }else{
             closeActiveOccupation();
             void openOrderWorkspace(resourceId, card.dataset.tableName ?? 'Mesa'); //abrir panel de operaciones para la mesa
+            //consultar la cuenta, resumen de la cuenta, productos registrados etc.
         }
     });
 }
