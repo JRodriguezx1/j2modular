@@ -146,21 +146,18 @@ export function initOrderWorkspace(): void {
     //evento al input de busqueda
     const searchItem = document.querySelector<HTMLInputElement>('#searchItem');
     searchItem?.addEventListener('input', () => {
-        window.clearTimeout(catalogSearchTimer);
         const termino = searchItem.value.trim();
-
         if(termino === itemSearch)return;
+        itemSearch = termino;
+         window.clearTimeout(catalogSearchTimer);
         // Invalidar las respuestas anteriores inmediatamente
         ++catalogRequestVersion;
         // Impedir cargar más mientras cambia la búsqueda
         catalogLoading = true;
-
         //const btnLoadMore = document.querySelector<HTMLButtonElement>('#catalogLoadMore');
         if(btnLoadMore)btnLoadMore.disabled = true;
     
         catalogSearchTimer = window.setTimeout(() => {
-            //if(termino === itemSearch)return;
-            itemSearch = termino;
             void precargarProductos(catalogSelectedCategory);
         }, 350);
     });
