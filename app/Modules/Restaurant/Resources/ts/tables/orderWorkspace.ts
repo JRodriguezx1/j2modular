@@ -3,16 +3,17 @@ import { I_Categorias, getAllCategorias, listSimpleProducts } from './catalogoAp
 import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
 import type {ActiveOccupation, OccupationAccount} from './occupationApi';
 import type { ProductPage } from './catalogoApi';
+import {resetAccountPanel, showAccountPanel, showAccountPanelError} from './accountPanel';
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
-let content: HTMLElement;
+//let content: HTMLElement;
 let title: HTMLElement;
 let requestVersion = 0;
 let catalogRequestVersion = 0;
 let hideOverlayTimer: number | undefined;
-let accounts: OccupationAccount[] = [];
-let selectedAccountId: number | null = null;
+//let accounts: OccupationAccount[] = [];
+//let selectedAccountId: number | null = null;
 //variables de paginacion
 let catalogCurrentPage = 0;
 let catalogSelectedCategory: number | null = null;
@@ -25,7 +26,12 @@ let catalogSearchTimer: number | undefined;
 const atencionMesaText = document.querySelector('#atencionMesaText') as HTMLSpanElement;
 
 
-function openDrawer(): void {
+function setWorkspaceText(id: string, value: string): void{
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+}
+
+function openDrawer(): void{
     window.clearTimeout(hideOverlayTimer);
     overlay.classList.remove('hidden');
     drawer.inert = false;
@@ -33,9 +39,10 @@ function openDrawer(): void {
     requestAnimationFrame(() => drawer.classList.remove('translate-x-full'));
 }
 
-export function closeOrderWorkspace(): void {
+export function closeOrderWorkspace(): void{
     if(drawer.getAttribute('aria-hidden') === 'true') return;
     ++requestVersion;
+    resetAccountPanel();
     // Quitar el foco si está dentro del drawer
     const activeElement = document.activeElement;
     if(activeElement instanceof HTMLElement && drawer.contains(activeElement))activeElement.blur();
@@ -46,7 +53,7 @@ export function closeOrderWorkspace(): void {
     hideOverlayTimer = window.setTimeout(() => overlay.classList.add('hidden'), 300);
 }
 
-function renderWorkspace(occupation: ActiveOccupation): void {
+/*function renderWorkspace(occupation: ActiveOccupation): void {
     const selected = accounts.find(account => account.id === selectedAccountId) ?? null;
     const accountOptions = accounts.map(account => `
         <option value="${account.id}" ${account.id === selectedAccountId ? 'selected' : ''}>
@@ -82,62 +89,73 @@ function renderWorkspace(occupation: ActiveOccupation): void {
                     El carrito y las acciones de venta se incorporarán en el siguiente paso.
                 </div>
             </section>
-        </div>`;*/
-}
+        </div>`;
+}*/
 
-export async function openOrderWorkspace(resourceId: number, tableName: string): Promise<void> {
-    if (!resourceId || !drawer) return;
+export async function openOrderWorkspace(resourceId: number, tableName: string): Promise<void>{
+    if(!resourceId || !drawer)return;
     const currentRequest = ++requestVersion;
-    accounts = [];
-    selectedAccountId = null;
+    //accounts = [];
+    //selectedAccountId = null;
     title.textContent = tableName;
+    atencionMesaText.classList.remove('bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-700');
+    atencionMesaText.textContent = 'Consultando atención...';
+    setWorkspaceText('atencionNoActiva', 'Atención por consultar');
+    setWorkspaceText('atencionEstadoResumen', 'Atención por consultar');
     openDrawer();
     try{
         const occupation = await fetchActiveOccupation(resourceId);
         if (currentRequest !== requestVersion) return;
+        atencionMesaText.classList.add('bg-emerald-50', 'text-emerald-700');
+        atencionMesaText.textContent = 'En atención';
+        setWorkspaceText('atencionNoActiva', `Atención #${occupation.occupationId}`);
+        setWorkspaceText('atencionEstadoResumen', `Atención #${occupation.occupationId} · En uso`);
         const data = await getOccupationAccounts(occupation.occupationId);
         if (currentRequest !== requestVersion) return;
-        accounts = data.accounts;
-        selectedAccountId = accounts.find(account => account.status === 'abierta')?.id ?? accounts[0]?.id ?? null;
-        atencionMesaText.classList.add('bg-emerald-50', 'text-emerald-700');
-        atencionMesaText.textContent = "En atención";
-        renderWorkspace(occupation);
+        void showAccountPanel(occupation, data.accounts);
+        //accounts = data.accounts;
+        //selectedAccountId = accounts.find(account => account.status === 'abierta')?.id ?? accounts[0]?.id ?? null;
+        //atencionMesaText.classList.add('bg-emerald-50', 'text-emerald-700');
+        //atencionMesaText.textContent = "En atención";
+        //renderWorkspace(occupation);
     }catch(error){
         if (currentRequest !== requestVersion) return;
         const message = error instanceof Error ? error.message : 'No fue posible consultar la mesa.';
+        atencionMesaText.classList.remove('bg-emerald-50', 'text-emerald-700');
         atencionMesaText.classList.add('bg-red-50', 'text-red-700');
-        atencionMesaText!.textContent = `${escapeCreateDOMHtml(message)}`;
+        //atencionMesaText!.textContent = `${escapeCreateDOMHtml(message)}`;
+        showAccountPanelError(message);
     }
 }
 
 export function initOrderWorkspace(): void {
     const drawerElement = document.getElementById('orderWorkspaceDrawer');
     const overlayElement = document.getElementById('orderWorkspaceOverlay');
-    const contentElement = document.getElementById('orderWorkspaceContent');
+    //const contentElement = document.getElementById('orderWorkspaceContent');
     const titleElement = document.getElementById('orderWorkspaceTitle');
     const btnLoadMore = document.querySelector<HTMLButtonElement>('#catalogLoadMore');
-    if(!drawerElement || !overlayElement || !contentElement || !titleElement)return;
+    if(!drawerElement || !overlayElement || !titleElement)return;
 
     cargaCategorias(); //carga de categorias
 
     drawer = drawerElement;
     overlay = overlayElement;
-    content = contentElement;
+    //content = contentElement;
     title = titleElement;
     drawer.inert = true;
 
     drawer.addEventListener('click', event => {
         if ((event.target as HTMLElement).closest('[data-close-order-workspace]')) closeOrderWorkspace();
     });
-    drawer.addEventListener('change', event => {
+    /*drawer.addEventListener('change', event => {
         const select = event.target as HTMLSelectElement;
         if (!select.matches('[data-order-workspace-account]')) return;
-        selectedAccountId = Number(select.value);
-        const selected = accounts.find(account => account.id === selectedAccountId);
+        //selectedAccountId = Number(select.value);
+        //const selected = accounts.find(account => account.id === selectedAccountId);
         const info = drawer.querySelector<HTMLElement>('[data-order-workspace-account-info]');
-        if (selected && info)
-            info.textContent = `Estado: ${selected.status} · ${selected.invoiceId === null ? 'Sin orden todavía' : `Orden #${selected.invoiceId}`}`;
-    });
+        //if(selected && info)
+        //    info.textContent = `Estado: ${selected.status} · ${selected.invoiceId === null ? 'Sin orden todavía' : `Orden #${selected.invoiceId}`}`;
+    });*/
     overlay.addEventListener('click', closeOrderWorkspace);
     document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') closeOrderWorkspace();

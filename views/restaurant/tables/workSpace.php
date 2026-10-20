@@ -15,21 +15,14 @@
     <div class="min-w-0">
       <div class="flex flex-wrap items-center gap-2">
         <p class="text-lg font-semibold uppercase tracking-widest text-slate-500">Operación de mesa</p>
-        <span id="atencionMesaText" class="rounded-full px-3 py-1 text-lg font-semibold">En atención</span>
+        <span id="atencionMesaText" class="rounded-full px-3 py-1 text-lg font-semibold">Atención por consultar</span>
       </div>
 
       <div class="mt-1 flex flex-wrap items-center gap-3">
-        <h2 id="orderWorkspaceTitle" class="text-2xl font-bold tracking-tight text-slate-900">Mesa 2</h2>
-        <span id="atencionNoActiva" class="rounded-lg bg-indigo-50 px-2.5 py-1 text-base font-semibold text-indigo-700">Atención #1024</span>
+        <h2 id="orderWorkspaceTitle" class="text-2xl font-bold tracking-tight text-slate-900">Mesa</h2>
+        <span id="atencionNoActiva" class="rounded-lg bg-indigo-50 px-2.5 py-1 text-base font-semibold text-indigo-700">Atención por consultar</span>
       </div>
 
-      <div class="mt-1 flex flex-wrap items-center gap-3 text-base text-slate-500">
-        <span>Salón principal</span>
-        <span>·</span>
-        <span>4 personas</span>
-        <span>·</span>
-        <span>Abierta hace 35 min</span>
-      </div>
     </div>
 
     <button
@@ -52,11 +45,11 @@
             <span class="material-symbols-outlined">table_restaurant</span>
           </div>
           <div>
-            <p class="m-0 text-lg font-semibold text-slate-900"> Ocupación activa</p>
-            <p class="m-0 text-sm text-slate-500">Atención #1024 · Pedido en curso</p>
+            <p class="m-0 text-lg font-semibold text-slate-900">Estado de mesa</p>
+            <p id="atencionEstadoResumen" class="m-0 text-sm text-slate-500">Atención por consultar</p>
           </div>
         </div>
-        <span class="rounded-full bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">Cuenta abierta</span>
+        <span id="atencionEstadoCuenta" class="rounded-full bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">Cuenta por consultar</span>
       </div>
 
       <!-- DOS COLUMNAS -->
@@ -209,15 +202,16 @@
         </section>
 
         <!-- COLUMNA DERECHA: CUENTA -->
-        <section class="flex min-h-[520px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <section id="accountPanel" aria-busy="false" class="flex min-h-[520px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
           <!-- Cabecera cuenta -->
           <div class="shrink-0 border-b border-slate-100 p-4">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-xl font-bold text-slate-900">Cuenta de la mesa</h3>
-                <p class="mt-0.5 text-base text-slate-500">Atención #1024</p>
+                <p id="accountPanelOccupation" class="mt-0.5 text-base text-slate-500">Atención por consultar</p>
+                <p id="accountPanelName" class="mt-0.5 text-sm text-slate-500">Cuenta por consultar</p>
               </div>
-              <span class="rounded-full bg-indigo-50 px-3 py-1 text-base font-semibold text-indigo-700">3 productos</span>
+              <span id="accountPanelProductCount" class="rounded-full bg-indigo-50 px-3 py-1 text-base font-semibold text-indigo-700">— productos</span>
             </div>
 
             <!-- Cliente -->
@@ -227,12 +221,13 @@
               </div>
               <div class="min-w-0 flex-1">
                 <p class="m-0 text-lg text-slate-500">Cliente asociado</p>
-                <p class="m-0 truncate text-base font-semibold text-slate-900">Consumidor final</p>
+                <p id="accountPanelClientName" class="m-0 truncate text-base font-semibold text-slate-900">Por consultar</p>
               </div>
               <button
                 type="button"
                 aria-label="Seleccionar cliente"
-                class="flex size-8 items-center justify-center rounded-lg text-indigo-600 hover:bg-indigo-50">
+                disabled
+                class="flex size-8 items-center justify-center rounded-lg text-indigo-600 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-50">
                 <span class="material-symbols-outlined text-4xl">person_add</span>
               </button>
             </div>
@@ -240,85 +235,43 @@
 
           <!-- Productos de la cuenta -->
           <div class="min-h-0 flex-1 overflow-y-auto p-4">
+            <p id="accountPanelStatus" role="status" aria-live="polite" class="mb-4 text-sm text-slate-500">Cuenta por consultar.</p>
 
             <!-- Productos registrados -->
             <div class="mb-4">
               <div class="mb-3 flex items-center justify-between">
                 <h4 class="text-xl font-bold uppercase tracking-wide text-slate-500">Productos registrados</h4>
-                <span class="text-lg font-medium text-slate-500">2 ítems</span>
+                <span id="accountPanelRegisteredCount" class="text-lg font-medium text-slate-500">— ítems</span>
               </div>
 
-              <!-- Ítem registrado 1 -->
-              <div class="border-b border-slate-100 pb-3">
-                <div class="flex items-start gap-3">
-                  <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-600">2</span>
-                  <div class="min-w-0 flex-1">
-                    <p class="m-0 text-base font-semibold text-slate-900">Hamburguesa clásica</p>
-                    <p class="mt-0.5 mb-0 text-sm text-slate-500">$24.000 c/u</p>
-                    <span class="mt-1 inline-block text-lg font-medium text-emerald-600">Registrado</span>
-                  </div>
-                  <span class="text-lg font-semibold text-slate-900">$48.000</span>
-                </div>
+              <div id="accountPanelConsumptions">
+                <p class="text-sm text-slate-500">Los productos registrados aparecerán aquí.</p>
               </div>
 
-              <!-- Ítem registrado 2 -->
-              <div class="border-b border-slate-100 py-3">
-                <div class="flex items-start gap-3">
-                  <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-600">1</span>
-                  <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold text-slate-800">Limonada natural</p>
-                    <p class="mt-0.5 text-xs text-slate-500">$8.000 c/u</p>
-                    <span class="mt-1 inline-block text-lg font-medium text-emerald-600">Registrado</span>
+              <template id="accountConsumptionTemplate">
+                <div class="border-b border-slate-100 py-3">
+                  <div class="flex items-start gap-3">
+                    <span data-consumption-quantity class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-600"></span>
+                    <div class="min-w-0 flex-1">
+                      <p data-consumption-name class="m-0 text-base font-semibold text-slate-900"></p>
+                      <p data-consumption-unit-price class="mt-0.5 mb-0 text-sm text-slate-500"></p>
+                      <span class="mt-1 inline-block text-lg font-medium text-emerald-600">Registrado</span>
+                    </div>
+                    <span data-consumption-total class="text-lg font-semibold text-slate-900"></span>
                   </div>
-                  <span class="text-sm font-semibold text-slate-800">$8.000</span>
                 </div>
-              </div>
+              </template>
             </div>
 
             <!-- Carrito pendiente -->
             <div>
               <div class="mb-3 flex items-center justify-between">
                 <h4 class="text-sm font-bold uppercase tracking-wide text-slate-500">Nuevos productos</h4>
-                <span class="rounded-full bg-amber-50 px-2 py-0.5 text-lg font-medium text-amber-700">Sin guardar</span>
+                <span id="accountPanelPendingCount" class="rounded-full bg-amber-50 px-2 py-0.5 text-lg font-medium text-amber-700">0 sin guardar</span>
               </div>
 
-              <div class="rounded-xl border border-indigo-100 bg-indigo-50/40 p-3">
-
-                <div class="flex items-start justify-between gap-2">
-                  <div class="min-w-0">
-                    <p class="mb-1 text-base font-semibold text-slate-900">Pizza margarita</p>
-                    <p class="m-0 text-base text-slate-500">$32.000 c/u</p>
-                  </div>
-                  <span class="text-lg font-bold text-slate-900">$32.000</span>
-                </div>
-
-                <div class="mt-3 flex items-center justify-between">
-                  <div class="flex items-center rounded-lg border border-slate-200 bg-white">
-                    <button
-                      type="button"
-                      aria-label="Disminuir cantidad"
-                      class="flex size-8 items-center justify-center text-slate-600 hover:text-indigo-600">
-                      <span class="material-symbols-outlined text-lg"> remove</span>
-                    </button>
-                    <span class="w-8 text-center text-sm font-semibold">1</span>
-                    <button
-                      type="button"
-                      aria-label="Aumentar cantidad"
-                      class="flex size-8 items-center justify-center text-slate-600 hover:text-indigo-600">
-                      <span class="material-symbols-outlined text-lg">add</span>
-                    </button>
-                  </div>
-
-                  <div class="flex items-center gap-2">
-                    <button type="button" class="text-base font-medium text-indigo-600">Nota</button>
-                    <button
-                      type="button"
-                      aria-label="Eliminar producto nuevo"
-                      class="flex size-8 items-center justify-center rounded-lg text-rose-500 hover:bg-rose-50">
-                      <span class="material-symbols-outlined text-3xl">delete_outline</span>
-                    </button>
-                  </div>
-                </div>
+              <div id="accountPanelPendingProducts">
+                <p class="text-sm text-slate-500">No hay productos nuevos.</p>
               </div>
             </div>
           </div>
@@ -329,39 +282,41 @@
             <div class="space-y-2 text-lg">
               <div class="flex justify-between text-slate-600">
                 <span>Productos registrados</span>
-                <span class="font-semibold">$56.000</span>
+                <span id="accountPanelRegisteredAmount" class="font-semibold">—</span>
               </div>
               <div class="flex justify-between text-slate-600">
                 <span>Nuevos productos</span>
-                <span class="font-semibold">$32.000</span>
+                <span id="accountPanelPendingAmount" class="font-semibold">$0</span>
               </div>
               <div class="flex justify-between text-slate-600">
                 <span>Descuento</span>
-                <span class="font-semibold">$0</span>
+                <span id="accountPanelDiscount" class="font-semibold">—</span>
               </div>
               <div class="flex justify-between text-slate-600">
                 <span>Impuestos</span>
-                <span class="font-semibold">Incluidos</span>
+                <span id="accountPanelTax" class="font-semibold">—</span>
               </div>
             </div>
 
             <div class="mt-3 flex items-center justify-between border-t border-slate-200 pt-3">
               <span class="text-xl font-bold text-slate-800">Total: </span>
-              <span class="text-2xl font-extrabold tracking-tight text-slate-900">$88.000</span>
+              <span id="accountPanelTotal" class="text-2xl font-extrabold tracking-tight text-slate-900">—</span>
             </div>
 
             <!-- Acciones -->
             <div class="mt-4 grid grid-cols-2 gap-2">
               <button
                 type="button"
-                class="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-100">
+                disabled
+                class="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50">
                 <span class="material-symbols-outlined text-lg">save</span>
                 Guardar pedido
               </button>
 
               <button
                 type="button"
-                class="flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-base font-semibold text-indigo-700 hover:bg-indigo-100">
+                disabled
+                class="flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-base font-semibold text-indigo-700 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50">
                 <span class="material-symbols-outlined text-lg">skillet</span>
                 Enviar a cocina
               </button>
@@ -369,10 +324,11 @@
 
             <button
               type="button"
-              class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-base font-bold text-white shadow-sm transition hover:bg-indigo-700">
+              disabled
+              class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-base font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">
               <span class="material-symbols-outlined text-xl">payments</span>
               Cobrar cuenta
-              <span class="ml-auto text-xl font-semibold">$88.000</span>
+              <span id="accountPanelPayTotal" class="ml-auto text-xl font-semibold">—</span>
             </button>
           </div>
         </section>
