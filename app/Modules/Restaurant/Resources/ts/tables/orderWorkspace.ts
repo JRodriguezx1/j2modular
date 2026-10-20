@@ -1,19 +1,15 @@
-import { escapeCreateDOMHtml } from '../appFunction';
+import { escapeCreateDOMHtml, setElementText } from '../appFunction';
 import { I_Categorias, getAllCategorias, listSimpleProducts } from './catalogoApi';
 import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
-import type {ActiveOccupation, OccupationAccount} from './occupationApi';
 import type { ProductPage } from './catalogoApi';
 import {resetAccountPanel, showAccountPanel, showAccountPanelError} from './accountPanel';
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
-//let content: HTMLElement;
 let title: HTMLElement;
 let requestVersion = 0;
 let catalogRequestVersion = 0;
 let hideOverlayTimer: number | undefined;
-//let accounts: OccupationAccount[] = [];
-//let selectedAccountId: number | null = null;
 //variables de paginacion
 let catalogCurrentPage = 0;
 let catalogSelectedCategory: number | null = null;
@@ -25,11 +21,6 @@ let catalogSearchTimer: number | undefined;
 
 const atencionMesaText = document.querySelector('#atencionMesaText') as HTMLSpanElement;
 
-
-function setWorkspaceText(id: string, value: string): void{
-    const element = document.getElementById(id);
-    if (element) element.textContent = value;
-}
 
 function openDrawer(): void{
     window.clearTimeout(hideOverlayTimer);
@@ -95,40 +86,34 @@ export function closeOrderWorkspace(): void{
 export async function openOrderWorkspace(resourceId: number, tableName: string): Promise<void>{
     if(!resourceId || !drawer)return;
     const currentRequest = ++requestVersion;
-    //accounts = [];
-    //selectedAccountId = null;
     title.textContent = tableName;
     atencionMesaText.classList.remove('bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-700');
     atencionMesaText.textContent = 'Consultando atención...';
-    setWorkspaceText('atencionNoActiva', 'Atención por consultar');
-    setWorkspaceText('atencionEstadoResumen', 'Atención por consultar');
+    setElementText('atencionNoActiva', 'Atención por consultar');
+    setElementText('atencionEstadoResumen', 'Atención por consultar');
     openDrawer();
     try{
         const occupation = await fetchActiveOccupation(resourceId);
+
         if (currentRequest !== requestVersion) return;
         atencionMesaText.classList.add('bg-emerald-50', 'text-emerald-700');
         atencionMesaText.textContent = 'En atención';
-        setWorkspaceText('atencionNoActiva', `Atención #${occupation.occupationId}`);
-        setWorkspaceText('atencionEstadoResumen', `Atención #${occupation.occupationId} · En uso`);
+        setElementText('atencionNoActiva', `Atención #${occupation.occupationId}`);
+        setElementText('atencionEstadoResumen', `Atención #${occupation.occupationId} · En uso`);
+
         const data = await getOccupationAccounts(occupation.occupationId);
-        if (currentRequest !== requestVersion) return;
-        void showAccountPanel(occupation, data.accounts);
-        //accounts = data.accounts;
-        //selectedAccountId = accounts.find(account => account.status === 'abierta')?.id ?? accounts[0]?.id ?? null;
-        //atencionMesaText.classList.add('bg-emerald-50', 'text-emerald-700');
-        //atencionMesaText.textContent = "En atención";
-        //renderWorkspace(occupation);
+        if(currentRequest !== requestVersion)return;
+        void showAccountPanel(occupation, data.accounts); //llamada al panel izquierdo para detalle de cuenta.
     }catch(error){
         if (currentRequest !== requestVersion) return;
         const message = error instanceof Error ? error.message : 'No fue posible consultar la mesa.';
         atencionMesaText.classList.remove('bg-emerald-50', 'text-emerald-700');
         atencionMesaText.classList.add('bg-red-50', 'text-red-700');
-        //atencionMesaText!.textContent = `${escapeCreateDOMHtml(message)}`;
         showAccountPanelError(message);
     }
 }
 
-export function initOrderWorkspace(): void {
+export function initOrderWorkspace(): void{
     const drawerElement = document.getElementById('orderWorkspaceDrawer');
     const overlayElement = document.getElementById('orderWorkspaceOverlay');
     //const contentElement = document.getElementById('orderWorkspaceContent');
@@ -140,7 +125,6 @@ export function initOrderWorkspace(): void {
 
     drawer = drawerElement;
     overlay = overlayElement;
-    //content = contentElement;
     title = titleElement;
     drawer.inert = true;
 
@@ -158,7 +142,7 @@ export function initOrderWorkspace(): void {
     });*/
     overlay.addEventListener('click', closeOrderWorkspace);
     document.addEventListener('keydown', event => {
-        if (event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false') closeOrderWorkspace();
+        if(event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false')closeOrderWorkspace();
     });
 
     //evento al input de busqueda
@@ -174,10 +158,7 @@ export function initOrderWorkspace(): void {
         catalogLoading = true;
         //const btnLoadMore = document.querySelector<HTMLButtonElement>('#catalogLoadMore');
         if(btnLoadMore)btnLoadMore.disabled = true;
-    
-        catalogSearchTimer = window.setTimeout(() => {
-            void precargarProductos(catalogSelectedCategory);
-        }, 350);
+        catalogSearchTimer = window.setTimeout(() => { void precargarProductos(catalogSelectedCategory); }, 350);
     });
 
     btnLoadMore?.addEventListener('click', () => { //boton de cargar mas productos.
@@ -256,7 +237,6 @@ async function cargarMasProductos(): Promise<void>{
     if(catalogLoading || !catalogHasMore)return;
     await cargarPaginaProductos(catalogCurrentPage+1, catalogSelectedCategory, false);
 }
-
 
 async function precargarProductos(categoriaId: number | null = null): Promise<void> {
     catalogSelectedCategory = categoriaId;

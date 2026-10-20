@@ -16,3 +16,8 @@ export function escapeCreateDOMHtml(value: string): string {
     element.textContent = value;
     return element.innerHTML;
 }
+
+export function setElementText(id: string, value: string): void{
+    const element = document.getElementById(id);
+    if(element)element.textContent = value;
+}

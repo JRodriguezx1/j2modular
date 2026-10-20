@@ -224,6 +224,7 @@
                 <p id="accountPanelClientName" class="m-0 truncate text-base font-semibold text-slate-900">Por consultar</p>
               </div>
               <button
+              id="selectCliente"
                 type="button"
                 aria-label="Seleccionar cliente"
                 disabled

@@ -1,3 +1,4 @@
+import { setElementText } from '../appFunction';
 import {getAccountSummary} from './accountApi';
 import type {AccountAmount, AccountConsumption, AccountSummary} from './accountApi';
 import type {ActiveOccupation, OccupationAccount} from './occupationApi';
@@ -13,21 +14,16 @@ const currencyFormatter = new Intl.NumberFormat('es-CO', {
 });
 const quantityFormatter = new Intl.NumberFormat('es-CO', {maximumFractionDigits: 2});
 
-function setText(id: string, value: string): void{
-    const element = document.getElementById(id);
-    if (element) element.textContent = value;
-}
-
 function setStatus(message: string): void{
     const status = document.getElementById('accountPanelStatus');
-    if (!status) return;
+    if(!status)return;
     status.textContent = message;
     status.classList.toggle('hidden', message === '');
 }
 
 function setEmptyMessage(containerId: string, message: string): void{
     const container = document.getElementById(containerId);
-    if (!container) return;
+    if(!container)return;
     const paragraph = document.createElement('p');
     paragraph.className = 'text-sm text-slate-500';
     paragraph.textContent = message;
@@ -45,7 +41,7 @@ function formatQuantity(value: AccountAmount): string{
 }
 
 function renderConsumptions(consumptions: AccountConsumption[]): void{
-    if (consumptions.length === 0) {
+    if(consumptions.length === 0){
         setEmptyMessage('accountPanelConsumptions', 'Sin productos registrados.');
         return;
     }
@@ -57,16 +53,16 @@ function renderConsumptions(consumptions: AccountConsumption[]): void{
 
     const fragment = document.createDocumentFragment();
 
-    for (const consumption of consumptions) {
+    for(const consumption of consumptions){
         const row = template.content.firstElementChild?.cloneNode(true);
-        if (!(row instanceof HTMLElement))
+        if(!(row instanceof HTMLElement))
             throw new Error('La vista de productos registrados no es válida.');
 
         const quantity = row.querySelector<HTMLElement>('[data-consumption-quantity]');
         const name = row.querySelector<HTMLElement>('[data-consumption-name]');
         const unitPrice = row.querySelector<HTMLElement>('[data-consumption-unit-price]');
         const total = row.querySelector<HTMLElement>('[data-consumption-total]');
-        if (!quantity || !name || !unitPrice || !total)
+        if(!quantity || !name || !unitPrice || !total)
             throw new Error('La vista de productos registrados está incompleta.');
 
         quantity.textContent = formatQuantity(consumption.cantidad);
@@ -79,41 +75,41 @@ function renderConsumptions(consumptions: AccountConsumption[]): void{
 }
 
 function renderSummary(summary: AccountSummary): void{
-    setText('accountPanelName', summary.name);
+    setElementText('accountPanelName', summary.name);
     const units = formatQuantity(summary.totales.totalunidades);
-    setText('accountPanelProductCount', `${units} ${units === '1' ? 'producto' : 'productos'}`);
+    setElementText('accountPanelProductCount', `${units} ${units === '1' ? 'producto' : 'productos'}`);
     const lines = summary.consumos.length;
-    setText('accountPanelRegisteredCount', `${lines} ${lines === 1 ? 'ítem' : 'ítems'}`);
+    setElementText('accountPanelRegisteredCount', `${lines} ${lines === 1 ? 'ítem' : 'ítems'}`);
     renderConsumptions(summary.consumos);
 
     // El precio del POS incluye el impuesto; el total ya es el importe guardado.
     const registeredTotal = formatCurrency(summary.totales.total);
-    setText('accountPanelRegisteredAmount', registeredTotal);
-    setText('accountPanelDiscount', formatCurrency(summary.totales.descuento));
-    setText('accountPanelTax', `${formatCurrency(summary.totales.valorimpuestototal)} incluidos`);
-    setText('accountPanelTotal', registeredTotal);
-    setText('accountPanelPayTotal', registeredTotal);
+    setElementText('accountPanelRegisteredAmount', registeredTotal);
+    setElementText('accountPanelDiscount', formatCurrency(summary.totales.descuento));
+    setElementText('accountPanelTax', `${formatCurrency(summary.totales.valorimpuestototal)} incluidos`);
+    setElementText('accountPanelTotal', registeredTotal);
+    setElementText('accountPanelPayTotal', registeredTotal);
     setStatus(summary.consumos.length === 0 ? 'Cuenta abierta sin productos registrados.' : '');
 }
 
-export function resetAccountPanel(): void {
+export function resetAccountPanel(): void{
     ++requestVersion;
-    activeRequest?.abort();
+    activeRequest?.abort();  // Cancelar la petición anterior controller?.abort();
     activeRequest = null;
     document.getElementById('accountPanel')?.setAttribute('aria-busy', 'false');
-    setText('atencionEstadoCuenta', 'Cuenta por consultar');
-    setText('accountPanelOccupation', 'Atención por consultar');
-    setText('accountPanelName', 'Cuenta por consultar');
-    setText('accountPanelClientName', 'Por consultar');
-    setText('accountPanelProductCount', '— productos');
-    setText('accountPanelRegisteredCount', '— ítems');
-    setText('accountPanelRegisteredAmount', '—');
-    setText('accountPanelPendingCount', '0 sin guardar');
-    setText('accountPanelPendingAmount', formatCurrency(0));
-    setText('accountPanelDiscount', '—');
-    setText('accountPanelTax', '—');
-    setText('accountPanelTotal', '—');
-    setText('accountPanelPayTotal', '—');
+    setElementText('atencionEstadoCuenta', 'Cuenta por consultar');
+    setElementText('accountPanelOccupation', 'Atención por consultar');
+    setElementText('accountPanelName', 'Cuenta por consultar');
+    setElementText('accountPanelClientName', 'Por consultar');
+    setElementText('accountPanelProductCount', '— productos');
+    setElementText('accountPanelRegisteredCount', '— ítems');
+    setElementText('accountPanelRegisteredAmount', '—');
+    setElementText('accountPanelPendingCount', '0 sin guardar');
+    setElementText('accountPanelPendingAmount', formatCurrency(0));
+    setElementText('accountPanelDiscount', '—');
+    setElementText('accountPanelTax', '—');
+    setElementText('accountPanelTotal', '—');
+    setElementText('accountPanelPayTotal', '—');
     setEmptyMessage('accountPanelConsumptions', 'Los productos registrados aparecerán aquí.');
     setEmptyMessage('accountPanelPendingProducts', 'No hay productos nuevos.');
     setStatus('Cuenta por consultar.');
@@ -122,42 +118,40 @@ export function resetAccountPanel(): void {
 
 export function showAccountPanelError(message: string): void{
     resetAccountPanel();
-    setText('atencionEstadoCuenta', 'Cuenta no disponible');
+    setElementText('atencionEstadoCuenta', 'Cuenta no disponible');
     setStatus(message);
     setEmptyMessage('accountPanelConsumptions', 'No fue posible consultar los productos registrados.');
 }
 
 
-export async function showAccountPanel(occupation: ActiveOccupation, accounts: OccupationAccount[]): Promise<void> {
+export async function showAccountPanel(occupation: ActiveOccupation, accounts: OccupationAccount[]): Promise<void>{
     resetAccountPanel();
     const currentRequest = requestVersion;
-    setText('accountPanelOccupation', `Atención #${occupation.occupationId}`);
-    setText('accountPanelClientName', occupation.clientName?.trim() || (occupation.clientId === null ? 'Consumidor final' : 'Cliente por consultar'));
+    setElementText('accountPanelOccupation', `Atención #${occupation.occupationId}`);
+    setElementText('accountPanelClientName', occupation.clientName?.trim() || (occupation.clientId === null ? 'Consumidor final' : 'Cliente por consultar'));
 
-    const openAccounts = accounts.filter(account =>
-        account.occupationId === occupation.occupationId && account.status === 'abierta');
+    const openAccounts = accounts.filter(account => account.occupationId === occupation.occupationId && account.status === 'abierta');
     if(openAccounts.length === 0){
-        setText('atencionEstadoCuenta', 'Sin cuenta abierta');
+        setElementText('atencionEstadoCuenta', 'Sin cuenta abierta');
         setStatus('Esta atención aún no tiene una cuenta abierta.');
         setEmptyMessage('accountPanelConsumptions', 'Sin cuenta para consultar productos.');
         return;
     }
     if(openAccounts.length > 1){
-        setText('atencionEstadoCuenta', 'Varias cuentas abiertas');
+        setElementText('atencionEstadoCuenta', 'Varias cuentas abiertas');
         setStatus('Esta atención tiene varias cuentas abiertas. La selección de cuenta está pendiente.');
         setEmptyMessage('accountPanelConsumptions', 'Selecciona una cuenta cuando esta opción esté disponible.');
         return;
     }
 
     const account = openAccounts[0];
-    setText('atencionEstadoCuenta', 'Cuenta abierta');
-    setText('accountPanelName', account.name);
+    setElementText('atencionEstadoCuenta', 'Cuenta abierta');
+    setElementText('accountPanelName', account.name);
     setStatus('Consultando productos y total de la cuenta...');
     setEmptyMessage('accountPanelConsumptions', 'Cargando productos registrados...');
     document.getElementById('accountPanel')?.setAttribute('aria-busy', 'true');
-    const controller = new AbortController();
+    const controller = new AbortController();  // Crear un controlador nuevo
     activeRequest = controller;
-
     try{
         const summary = await getAccountSummary(account.id, controller.signal);
         if(currentRequest !== requestVersion)return;
