@@ -173,7 +173,8 @@
                   class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-right text-xl font-medium text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                   type="text"
                   placeholder="0"
-                  oninput="this.value = parseInt(this.value.replace(/[^\d.,]/g, '').replace(/[,.]/g, '')||0).toLocaleString()">
+                  oninput="formatearMoneda(this)"
+                  >
               </div>
 
               <div class="rounded-xl border border-emerald-100 bg-emerald-50 p-3">

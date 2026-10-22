@@ -14,7 +14,7 @@ export interface SimpleProduct {
     nombre: string;
     sku: string | null;
     foto: string | null;
-    precioVenta: string;
+    precioVenta: string|number;
 }
 
 export interface ProductPage {

@@ -361,6 +361,12 @@ class RestaurantController
             $resourceId = (int) ($_GET['resourceId'] ?? 0);
             $detail = $this->getActiveOccupationDetail->execute($resourceId);
             http_response_code(200);
+            // Ausencia de ocupación: es un resultado válido de la consulta.
+            if($detail === null){
+                echo json_encode(['success' => true, 'occupation' => null ], JSON_UNESCAPED_UNICODE);
+                return;
+            }
+
             echo json_encode(
                 [
                     'success' => true,

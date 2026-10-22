@@ -168,6 +168,10 @@ export async function openActiveOccupationDetails(resourceId: number): Promise<v
     try{
         const occupation = await fetchActiveOccupation(resourceId);
         if(currentRequest !== requestVersion)return;
+        if(occupation === null){
+            content.textContent = 'La mesa no tiene una atención activa.';
+            return;
+        }
         renderOccupation(occupation);
 
         try{

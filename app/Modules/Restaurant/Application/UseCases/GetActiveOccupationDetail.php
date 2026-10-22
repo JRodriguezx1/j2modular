@@ -14,12 +14,12 @@ class GetActiveOccupationDetail{
     public function __construct(private OccupationRepository $occupationRepository, private ReservationRepository $reservationRepository)
     {}
 
-    public function execute(int $resourceId): ActiveOccupationDetail{
+    public function execute(int $resourceId): ?ActiveOccupationDetail{
         if($resourceId <= 0)
             throw new InvalidArgumentException('El recurso indicado no es válido.');
         $occupation = $this->occupationRepository->findCurrentByResourceId($resourceId);
-        if(!$occupation)
-            throw new InvalidArgumentException('La mesa no tiene una atención activa.');
+        // La consulta fue correcta, pero no hay una atención activa.
+        if($occupation === null)return null;
 
         $clientName = null;
         $numberOfPeople = null;

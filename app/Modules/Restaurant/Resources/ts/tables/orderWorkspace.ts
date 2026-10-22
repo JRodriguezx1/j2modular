@@ -1,8 +1,10 @@
 import { escapeCreateDOMHtml, setElementText } from '../appFunction';
+import {createCart} from './cart';
 import { I_Categorias, getAllCategorias, listSimpleProducts } from './catalogoApi';
 import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
-import type { ProductPage } from './catalogoApi';
-import {resetAccountPanel, showAccountPanel, showAccountPanelError} from './accountPanel';
+import type { ProductPage, SimpleProduct } from './catalogoApi';
+import {resetAccountPanel, showAccountPanel, showAccountPanelError, showTemporaryAccountPanel} from './accountPanel';
+import {renderCartPanel} from './cartPanel';
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
@@ -11,15 +13,54 @@ let requestVersion = 0;
 let catalogRequestVersion = 0;
 let hideOverlayTimer: number | undefined;
 //variables de paginacion
-let catalogCurrentPage = 0;
-let catalogSelectedCategory: number | null = null;
-let catalogHasMore = false;
-let catalogLoading = false;
+let catalogCurrentPage = 0;                           // Última página cargada correctamente
+let catalogSelectedCategory: number | null = null;    // Categoría seleccionada actualmente
+let catalogHasMore = false;                           // Indica si existen más productos
+let catalogLoading = false;                           // Evita solicitudes duplicadas
 // Variables de búsqueda
 let itemSearch = '';
 let catalogSearchTimer: number | undefined;
 
-const atencionMesaText = document.querySelector('#atencionMesaText') as HTMLSpanElement;
+// Obtiene el tipo del objeto que devuelve createCart().
+type Cart = ReturnType<typeof createCart>;
+type CartKey = | `account:${number}` | `occupation:${number}` | `table:${number}`;
+const carts = new Map<CartKey, Cart>();
+// Representa el pedido que estamos preparando en el panel.
+let activeOrder: {
+    resourceId: number;
+    occupationId: number | null;
+    accountId: number | null;
+    cartKey: CartKey;
+    cart: Cart;
+} | null = null;
+
+
+const catalogProducts = new Map<number, SimpleProduct>();
+
+const productosGrid = document.querySelector<HTMLDivElement>('#catalogProductGrid');
+
+
+// Selecciona el carrito correspondiente al contexto confirmado.
+function activateOrder(resourceId: number, occupationId: number|null, accountId: number|null): void{
+    let key: CartKey;
+    if(accountId !== null){
+        key = `account:${accountId}`;
+    }else if(occupationId !== null){
+        key = `occupation:${occupationId}`;
+    }else{
+        key = `table:${resourceId}`;
+    }
+
+    // Recuperamos el carrito anterior o creamos uno vacío.
+    let cart = carts.get(key);
+    if(!cart){
+        cart = createCart();
+        carts.set(key, cart);  //si no hay ocupacion key = table:5
+    }
+
+    activeOrder = {resourceId, occupationId, accountId, cartKey: key, cart};
+    renderCartPanel(cart.getItems());  //Muestra el carrito recién creado. Así reaparecen los pendientes al abrir la mesa.
+}
 
 
 function openDrawer(): void{
@@ -33,6 +74,7 @@ function openDrawer(): void{
 export function closeOrderWorkspace(): void{
     if(drawer.getAttribute('aria-hidden') === 'true') return;
     ++requestVersion;
+    activeOrder = null;
     resetAccountPanel();
     // Quitar el foco si está dentro del drawer
     const activeElement = document.activeElement;
@@ -86,30 +128,54 @@ export function closeOrderWorkspace(): void{
 export async function openOrderWorkspace(resourceId: number, tableName: string): Promise<void>{
     if(!resourceId || !drawer)return;
     const currentRequest = ++requestVersion;
+    activeOrder = null; //Mientras consultamos, no hay un destino habilitado para productos.
+    resetAccountPanel();
     title.textContent = tableName;
-    atencionMesaText.classList.remove('bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-700');
-    atencionMesaText.textContent = 'Consultando atención...';
-    setElementText('atencionNoActiva', 'Atención por consultar');
-    setElementText('atencionEstadoResumen', 'Atención por consultar');
     openDrawer();
     try{
-        const occupation = await fetchActiveOccupation(resourceId);
+        const occupation = await fetchActiveOccupation(resourceId); //consulta ocupacion activa
 
-        if (currentRequest !== requestVersion) return;
-        atencionMesaText.classList.add('bg-emerald-50', 'text-emerald-700');
-        atencionMesaText.textContent = 'En atención';
+        if(currentRequest !== requestVersion) return;
+        // Caso 1: no hay ocupación. Permitimos preparar un borrador.
+        if(occupation === null){
+            showTemporaryAccountPanel(null);
+            activateOrder(resourceId, null, null);  //cunado no hay cuenta abierta ni ocupacion activeOrder.cartKey = table:idrecurso = table:4
+            return;
+        }
+
+        if(occupation.resourceId !== resourceId || occupation.status !== 'en_uso')
+            throw new Error('La atención recibida no está activa para esta mesa.');
+        
         setElementText('atencionNoActiva', `Atención #${occupation.occupationId}`);
         setElementText('atencionEstadoResumen', `Atención #${occupation.occupationId} · En uso`);
-
-        const data = await getOccupationAccounts(occupation.occupationId);
+                                                                                                                             //arreglo de cuentas
+        const data = await getOccupationAccounts(occupation.occupationId); //{occupationId: number, occupationStatus:string, accounts:[{id:number, occupationId:number, invoiceId:number|null, name:string, status:string}, {}]}
         if(currentRequest !== requestVersion)return;
-        void showAccountPanel(occupation, data.accounts); //llamada al panel izquierdo para detalle de cuenta.
+        // La atención pudo cambiar mientras consultábamos.
+        if(data.occupationId !== occupation.occupationId || data.occupationStatus !== 'en_uso' || data.accounts.some(account =>account.occupationId !== occupation.occupationId))
+            throw new Error('Las cuentas recibidas no corresponden a una atención activa.');
+
+        //Esperamos a que el panel consulte el resumen y nos devuelva la cuenta.
+        const result = await showAccountPanel(occupation, data.accounts); //llamada al panel izquierdo para detalle de cuenta y pasamos arreglo de cuentas.
+        // Mientras esperábamos, el usuario pudo cerrar el panel o cambiar de mesa.
+        if(currentRequest !== requestVersion)return;
+
+       // Caso 2: existe una cuenta abierta y su resumen fue consultado.
+        if(result.status === 'ready'){
+            activateOrder(resourceId, occupation.occupationId, result.account.id);
+            return;
+        }
+
+        // Caso 3: existe la ocupación, pero todavía no tiene ninguna cuenta.
+        if(result.status === 'empty'){
+            showTemporaryAccountPanel(occupation);
+            activateOrder(resourceId, occupation.occupationId, null);
+            return;
+        }
     }catch(error){
-        if (currentRequest !== requestVersion) return;
-        const message = error instanceof Error ? error.message : 'No fue posible consultar la mesa.';
-        atencionMesaText.classList.remove('bg-emerald-50', 'text-emerald-700');
-        atencionMesaText.classList.add('bg-red-50', 'text-red-700');
-        showAccountPanelError(message);
+        if(currentRequest !== requestVersion)return;
+        activeOrder = null;
+        showAccountPanelError(error instanceof Error ? error.message : 'No fue posible consultar la mesa.');
     }
 }
 
@@ -165,10 +231,45 @@ export function initOrderWorkspace(): void{
         void cargarMasProductos();
     });
 
+
+    //evento de los productos
+    productosGrid?.addEventListener('click', event => {
+        const target = event.target;
+        if(!(target instanceof Element))return;
+
+        const article = target.closest<HTMLElement>('article[data-product-id]');
+        if(!article || !productosGrid.contains(article))return;
+        // La cuenta debe haber terminado de cargar correctamente.
+        if(activeOrder === null){
+            setElementText('catalogProductStatus', 'El pedido aún no está disponible. Revisa el estado del panel.');
+            return;
+        }
+
+        // Recuperamos el producto usando el ID guardado en el article.
+        const productId = Number(article.dataset.productId);
+        const product = catalogProducts.get(productId);
+        if(!product)return;
+
+        try{
+            // Agrega una unidad. Si ya existe, aumenta su cantidad.
+            activeOrder.cart.addProduct(product);
+            // Volvemos a dibujar la lista usando los datos actualizados.
+            renderCartPanel(activeOrder.cart.getItems());
+            // Temporal: permite comprobar el resultado en la consola.
+            console.log('Cuenta activa:', activeOrder.accountId);
+            console.log('Cuenta en MySQL:', activeOrder.accountId);
+            console.table(activeOrder.cart.getItems());
+        }catch(error){
+            setElementText('catalogProductStatus', error instanceof Error ? error.message : 'No fue posible agregar el producto.');
+        }
+    });
+    
+
     void precargarProductos(); //carga de productos
 }
 
 
+// Catalogo de productos, filtros y paginador
 async function cargaCategorias(){
     const categorias:I_Categorias[] = await getAllCategorias();
     const divCategorias = document.querySelector('#divCategorias') as HTMLDivElement;
@@ -249,12 +350,11 @@ async function precargarProductos(categoriaId: number | null = null): Promise<vo
 
 async function cargarPaginaProductos(numeroPagina: number, categoriaId: number | null, reemplazar: boolean): Promise<void>{
     const catalogoPaginador = document.querySelector<HTMLDivElement>('#catalogoPaginador');
-    const grid = document.querySelector<HTMLDivElement>('#catalogProductGrid');
     const count = document.querySelector<HTMLElement>('#catalogProductCount');
     const status = document.querySelector<HTMLElement>('#catalogProductStatus');
     const btnLoadMore = document.querySelector<HTMLButtonElement>('#catalogLoadMore');
 
-    if(!grid || !count || !status || !btnLoadMore)return;
+    if(!productosGrid || !count || !status || !btnLoadMore)return;
     const currentRequest = ++catalogRequestVersion;
 
     catalogLoading = true;
@@ -262,7 +362,9 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
     btnLoadMore.classList.add('hidden');
 
     if(reemplazar){
-        grid.replaceChildren();
+        // Al cambiar la búsqueda o categoría, quitamos el catálogo anterior.
+        catalogProducts.clear();
+        productosGrid.replaceChildren();
         count.textContent = 'Cargando...';
         status.textContent = 'Cargando productos...';
     }else{
@@ -272,6 +374,10 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
     try {
         const page: ProductPage = await listSimpleProducts(numeroPagina, categoriaId, itemSearch);
         if(currentRequest !== catalogRequestVersion)return;
+
+        //Guardamos los datos que después utilizará el clic. Al cargar más, se conservan los productos de las páginas anteriores.
+        for(const product of page.products)
+            catalogProducts.set(product.id, { ...product, precioVenta: Number(product.precioVenta)}); //mapa idproducto con el producto
 
         //count.textContent = `${page.products.length} en esta página`;
         //status.textContent = page.products.length > 0 ? `Mostrando página ${page.page}` : 'No hay productos vendibles en esta sucursal.';
@@ -283,7 +389,9 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
             const priceText = price.toLocaleString();
 
             return `
-                <article class="group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
+                <article 
+                    data-product-id="${product.id}"
+                    class="cursor-pointer group overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-indigo-300 hover:shadow-md">
                     <div class="h-32 bg-slate-100 ${photo!=null?'':'grid place-items-center'}">
                         ${photo!=null
                             ? `<img src="/build/img/${escapeCreateDOMHtml(photo)}" alt="${name}" loading="lazy" class="h-full w-full object-cover">`
@@ -307,10 +415,10 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
         }).join('');
 
         if(reemplazar){
-            grid.innerHTML = html;
+            productosGrid.innerHTML = html;
             catalogoPaginador?.scrollTo({ top: 0 });
         }else{
-            grid.insertAdjacentHTML('beforeend', html);
+            productosGrid.insertAdjacentHTML('beforeend', html);
         }
 
         catalogCurrentPage = page.page;

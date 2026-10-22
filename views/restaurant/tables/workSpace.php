@@ -13,9 +13,8 @@
   <!-- ENCABEZADO -->
   <header class="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
     <div class="min-w-0">
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="">
         <p class="text-lg font-semibold uppercase tracking-widest text-slate-500">Operación de mesa</p>
-        <span id="atencionMesaText" class="rounded-full px-3 py-1 text-lg font-semibold">Atención por consultar</span>
       </div>
 
       <div class="mt-1 flex flex-wrap items-center gap-3">
@@ -211,7 +210,7 @@
                 <p id="accountPanelOccupation" class="mt-0.5 text-base text-slate-500">Atención por consultar</p>
                 <p id="accountPanelName" class="mt-0.5 text-sm text-slate-500">Cuenta por consultar</p>
               </div>
-              <span id="accountPanelProductCount" class="rounded-full bg-indigo-50 px-3 py-1 text-base font-semibold text-indigo-700">— productos</span>
+              
             </div>
 
             <!-- Cliente -->
@@ -236,8 +235,6 @@
 
           <!-- Productos de la cuenta -->
           <div class="min-h-0 flex-1 overflow-y-auto p-4">
-            <p id="accountPanelStatus" role="status" aria-live="polite" class="mb-4 text-sm text-slate-500">Cuenta por consultar.</p>
-
             <!-- Productos registrados -->
             <div class="mb-4">
               <div class="mb-3 flex items-center justify-between">
@@ -246,7 +243,7 @@
               </div>
 
               <div id="accountPanelConsumptions">
-                <p class="text-sm text-slate-500">Los productos registrados aparecerán aquí.</p>
+                <p class="text-sm text-slate-500"></p>
               </div>
 
               <template id="accountConsumptionTemplate">
