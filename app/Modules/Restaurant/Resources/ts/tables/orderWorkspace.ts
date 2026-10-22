@@ -38,6 +38,7 @@ let activeOrder: {
 const catalogProducts = new Map<number, SimpleProduct>();
 
 const productosGrid = document.querySelector<HTMLDivElement>('#catalogProductGrid');
+const cartContainer = document.getElementById('accountPanelPendingProducts');
 
 
 // Selecciona el carrito correspondiente al contexto confirmado.
@@ -261,6 +262,52 @@ export function initOrderWorkspace(): void{
             console.table(activeOrder.cart.getItems());
         }catch(error){
             setElementText('catalogProductStatus', error instanceof Error ? error.message : 'No fue posible agregar el producto.');
+        }
+    });
+
+
+    //Evento a los items del carrito   
+    cartContainer?.addEventListener('click', event => {
+        const target = event.target;
+        if(!(target instanceof Element))return;
+
+        const button = target.closest<HTMLButtonElement>('button[data-cart-action]');
+        if(!button || !cartContainer.contains(button))return;
+        if(activeOrder === null)return;
+        const row = button.closest<HTMLElement>('[data-cart-product-id]');
+        if (!row) return;
+
+        const productId = Number(row.dataset.cartProductId);
+        if(!Number.isSafeInteger(productId) || productId <= 0)return;
+
+        const action = button.dataset.cartAction;
+        const cart = activeOrder.cart;
+        try {
+            switch(action){
+                case 'increase': {
+                    const product = catalogProducts.get(productId);
+                    if(!product)return;
+                    cart.addProduct(product);
+                    break;
+                }
+                case 'decrease': {
+                    const item = cart.getItems().find(item => item.productId === productId);
+                    if(!item)return;
+                    // Cantidad mínima permitida: 1.
+                    if(item.quantity <= 1)return;
+                    cart.updateQuantity(productId, Math.round((item.quantity - 1) * 100) / 100);
+                    break;
+                }
+                case 'remove': {
+                    cart.removeProduct(productId);
+                    break;
+                }
+                default: return;
+            }
+
+            renderCartPanel(cart.getItems());
+        }catch(error){
+            console.error('Error al modificar el carrito:', error);
         }
     });
     

@@ -16,10 +16,14 @@ export function createCart(){
         if(!Number.isFinite(quantity) || quantity <= 0)throw new Error('La cantidad debe ser un número mayor que cero.');
     }
 
+
+    /*function editarCantidad(){
+
+    }*/
+
     // Si el producto ya está pendiente, aumentamos su cantidad.
     function addProduct(product: SimpleProduct, quantity: number = 1): void{
         validateQuantity(quantity);
-
         const price = Number(product.precioVenta);
         if(!Number.isInteger(product.id) || product.id <= 0)
             throw new Error('El producto no es válido.');
