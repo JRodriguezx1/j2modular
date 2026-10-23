@@ -17,8 +17,11 @@ export function createCart(){
     }
 
 
-    /*function editarCantidad(){
-
+    /*function editarCantidad(productId: number, quantity: number){
+        validateQuantity(quantity);
+        const item = items.find(item => item.productId === productId);
+        if(!item)throw new Error('El producto no está en el carrito.');
+        item.quantity = quantity;
     }*/
 
     // Si el producto ya está pendiente, aumentamos su cantidad.
@@ -46,7 +49,7 @@ export function createCart(){
         });
     }
 
-    // Reemplaza la cantidad. Para quitar un producto usamos removeProduct().
+    // Reemplaza la cantidad.
     function updateQuantity(productId: number, quantity: number): void{
         validateQuantity(quantity);
         const item = items.find(item => item.productId === productId);

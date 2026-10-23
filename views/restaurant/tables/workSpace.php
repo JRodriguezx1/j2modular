@@ -14,7 +14,7 @@
   <header class="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
     <div class="min-w-0">
       <div class="">
-        <p class="text-lg font-semibold uppercase tracking-widest text-slate-500">Operación de mesa</p>
+        <p class="text-lg font-semibold uppercase tracking-widest text-slate-500 m-0 mb-3">Operación de mesa</p>
       </div>
 
       <div class="mt-1 flex flex-wrap items-center gap-3">
@@ -223,10 +223,9 @@
                 <p id="accountPanelClientName" class="m-0 truncate text-base font-semibold text-slate-900">Por consultar</p>
               </div>
               <button
-              id="selectCliente"
+              id="addcliente"
                 type="button"
                 aria-label="Seleccionar cliente"
-                disabled
                 class="flex size-8 items-center justify-center rounded-lg text-indigo-600 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-50">
                 <span class="material-symbols-outlined text-4xl">person_add</span>
               </button>
@@ -268,7 +267,7 @@
                 <span id="accountPanelPendingCount" class="rounded-full bg-amber-50 px-2 py-0.5 text-lg font-medium text-amber-700">0 sin guardar</span>
               </div>
 
-              <div id="accountPanelPendingProducts">
+              <div id="accountPanelPendingProducts" class="space-y-2">
                 <p class="text-sm text-slate-500">No hay productos nuevos.</p>
               </div>
             </div>
@@ -335,3 +334,12 @@
     </div>
   </div>
 </aside>
+
+  <!-- MODAL PARA CREAR CLIENTE-->
+  <?php include __DIR__. "/../../admin/ventas/modalCreateAddCli.php"; ?>
+  <!-- MODAL PARA GUARDAR EL PEDIDO-->
+  <?php include __DIR__. "/../../admin/ventas/modalguardarpedido.php"; ?>
+  <!--///////////////////// Modal procesar el pago boton facturar /////////////////////////-->
+  <?php include __DIR__. "/../../admin/ventas/modalprocesarpago.php"; ?>
+  <!-- MODAL DATOS DEL ADQUIRIENTE -->
+  <?php include __DIR__. "/../../admin/ventas/modaladquiriente.php"; ?>

@@ -5,6 +5,8 @@ import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
 import type { ProductPage, SimpleProduct } from './catalogoApi';
 import {resetAccountPanel, showAccountPanel, showAccountPanelError, showTemporaryAccountPanel} from './accountPanel';
 import {renderCartPanel} from './cartPanel';
+import { registerProductEvents } from './eventos/productsEvents';
+import { registeraddclienteEvents } from './eventos/selectCliEvent';
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
@@ -210,6 +212,7 @@ export function initOrderWorkspace(): void{
     overlay.addEventListener('click', closeOrderWorkspace);
     document.addEventListener('keydown', event => {
         if(event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false')closeOrderWorkspace();
+        //(document.querySelector('#miDialogoAddCliente') as HTMLDialogElement)?.close();
     });
 
     //evento al input de busqueda
@@ -231,86 +234,13 @@ export function initOrderWorkspace(): void{
     btnLoadMore?.addEventListener('click', () => { //boton de cargar mas productos.
         void cargarMasProductos();
     });
-
-
-    //evento de los productos
-    productosGrid?.addEventListener('click', event => {
-        const target = event.target;
-        if(!(target instanceof Element))return;
-
-        const article = target.closest<HTMLElement>('article[data-product-id]');
-        if(!article || !productosGrid.contains(article))return;
-        // La cuenta debe haber terminado de cargar correctamente.
-        if(activeOrder === null){
-            setElementText('catalogProductStatus', 'El pedido aún no está disponible. Revisa el estado del panel.');
-            return;
-        }
-
-        // Recuperamos el producto usando el ID guardado en el article.
-        const productId = Number(article.dataset.productId);
-        const product = catalogProducts.get(productId);
-        if(!product)return;
-
-        try{
-            // Agrega una unidad. Si ya existe, aumenta su cantidad.
-            activeOrder.cart.addProduct(product);
-            // Volvemos a dibujar la lista usando los datos actualizados.
-            renderCartPanel(activeOrder.cart.getItems());
-            // Temporal: permite comprobar el resultado en la consola.
-            console.log('Cuenta activa:', activeOrder.accountId);
-            console.log('Cuenta en MySQL:', activeOrder.accountId);
-            console.table(activeOrder.cart.getItems());
-        }catch(error){
-            setElementText('catalogProductStatus', error instanceof Error ? error.message : 'No fue posible agregar el producto.');
-        }
-    });
-
-
-    //Evento a los items del carrito   
-    cartContainer?.addEventListener('click', event => {
-        const target = event.target;
-        if(!(target instanceof Element))return;
-
-        const button = target.closest<HTMLButtonElement>('button[data-cart-action]');
-        if(!button || !cartContainer.contains(button))return;
-        if(activeOrder === null)return;
-        const row = button.closest<HTMLElement>('[data-cart-product-id]');
-        if (!row) return;
-
-        const productId = Number(row.dataset.cartProductId);
-        if(!Number.isSafeInteger(productId) || productId <= 0)return;
-
-        const action = button.dataset.cartAction;
-        const cart = activeOrder.cart;
-        try {
-            switch(action){
-                case 'increase': {
-                    const product = catalogProducts.get(productId);
-                    if(!product)return;
-                    cart.addProduct(product);
-                    break;
-                }
-                case 'decrease': {
-                    const item = cart.getItems().find(item => item.productId === productId);
-                    if(!item)return;
-                    // Cantidad mínima permitida: 1.
-                    if(item.quantity <= 1)return;
-                    cart.updateQuantity(productId, Math.round((item.quantity - 1) * 100) / 100);
-                    break;
-                }
-                case 'remove': {
-                    cart.removeProduct(productId);
-                    break;
-                }
-                default: return;
-            }
-
-            renderCartPanel(cart.getItems());
-        }catch(error){
-            console.error('Error al modificar el carrito:', error);
-        }
-    });
     
+    
+    const getActiveOrder = () => activeOrder;  //funcion flecha getActiveOrder que no recibe parametros y devuelve activeOrder
+    if(productosGrid && cartContainer)
+        registerProductEvents({productosGrid, cartContainer, catalogProducts, ActiveOrderE: getActiveOrder, renderCartPanelE: renderCartPanel});
+
+    registeraddclienteEvents();
 
     void precargarProductos(); //carga de productos
 }

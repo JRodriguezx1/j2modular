@@ -54,8 +54,8 @@ export function renderCartPanel(items: CartItem[]): void{
                 <div data-cart-product-id="${item.productId}" class="rounded-xl border border-slate-200 bg-white p-4">
                     <!-- Encabezado -->
                     <div class="flex items-center justify-between gap-3">
-                        <p class="nombreproducto text-xl font-semibold text-slate-800 leading-7 break-words">${name}</p>
-                        <button data-cart-action="remove" class="eliminarProducto w-9 h-9 rounded-lg border border-red-200 bg-red-50 text-red-500 transition-all duration-300 hover:bg-red-600 hover:text-white  hover:border-red-600 hover:shadow-md">
+                        <p class="m-0 nombreproducto text-xl font-semibold text-slate-800 leading-7 break-words">${name}</p>
+                        <button data-cart-action="remove" class="eliminarProducto flex justify-center items-center size-7 rounded-lg border border-red-200 bg-red-50 text-red-500 transition-all duration-300 hover:bg-red-600 hover:text-white  hover:border-red-600 hover:shadow-md">
                             <i class="fa-solid fa-trash-can text-base"></i>
                         </button>
                     </div>
@@ -64,9 +64,9 @@ export function renderCartPanel(items: CartItem[]): void{
                     <div class="mt-1 flex items-end justify-between gap-3">
                         <!-- Cantidad -->
                         <div class="flex flex-col gap-1">
-                            <span class="text-xl font-bold uppercase text-slate-500">Cantidad</span>
+                            <span class="text-base font-extrabold uppercase text-slate-500">Cantidad</span>
                             <div class="flex items-center gap-1">
-                                <button data-cart-action="decrease" type="button" class="shrink-0 bg-indigo-700 text-white rounded-full"><span class="menos material-symbols-outlined text-base">remove</span></button>
+                                <button data-cart-action="decrease" type="button" class="size-9 shrink-0 bg-indigo-700 text-white rounded-full"><span class="menos material-symbols-outlined text-base">remove</span></button>
                                 <input
                                     data-cart-action="quantity"
                                     inputmode="decimal"
@@ -74,18 +74,18 @@ export function renderCartPanel(items: CartItem[]): void{
                                     class="inputcantidad w-16 max-w-[12ch] h-9 px-2 rounded-lg border border-slate-300 text-center font-medium text-xl outline-none focus:border-indigo-500"
                                     value="${quantity}"
                                 >
-                                <button data-cart-action="increase" type="button" class="shrink-0 bg-indigo-700 text-white rounded-full"><span class="mas material-symbols-outlined text-base">add</span></button>
+                                <button data-cart-action="increase" type="button" class="size-9 shrink-0 bg-indigo-700 text-white rounded-full"><span class="mas material-symbols-outlined text-base">add</span></button>
                             </div>
                         </div>
                         <!-- Precios -->
-                        <div class="flex flex-col items-end gap-1 text-right">
+                        <div class="flex flex-col items-end text-right">
                             <div class="flex items-baseline gap-1">
-                                <span class="text-xl font-bold uppercase text-slate-500">Unitario:</span>
-                                <span class="text-xl font-medium text-slate-500">${unitPrice}</span>
+                                <span class="text-base font-extrabold uppercase text-slate-500">Unitario:</span>
+                                <span class="text-lg font-medium text-slate-500">${unitPrice}</span>
                             </div>
                             <div class="flex items-baseline gap-1">
-                                <span class="text-xl font-bold uppercase text-slate-500">Total</span>
-                                <span class="text-xl font-bold text-slate-900">$${precioTotalItem}</span>
+                                <span class="text-base font-extrabold uppercase text-slate-500">Total</span>
+                                <span class="text-2xl font-black text-slate-900">${precioTotalItem}</span>
                             </div>
                         </div>
                     </div>

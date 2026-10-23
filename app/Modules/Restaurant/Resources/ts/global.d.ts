@@ -14,3 +14,4 @@
 }*/
 
 declare const Swal:any;
+declare const select2:any;
