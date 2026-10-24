@@ -14,6 +14,7 @@ use App\Modules\Restaurant\Application\UseCases\ConfirmReservation;
 use App\Modules\Restaurant\Application\UseCases\CancelReservation;
 use App\Modules\Restaurant\Application\UseCases\StartReservationOccupation;
 use App\Modules\Restaurant\Application\UseCases\GetActiveOccupationDetail;
+use App\Modules\Restaurant\Application\Ports\GetDatosPort;
 use App\Core\Routing\Router;
 
 class RestaurantController
@@ -31,6 +32,7 @@ class RestaurantController
         private CancelReservation $cancelReservation,
         private StartReservationOccupation $startReservationOccupation,
         private GetActiveOccupationDetail $getActiveOccupationDetail,
+        private GetDatosPort $getDatosPort,
         private Router $router
     ){}
 
@@ -92,7 +94,10 @@ class RestaurantController
             $upcomingReservations['reservations']
         );
 
-        $this->router->render('restaurant/tables/index', ['page' => 'tables', 'titulo' => 'Restaurante', 'tables' => $tablesView, 'zones' => $zonesView, 'reservations' => $reservationsView, 'totalReservations' => $upcomingReservations['total']], 'restaurant');
+        $conflocal = $this->getDatosPort->getParam();
+        $clientes = $this->getDatosPort->getClientes();
+
+        $this->router->render('restaurant/tables/index', ['page' => 'tables', 'titulo' => 'Restaurante', 'tables' => $tablesView, 'zones' => $zonesView, 'reservations' => $reservationsView, 'totalReservations' => $upcomingReservations['total'], 'conflocal' => $conflocal, 'clientes' => $clientes], 'restaurant');
 
         // Temporalmente:
         //debuguear(['tables' => $tablesView, 'zones' => $zonesView]);

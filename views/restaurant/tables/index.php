@@ -288,3 +288,9 @@
   <?php include __DIR__. "/ocupacionActiva.php"; ?>
 <!--DRAWER DE OPERACIONES DE LA MESA-->
   <?php include __DIR__. "/workSpace.php"; ?>
+
+  <script>
+    
+    const clientesDB = <?= json_encode($clientes) ?>;
+    
+  </script>

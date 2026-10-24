@@ -240,7 +240,7 @@ export function initOrderWorkspace(): void{
     if(productosGrid && cartContainer)
         registerProductEvents({productosGrid, cartContainer, catalogProducts, ActiveOrderE: getActiveOrder, renderCartPanelE: renderCartPanel});
 
-    registeraddclienteEvents();
+    registeraddclienteEvents();  //para abrir modal de clientes y seleccionar.
 
     void precargarProductos(); //carga de productos
 }
