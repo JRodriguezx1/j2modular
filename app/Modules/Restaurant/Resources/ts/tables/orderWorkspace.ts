@@ -210,6 +210,9 @@ export function initOrderWorkspace(): void{
         //    info.textContent = `Estado: ${selected.status} · ${selected.invoiceId === null ? 'Sin orden todavía' : `Orden #${selected.invoiceId}`}`;
     });*/
     overlay.addEventListener('click', closeOrderWorkspace);
+
+    document.addEventListener("click", cerrarDialogoExterno);
+    
     document.addEventListener('keydown', event => {
         if(event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false')closeOrderWorkspace();
         //(document.querySelector('#miDialogoAddCliente') as HTMLDialogElement)?.close();
@@ -421,5 +424,19 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
             catalogLoading = false;
             btnLoadMore.disabled = false;
         }
+    }
+}
+
+
+function cerrarDialogoExterno(event:Event) {
+    const f = event.target;
+    if(!(f instanceof Element))return;
+    if(f === miDialogoBuscarIntersucursal || f.closest('.btnXCerrarInterSucursal')){
+    miDialogoBuscarIntersucursal.close();
+    clearTimeout(debounceTimer);
+    controller?.abort();
+    controller = null;
+    creditoInterSucursal.value = '';
+    renderEstadoBusqueda('Escribe el ID del crédito, el nombre del cliente o su identificación.');
     }
 }

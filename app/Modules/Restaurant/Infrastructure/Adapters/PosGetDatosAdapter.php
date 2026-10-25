@@ -15,7 +15,7 @@ class PosGetDatosAdapter implements GetDatosPort{
     }
 
     public function getClientes(): array{
-        return $this->getDatosService->getParametros();
+        return $this->getDatosService->getClientes();
     }
     
 }

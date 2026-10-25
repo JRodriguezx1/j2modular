@@ -78,7 +78,7 @@ export function registeraddclienteEvents(): void{
         const idcli = (e.target as HTMLInputElement).value;
         if(idcli){
             (async ()=>{
-                try {
+                try{
                     const url = "/admin/api/clientes/direccionesXcliente?id="+idcli; //llamado a la API REST y se trae el cliente y sus direcciones direccionescontrolador, tambien traer sus precios personalizados
                     const respuesta = await fetch(url); 
                     const resultado = await respuesta.json(); 
@@ -89,23 +89,23 @@ export function registeraddclienteEvents(): void{
                     (document.querySelector('#tipodocumento') as HTMLSelectElement).value = resultado.tipodocumento;
                     (document.querySelector('#identificacion') as HTMLInputElement).value = resultado.identificacion;
                     (document.querySelector('#clientenuevoemail') as HTMLInputElement).value = resultado.email;
-                    (document.querySelector('#resumenCliente') as HTMLParagraphElement).textContent = resultado.nombre+' '+resultado.apellido;
+                    /*(document.querySelector('#resumenCliente') as HTMLParagraphElement).textContent = resultado.nombre+' '+resultado.apellido;
                     (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = 'SELECCIONADO';
                     (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-gray-100', 'text-gray-700');
-                    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-green-100', 'text-green-600');
+                    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-green-100', 'text-green-600');*/
                     //mapear los precios personalizados del cliente con arreglo de los productos
                     //actualizarPreciosCliente(resultado.preciospersonalizados);
                     console.log(resultado);
                     //POS.gestionRedmir.actualizarPuntosDOM(`${resultado.nombre} ${resultado.apellido}`, resultado.puntos);
-                } catch (error) {
+                }catch(error){
                     console.log(error);
                 }
             })();   
         }else{
-            (document.querySelector('#resumenCliente') as HTMLParagraphElement).textContent = 'Seleccionar cliente';
+            /*(document.querySelector('#resumenCliente') as HTMLParagraphElement).textContent = 'Seleccionar cliente';
             (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = 'SIN CLIENTE';
             (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-green-100', 'text-green-600');
-            (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-gray-100', 'text-gray-700');
+            (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-gray-100', 'text-gray-700');*/
             //actualizar array de products y DOM
             /*for(const prod of POS.products){
                 const item = POS.hackerList.get('id', prod.id)[0];
