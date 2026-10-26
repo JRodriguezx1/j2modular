@@ -2,7 +2,7 @@ export interface ActiveOccupation {
     occupationId: number;
     resourceId: number;
     reservationId: number | null;
-    client?: Cliente;
+    client: Cliente|null;
     type: string;
     startDate: string;
     estimatedEndDate: string | null;

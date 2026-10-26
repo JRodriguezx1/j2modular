@@ -49,7 +49,7 @@ const cartContainer = document.getElementById('accountPanelPendingProducts');
 
 
 // Selecciona el carrito correspondiente al contexto confirmado.
-function activateOrder(resourceId: number, occupationId: number|null, accountId: number|null): void{
+function activateOrder(resourceId: number, occupationId: number|null, accountId: number|null, client:Cliente|null): void{
     let key: CartKey;
     if(accountId !== null){
         key = `account:${accountId}`;
@@ -69,9 +69,8 @@ function activateOrder(resourceId: number, occupationId: number|null, accountId:
     //recuperamos cliente
     let cli = clientes.get(key);
     if(!cli){
-        //verificar ocupacion.client, si no hay client creamos
-        
         cli = createCli();
+        if(client && client?.id!=='')cli.addCli('', client);
         clientes.set(key, cli);
     }
 
@@ -157,7 +156,7 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
         // Caso 1: no hay ocupación. Permitimos preparar un borrador.
         if(occupation === null){
             showTemporaryAccountPanel(null);
-            activateOrder(resourceId, null, null);  //cunado no hay cuenta abierta ni ocupacion activeOrder.cartKey = table:idrecurso = table:4
+            activateOrder(resourceId, null, null, null);  //cunado no hay cuenta abierta ni ocupacion activeOrder.cartKey = table:idrecurso = table:4
             return;
         }
 
@@ -180,14 +179,14 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
 
        // Caso 2: existe una cuenta abierta y su resumen fue consultado.
         if(result.status === 'ready'){
-            activateOrder(resourceId, occupation.occupationId, result.account.id);
+            activateOrder(resourceId, occupation.occupationId, result.account.id, occupation.client);
             return;
         }
 
         // Caso 3: existe la ocupación, pero todavía no tiene ninguna cuenta.
         if(result.status === 'empty'){
             showTemporaryAccountPanel(occupation);
-            activateOrder(resourceId, occupation.occupationId, null);
+            activateOrder(resourceId, occupation.occupationId, null, occupation.client);
             return;
         }
     }catch(error){
