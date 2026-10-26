@@ -1,4 +1,4 @@
-import { escapeCreateDOMHtml, setElementText } from '../appFunction';
+import { cerrarDialogoExterno, escapeCreateDOMHtml, setElementText } from '../appFunction';
 import {createCart} from './cart';
 import { I_Categorias, getAllCategorias, listSimpleProducts } from './catalogoApi';
 import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
@@ -6,7 +6,8 @@ import type { ProductPage, SimpleProduct } from './catalogoApi';
 import {resetAccountPanel, showAccountPanel, showAccountPanelError, showTemporaryAccountPanel} from './accountPanel';
 import {renderCartPanel} from './cartPanel';
 import { registerProductEvents } from './eventos/productsEvents';
-import { registeraddclienteEvents } from './eventos/selectCliEvent';
+import { registeraddclienteEvents, renderCli } from './eventos/selectCliEvent';
+import { createCli } from './cli';
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
@@ -25,8 +26,11 @@ let catalogSearchTimer: number | undefined;
 
 // Obtiene el tipo del objeto que devuelve createCart().
 type Cart = ReturnType<typeof createCart>;
+type Cli = ReturnType<typeof createCli>;
 type CartKey = | `account:${number}` | `occupation:${number}` | `table:${number}`;
 const carts = new Map<CartKey, Cart>();
+const clientes = new Map<CartKey, Cli>();
+
 // Representa el pedido que estamos preparando en el panel.
 let activeOrder: {
     resourceId: number;
@@ -34,6 +38,7 @@ let activeOrder: {
     accountId: number | null;
     cartKey: CartKey;
     cart: Cart;
+    cli: Cli,
 } | null = null;
 
 
@@ -61,8 +66,16 @@ function activateOrder(resourceId: number, occupationId: number|null, accountId:
         carts.set(key, cart);  //si no hay ocupacion key = table:5
     }
 
-    activeOrder = {resourceId, occupationId, accountId, cartKey: key, cart};
+    //recuperamos cliente
+    let cli = clientes.get(key);
+    if(!cli){
+        cli = createCli();
+        clientes.set(key, cli);
+    }
+
+    activeOrder = {resourceId, occupationId, accountId, cartKey: key, cart, cli};
     renderCartPanel(cart.getItems());  //Muestra el carrito recién creado. Así reaparecen los pendientes al abrir la mesa.
+    renderCli(cli.getCli());
 }
 
 
@@ -239,11 +252,12 @@ export function initOrderWorkspace(): void{
     });
     
     
-    const getActiveOrder = () => activeOrder;  //funcion flecha getActiveOrder que no recibe parametros y devuelve activeOrder
+    const getActiveOrder = () => activeOrder;  //funcion flecha getActiveOrder que no recibe parametros y devuelve activeOrder, es lo mismo que escribir function getActiveOrder(){return activeOrder;}
     if(productosGrid && cartContainer)
-        registerProductEvents({productosGrid, cartContainer, catalogProducts, ActiveOrderE: getActiveOrder, renderCartPanelE: renderCartPanel});
+        registerProductEvents({productosGrid, cartContainer, catalogProducts, ActiveOrderE:getActiveOrder, renderCartPanelE:renderCartPanel});
 
-    registeraddclienteEvents();  //para abrir modal de clientes y seleccionar.
+    const getActiveClient = () => activeOrder?.cli ?? null;
+    registeraddclienteEvents(getActiveClient);  //para abrir modal de clientes y seleccionar.
 
     void precargarProductos(); //carga de productos
 }
@@ -424,19 +438,5 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
             catalogLoading = false;
             btnLoadMore.disabled = false;
         }
-    }
-}
-
-
-function cerrarDialogoExterno(event:Event) {
-    const f = event.target;
-    if(!(f instanceof Element))return;
-    if(f === miDialogoBuscarIntersucursal || f.closest('.btnXCerrarInterSucursal')){
-    miDialogoBuscarIntersucursal.close();
-    clearTimeout(debounceTimer);
-    controller?.abort();
-    controller = null;
-    creditoInterSucursal.value = '';
-    renderEstadoBusqueda('Escribe el ID del crédito, el nombre del cliente o su identificación.');
     }
 }

@@ -214,21 +214,18 @@
             </div>
 
             <!-- Cliente -->
-            <div class="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <div id="addcliente" class="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 cursor-pointer hover:border-indigo-500 transition-all">
               <div class="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-slate-500">
-                <span class="material-symbols-outlined">person</span>
+                <span class="material-symbols-outlined text-indigo-600">person</span>
               </div>
               <div class="min-w-0 flex-1">
-                <p class="m-0 text-lg text-slate-500">Cliente asociado</p>
-                <p id="accountPanelClientName" class="m-0 truncate text-base font-semibold text-slate-900">Por consultar</p>
+                <p class="text-sm text-gray-500 m-0 uppercase font-semibold">Cliente</p>
+                <p id="accountPanelClientName" class="m-0 text-xl font-semibold text-gray-900 leading-tight truncate">Seleccionar cliente</p>
               </div>
-              <button
-              id="addcliente"
-                type="button"
-                aria-label="Seleccionar cliente"
-                class="flex size-8 items-center justify-center rounded-lg text-indigo-600 hover:bg-indigo-50 disabled:cursor-not-allowed disabled:opacity-50">
-                <span class="material-symbols-outlined text-4xl">person_add</span>
-              </button>
+              <div class="flex items-center gap-2 shrink-0">
+                <span id="badgeEstado" class="text-sm font-bold px-3 py-1.5 rounded-full bg-gray-100 text-gray-700">SIN CLIENTE</span>
+                <span class="material-symbols-outlined text-gray-400 text-xl">chevron_right</span>
+              </div>
             </div>
           </div>
 

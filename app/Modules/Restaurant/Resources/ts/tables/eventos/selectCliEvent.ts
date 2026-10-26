@@ -1,4 +1,4 @@
-
+import { createCli } from './../cli';
 const btnAddCliente = document.querySelector('#addcliente') as HTMLElement;
 const miDialogoAddCliente = document.querySelector('#miDialogoAddCliente') as HTMLDialogElement;
 const selectCliente = document.querySelector('#selectCliente') as HTMLSelectElement;
@@ -7,8 +7,11 @@ const doc = document.querySelector('#identificacion')! as HTMLInputElement;
 const dirEntrega = document.querySelector('#direccionEntrega')! as HTMLSelectElement;
 const direccionPreferidaPorCliente = new Map<string, string>();
 
+
+type Cli = ReturnType<typeof createCli>;
+
 //evento al boton de seleccionar cliente
-export function registeraddclienteEvents(): void{
+export function registeraddclienteEvents(getClient: () => Cli|null): void{
     btnAddCliente?.addEventListener('click', (e)=>{
         miDialogoAddCliente.showModal();
         ($('#selectCliente') as any).select2({
@@ -74,38 +77,29 @@ export function registeraddclienteEvents(): void{
     }
     
     //evento 'cambio' al selecionar cliente, tambien se ejecuta cuando se crea cliente nuevo//
-    $("#selectCliente").on('change', (e)=>{
+    $("#selectCliente").on('change', (e:any)=>{
         const idcli = (e.target as HTMLInputElement).value;
         if(idcli){
             (async ()=>{
                 try{
                     const url = "/admin/api/clientes/direccionesXcliente?id="+idcli; //llamado a la API REST y se trae el cliente y sus direcciones direccionescontrolador, tambien traer sus precios personalizados
                     const respuesta = await fetch(url); 
-                    const resultado = await respuesta.json(); 
-                    (document.querySelector('#nombreclientenuevo') as HTMLInputElement).value = resultado.nombre;
-                    (document.querySelector('#clientenuevoapellido') as HTMLInputElement).value = resultado.apellido;
-                    (document.querySelector('#telefono') as HTMLInputElement).value =  resultado.telefono;
+                    const resultado = await respuesta.json();
+                    renderCli(resultado);
                     addDireccionSelect(resultado);
-                    (document.querySelector('#tipodocumento') as HTMLSelectElement).value = resultado.tipodocumento;
-                    (document.querySelector('#identificacion') as HTMLInputElement).value = resultado.identificacion;
-                    (document.querySelector('#clientenuevoemail') as HTMLInputElement).value = resultado.email;
-                    /*(document.querySelector('#resumenCliente') as HTMLParagraphElement).textContent = resultado.nombre+' '+resultado.apellido;
-                    (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = 'SELECCIONADO';
-                    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-gray-100', 'text-gray-700');
-                    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-green-100', 'text-green-600');*/
                     //mapear los precios personalizados del cliente con arreglo de los productos
                     //actualizarPreciosCliente(resultado.preciospersonalizados);
-                    console.log(resultado);
+                    getClient()?.addCli(resultado.id, resultado);
                     //POS.gestionRedmir.actualizarPuntosDOM(`${resultado.nombre} ${resultado.apellido}`, resultado.puntos);
                 }catch(error){
                     console.log(error);
                 }
-            })();   
+            })();
         }else{
-            /*(document.querySelector('#resumenCliente') as HTMLParagraphElement).textContent = 'Seleccionar cliente';
+            (document.querySelector('#accountPanelClientName') as HTMLParagraphElement).textContent = 'Seleccionar cliente';
             (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = 'SIN CLIENTE';
             (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-green-100', 'text-green-600');
-            (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-gray-100', 'text-gray-700');*/
+            (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-gray-100', 'text-gray-700');
             //actualizar array de products y DOM
             /*for(const prod of POS.products){
                 const item = POS.hackerList.get('id', prod.id)[0];
@@ -126,13 +120,64 @@ export function registeraddclienteEvents(): void{
         }
     });
 
-    ////// añade direccion al select de direcciones, cuando se selecciona o se agrega un cliente o si se agrega un nueva direccion/////
-    function addDireccionSelect<T extends {id:string, nombre:string, apellido:string, telefono:string, identificacion:string, email:string, direcciones:{id:string, idcliente:string, idtarifa:string, tarifa:{id:string, idcliente:string, nombre:string, valor:string}, direccion:string, departamento:string, ciudad:string}[]}>(addrs: T):void{
+
+    ///////// Evento al input de telefono para buscar cliente por telefono ////////////
+    tel?.addEventListener('input', (e:Event)=>{
+        const contact = (e.target as HTMLInputElement).value.trim();
+        if (contact.length < 6) return;
+        const cli = clientesDB.find(c => c.telefono === contact);
+        console.log(cli);
+        if(cli!=undefined)$('#selectCliente').val(cli.id).trigger('change'); 
+    });
+
+
+    ///////// Evento al input de identificacion para buscar cliente por documento ////////////
+    doc?.addEventListener('input', (e:Event)=>{
+        const iD = (e.target as HTMLInputElement).value.trim();
+        if (iD.length < 5) return;
+        const cli = clientesDB.find(c => c.identificacion === iD);
+        console.log(cli);
+        if(cli!=undefined)$('#selectCliente').val(cli.id).trigger('change'); 
+    });
+    
+
+    ///////// Evento al select de direcciones ////////////
+    dirEntrega?.addEventListener('change', (e)=>{
+        const select = (e.target as HTMLSelectElement);
+        if(selectCliente.value && select.value)direccionPreferidaPorCliente.set(selectCliente.value, select.value);
+        const x:string = select.options[select.selectedIndex].dataset.ciudad||'';
+        (document.querySelector('#ciudad') as HTMLInputElement).value = x;
+        //POS.printTarifaEnvio();
+        //POS.valorCarritoTotal();
+    });
+
+}
+
+
+export function renderCli(cliente:Cliente){
+    (document.querySelector('#formAddCliente') as HTMLFormElement)?.reset();
+    $('#selectCliente').val('');
+    (document.querySelector('#nombreclientenuevo') as HTMLInputElement).value = cliente.nombre;
+    (document.querySelector('#clientenuevoapellido') as HTMLInputElement).value = cliente.apellido;
+    (document.querySelector('#telefono') as HTMLInputElement).value =  cliente.telefono;
+    addDireccionSelect(cliente);
+    (document.querySelector('#tipodocumento') as HTMLSelectElement).value = cliente.tipodocumento;
+    (document.querySelector('#identificacion') as HTMLInputElement).value = cliente.identificacion;
+    (document.querySelector('#clientenuevoemail') as HTMLInputElement).value = cliente.email;
+    (document.querySelector('#accountPanelClientName') as HTMLParagraphElement).textContent = cliente.nombre+' '+cliente.apellido;
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = 'SELECCIONADO';
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-gray-100', 'text-gray-700');
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-green-100', 'text-green-600');
+}
+
+
+////// añade direccion al select de direcciones, cuando se selecciona o se agrega un cliente o si se agrega un nueva direccion/////
+    function addDireccionSelect(addrs:Cliente):void{
         while(dirEntrega?.firstChild)dirEntrega.removeChild(dirEntrega?.firstChild);
         const setTarifas = new Set();
         //POS.tarifas.length = 0;
         const direccionPreferida = direccionPreferidaPorCliente.get(addrs.id);
-        addrs.direcciones.forEach(dir =>{
+        addrs.direcciones?.forEach(dir =>{
             const option = document.createElement('option');
             option.textContent = dir.direccion;
             option.value = dir.id;
@@ -146,48 +191,13 @@ export function registeraddclienteEvents(): void{
             setTarifas.add(dir.tarifa.id);
             }
         });
-        if(direccionPreferida && addrs.direcciones.some(dir=>dir.id === direccionPreferida)){
+        if(direccionPreferida && addrs.direcciones?.some(dir=>dir.id === direccionPreferida)){
             dirEntrega.value = direccionPreferida;
         }
         setTarifas.clear();
         //POS.printTarifaEnvio();
         //POS.valorCarritoTotal();
-        const direccionActual = addrs.direcciones.find(dir=>dir.id === dirEntrega.value) || addrs.direcciones[0];
+        const direccionActual = addrs.direcciones?.find(dir=>dir.id === dirEntrega.value) || addrs.direcciones?.[0];
         (document.querySelector('#departamento') as HTMLInputElement).value = direccionActual?.departamento??'No especificado';
         (document.querySelector('#ciudad') as HTMLInputElement).value = direccionActual?.ciudad??'No especificado';
     }
-
-
-    ///////// Evento al input de telefono para buscar cliente por telefono ////////////
-        tel?.addEventListener('input', (e:Event)=>{
-            const contact = (e.target as HTMLInputElement).value.trim();
-            if (contact.length < 6) return;
-            const cli = clientesDB.find(c => c.telefono === contact);
-            console.log(cli);
-            if(cli!=undefined)$('#selectCliente').val(cli.id).trigger('change'); 
-        });
-
-
-        ///////// Evento al input de identificacion para buscar cliente por documento ////////////
-        doc?.addEventListener('input', (e:Event)=>{
-            const iD = (e.target as HTMLInputElement).value.trim();
-            if (iD.length < 5) return;
-            const cli = clientesDB.find(c => c.identificacion === iD);
-            console.log(cli);
-            if(cli!=undefined)$('#selectCliente').val(cli.id).trigger('change'); 
-        });
-        
-
-        ///////// Evento al select de direcciones ////////////
-        dirEntrega?.addEventListener('change', (e)=>{
-            const select = (e.target as HTMLSelectElement);
-            if(selectCliente.value && select.value)direccionPreferidaPorCliente.set(selectCliente.value, select.value);
-            const x:string = select.options[select.selectedIndex].dataset.ciudad||'';
-            (document.querySelector('#ciudad') as HTMLInputElement).value = x;
-            //POS.printTarifaEnvio();
-           //POS.valorCarritoTotal();
-        });
-
-
-}
-

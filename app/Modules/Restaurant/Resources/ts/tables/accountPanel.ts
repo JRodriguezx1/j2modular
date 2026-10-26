@@ -187,6 +187,8 @@ export function showTemporaryAccountPanel(occupation: ActiveOccupation | null): 
     setElementText('accountPanelOccupation', occupation ? `Atención #${occupation.occupationId}` : 'Sin atención registrada');
     setElementText('accountPanelName', 'Cuenta por crear');
     setElementText('accountPanelClientName', occupation?.clientName?.trim() || 'Sin cliente seleccionado');
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-green-100', 'text-green-600');
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-gray-100', 'text-gray-700');
     setElementText('accountPanelRegisteredCount', '0 ítems');
     setElementText('accountPanelRegisteredAmount', formatCurrency(0));
     setEmptyMessage('accountPanelConsumptions', 'Sin productos registrados.');

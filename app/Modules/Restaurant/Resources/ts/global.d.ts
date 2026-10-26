@@ -12,7 +12,27 @@
     showConfirmButton?: boolean;
     timer?: number;
 }*/
+interface direccion {
+    id: string,
+    idcliente: string,
+    idtarifa: string,
+    iddepartamento: string,
+    idciudad: string,
+    pais: string,
+    departamento: string,
+    ciudad: string,
+    direccion: string,
+    codigopostal: string,
+    observacion: string,
+    created_at: string,
+    tarifa: {
+        id: string,
+        nombre: string,
+        valor: string,
+        idcliente: string
+    }
 
+}
 interface Cliente {
     id: string;
     nombre: string;
@@ -27,6 +47,7 @@ interface Cliente {
     totaldebe: string | null;
     limitecredito: string | null;
     data1: string | null;
+    direcciones?: direccion[],
     created_at: string;
 }
 
