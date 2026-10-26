@@ -165,7 +165,7 @@ export function renderCli(cliente:Cliente){
     (document.querySelector('#identificacion') as HTMLInputElement).value = cliente.identificacion;
     (document.querySelector('#clientenuevoemail') as HTMLInputElement).value = cliente.email;
     (document.querySelector('#accountPanelClientName') as HTMLParagraphElement).textContent = cliente.nombre+' '+cliente.apellido;
-    (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = 'SELECCIONADO';
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = cliente.id.trim()===''?'SIN CLIENTE':'SELECCIONADO';
     (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-gray-100', 'text-gray-700');
     (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-green-100', 'text-green-600');
 }

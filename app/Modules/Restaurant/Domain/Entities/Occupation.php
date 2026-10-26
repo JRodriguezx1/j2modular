@@ -13,7 +13,8 @@ class Occupation{
         private ?string $estimatedEndDate,
         private ?string $actualEndDate,
         private string $status,
-        private ?string $observations
+        private ?string $observations,
+        public ?array $client = null
     ) {
     }
 
@@ -57,4 +58,7 @@ class Occupation{
         return $this->observations;
     }
     
+    public function getClient(): ?array{
+        return $this->client;
+    }
 }

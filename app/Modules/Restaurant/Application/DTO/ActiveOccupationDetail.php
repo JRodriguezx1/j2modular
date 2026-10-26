@@ -15,7 +15,8 @@ class ActiveOccupationDetail{
         public readonly ?string $estimatedEndDate,
         public readonly string $status,
         public readonly ?int $numberOfPeople,
-        public readonly ?string $observations
+        public readonly ?string $observations,
+        public readonly ?array $client
     ){}
     
 }

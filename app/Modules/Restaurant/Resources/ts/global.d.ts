@@ -31,7 +31,6 @@ interface direccion {
         valor: string,
         idcliente: string
     }
-
 }
 interface Cliente {
     id: string;

@@ -1,2 +1,2 @@
-var t=document.body.dataset.page;async function a(){switch(t){case"tables":{(await import("./tables-QZN6JD7K.js")).initTables();break}case"reservations":{(await import("./reservations-FTUZWLMZ.js")).initReservations();break}}}a();
+var t=document.body.dataset.page;async function a(){switch(t){case"tables":{(await import("./tables-EFLGAOTM.js")).initTables();break}case"reservations":{(await import("./reservations-FTUZWLMZ.js")).initReservations();break}}}a();
 //# sourceMappingURL=main.js.map

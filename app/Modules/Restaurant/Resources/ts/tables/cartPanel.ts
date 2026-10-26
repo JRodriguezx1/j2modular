@@ -72,6 +72,7 @@ export function renderCartPanel(items: CartItem[]): void{
                                     inputmode="decimal"
                                     type="text"
                                     class="inputcantidad w-16 max-w-[12ch] h-9 px-2 rounded-lg border border-slate-300 text-center font-medium text-xl outline-none focus:border-indigo-500"
+                                    style="width: ${Math.min(Math.max(String(quantity || 0).length + 2, 5), 10)}ch;"
                                     value="${quantity}"
                                 >
                                 <button data-cart-action="increase" type="button" class="size-9 shrink-0 bg-indigo-700 text-white rounded-full"><span class="mas material-symbols-outlined text-base">add</span></button>
@@ -85,7 +86,7 @@ export function renderCartPanel(items: CartItem[]): void{
                             </div>
                             <div class="flex items-baseline gap-1">
                                 <span class="text-base font-extrabold uppercase text-slate-500">Total</span>
-                                <span class="text-2xl font-black text-slate-900">${precioTotalItem}</span>
+                                <span class="precioTotalItem text-2xl font-black text-slate-900">${precioTotalItem}</span>
                             </div>
                         </div>
                     </div>

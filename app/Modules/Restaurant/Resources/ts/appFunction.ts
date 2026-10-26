@@ -31,8 +31,13 @@ export function cerrarDialogoExterno(event:Event): void{
     //verificar si el clic fue fuera del dialogo
     dialogsAbiertos.forEach( dialog=>{
         const rect = dialog.getBoundingClientRect();
-        const clicFuera = event.clientX<rect.left || event.clientX>rect.right || event.clientY<rect.top || event.clientY<rect.bottom;
+        const clicFuera = event.clientX<rect.left || event.clientX>rect.right || event.clientY<rect.top || event.clientY>rect.bottom;
         if(clicFuera && f === dialog || (f as HTMLButtonElement).textContent.trim() === 'Cancelar' || (f as HTMLInputElement).closest('.salir'))
             dialog.close();
     });
 }
+
+export function ajustarAnchoCantidad(input:HTMLInputElement, cantidad:number|string): void{
+    const largo = String(cantidad || 0).length;
+    input.style.width = `${Math.min(Math.max(largo + 2, 5), 10)}ch`;
+  }

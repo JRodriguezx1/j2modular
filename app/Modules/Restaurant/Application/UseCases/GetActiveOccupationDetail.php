@@ -46,7 +46,8 @@ class GetActiveOccupationDetail{
             estimatedEndDate: $occupation->getEstimatedEndDate(),
             status: $occupation->getStatus(),
             numberOfPeople: $numberOfPeople,
-            observations: $occupation->getObservations()
+            observations: $occupation->getObservations(),
+            client: $occupation->getClient()
         );
     }
 

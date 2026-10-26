@@ -13,7 +13,7 @@ export function createCart(){
     let items: CartItem[] = [];
 
     function validateQuantity(quantity: number): void{
-        if(!Number.isFinite(quantity) || quantity <= 0)throw new Error('La cantidad debe ser un número mayor que cero.');
+        if(!Number.isFinite(quantity) || quantity < 0)throw new Error('La cantidad debe ser un número mayor que cero.');
     }
 
 
@@ -50,11 +50,12 @@ export function createCart(){
     }
 
     // Reemplaza la cantidad.
-    function updateQuantity(productId: number, quantity: number): void{
+    function updateQuantity(productId: number, quantity: number): CartItem{
         validateQuantity(quantity);
         const item = items.find(item => item.productId === productId);
         if(!item)throw new Error('El producto no está en el carrito.');
         item.quantity = quantity;
+        return item;
     }
 
     function removeProduct(productId: number): void{

@@ -380,7 +380,7 @@ class RestaurantController
                         'resourceId' => $detail->resourceId,
                         'reservationId' => $detail->reservationId,
                         'clientId' => $detail->clientId,
-                        'clientName' => $detail->clientName,
+                        'client' => $detail->client,
                         'type' => $detail->type,
                         'startDate' => $detail->startDate,
                         'estimatedEndDate' => $detail->estimatedEndDate,

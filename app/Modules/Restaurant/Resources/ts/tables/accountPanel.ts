@@ -80,7 +80,7 @@ function renderSummary(summary: AccountSummary): void{
     setElementText('accountPanelName', summary.name);
     const units = formatQuantity(summary.totales.totalunidades);
     setElementText('accountPanelRegisteredCount', `${units} ${units === '1' ? 'producto' : 'productos'}`);
-    renderConsumptions(summary.consumos);
+    renderConsumptions(summary.consumos); //imprimir productos
 
     // El precio del POS incluye el impuesto; el total ya es el importe guardado.
     const registeredTotal = formatCurrency(summary.totales.total);
@@ -124,12 +124,12 @@ export function showAccountPanelError(message: string): void{
     setEmptyMessage('accountPanelConsumptions', 'No fue posible consultar los productos registrados.');
 }
 
-
+//llamada desdes orderWorkspace.ts
 export async function showAccountPanel(occupation: ActiveOccupation, accounts: OccupationAccount[]): Promise<AccountPanelResult>{
     resetAccountPanel();
     const currentRequest = requestVersion;
     setElementText('accountPanelOccupation', `Atención #${occupation.occupationId}`);
-    setElementText('accountPanelClientName', occupation.clientName?.trim() || (occupation.clientId === null ? 'Consumidor final' : 'Cliente por consultar'));
+    setElementText('accountPanelClientName', (occupation.cliente.nombre+' '+occupation.cliente.apellido)?.trim() || (occupation.cliente.id === null ? 'Seleccionar cliente' : 'Seleccionar cliente'));
 
     if(accounts.length === 0)return {status: 'empty'};
 
@@ -186,7 +186,11 @@ export function showTemporaryAccountPanel(occupation: ActiveOccupation | null): 
     setElementText('atencionEstadoCuenta', 'Listo para ordenar');
     setElementText('accountPanelOccupation', occupation ? `Atención #${occupation.occupationId}` : 'Sin atención registrada');
     setElementText('accountPanelName', 'Cuenta por crear');
-    setElementText('accountPanelClientName', occupation?.clientName?.trim() || 'Sin cliente seleccionado');
+    let nameClient = "";
+    if(occupation && occupation.client?.nombre)
+        nameClient = occupation.client?.nombre + ' ' + occupation.client?.apellido;
+    
+    setElementText('accountPanelClientName', nameClient.trim() || 'Seleccionar cliente');
     (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-green-100', 'text-green-600');
     (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-gray-100', 'text-gray-700');
     setElementText('accountPanelRegisteredCount', '0 ítems');

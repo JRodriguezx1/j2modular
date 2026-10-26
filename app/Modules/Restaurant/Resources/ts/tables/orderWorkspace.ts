@@ -69,6 +69,7 @@ function activateOrder(resourceId: number, occupationId: number|null, accountId:
     //recuperamos cliente
     let cli = clientes.get(key);
     if(!cli){
+        //verificar ocupacion.client, si no hay client creamos
         cli = createCli();
         clientes.set(key, cli);
     }
@@ -357,7 +358,7 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
 
     if(reemplazar){
         // Al cambiar la búsqueda o categoría, quitamos el catálogo anterior.
-        catalogProducts.clear();
+        //catalogProducts.clear();
         productosGrid.replaceChildren();
         count.textContent = 'Cargando...';
         status.textContent = 'Cargando productos...';
@@ -372,7 +373,7 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
         //Guardamos los datos que después utilizará el clic. Al cargar más, se conservan los productos de las páginas anteriores.
         for(const product of page.products)
             catalogProducts.set(product.id, { ...product, precioVenta: Number(product.precioVenta)}); //mapa idproducto con el producto
-
+//console.log(catalogProducts);
         //count.textContent = `${page.products.length} en esta página`;
         //status.textContent = page.products.length > 0 ? `Mostrando página ${page.page}` : 'No hay productos vendibles en esta sucursal.';
 

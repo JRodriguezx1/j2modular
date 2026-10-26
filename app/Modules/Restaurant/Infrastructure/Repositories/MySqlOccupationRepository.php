@@ -24,9 +24,56 @@ class MySqlOccupationRepository implements OccupationRepository{
                 o.fecha_fin_estimada,
                 o.fecha_fin_real,
                 o.estado,
-                o.observaciones
+                o.observaciones,
+                
+                CASE
+                    WHEN c.id IS NOT NULL THEN
+                        JSON_OBJECT(
+                            'id', c.id,
+                            'nombre', c.nombre,
+                            'apellido', c.apellido,
+                            'tipodocumento', c.tipodocumento,
+                            'identificacion', c.identificacion,
+                            'telefono', c.telefono,
+                            'email', c.email,
+                            'fecha_nacimiento', c.fecha_nacimiento,
+                            'total_compras', c.total_compras,
+                            'ultima_compra', c.ultima_compra,
+                            'totaldebe', c.totaldebe,
+                            'limitecredito', c.limitecredito,
+                            'data1', c.data1,
+                            'created_at', c.created_at,
+
+                            'direcciones', (
+                                SELECT COALESCE(
+                                    JSON_ARRAYAGG(
+                                        JSON_OBJECT(
+                                            'id', d.id,
+                                            'idcliente', d.idcliente,
+                                            'idtarifa', d.idtarifa,
+                                            'iddepartamento', d.iddepartamento,
+                                            'idciudad', d.idciudad,
+                                            'pais', d.pais,
+                                            'departamento', d.departamento,
+                                            'ciudad', d.ciudad,
+                                            'direccion', d.direccion,
+                                            'codigopostal', d.codigopostal,
+                                            'observacion', d.observacion,
+                                            'created_at', d.created_at
+                                        )
+                                    ),
+                                    JSON_ARRAY()
+                                )
+                                FROM direcciones AS d
+                                WHERE d.idcliente = c.id
+                            )
+                        )
+                    ELSE NULL
+                END AS cliente
+
             FROM ocupaciones AS o
             INNER JOIN ocupacion_recursos AS obr ON obr.ocupacion_id = o.id
+            LEFT JOIN clientes AS c ON c.id = o.cliente_id
             WHERE obr.recurso_id = ? AND o.estado = 'en_uso'
             ORDER BY o.fecha_inicio DESC LIMIT 1";
 
@@ -41,6 +88,9 @@ class MySqlOccupationRepository implements OccupationRepository{
         $stmt->close();
         if(!$row)return null;
 
+        // Convertir el JSON del cliente a un array asociativo.
+        $client = $row['cliente'] !== null ? json_decode($row['cliente'], true, 512, JSON_THROW_ON_ERROR) : null;
+
         return new Occupation(
             id: (int)$row['id'],
             sucursalId: (int)$row['sucursal_id'],
@@ -51,7 +101,8 @@ class MySqlOccupationRepository implements OccupationRepository{
             estimatedEndDate: $row['fecha_fin_estimada'],
             actualEndDate: $row['fecha_fin_real'],
             status: $row['estado'],
-            observations: $row['observaciones']
+            observations: $row['observaciones'],
+            client: $client
         );
     }
 

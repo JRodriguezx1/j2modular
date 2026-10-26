@@ -1,4 +1,4 @@
-import { setElementText } from "../../appFunction";
+import { ajustarAnchoCantidad, setElementText } from "../../appFunction";
 import { createCart } from "../cart";
 import { SimpleProduct } from "../catalogoApi";
 
@@ -25,6 +25,7 @@ interface itemsEventsDependencies {
 export function registerProductEvents({productosGrid, cartContainer, catalogProducts, ActiveOrderE, renderCartPanelE}: itemsEventsDependencies): void{
     //evento de los productos del catalogo
     productosGrid?.addEventListener('click', event => {
+        console.log(catalogProducts.size);
         const target = event.target;
         if(!(target instanceof Element))return;
 
@@ -102,5 +103,41 @@ export function registerProductEvents({productosGrid, cartContainer, catalogProd
         }catch(error){
             console.error('Error al modificar el carrito:', error);
         }
+    });
+
+
+    cartContainer?.addEventListener('input', e=>{
+      const activeOrder = ActiveOrderE();
+      if(activeOrder === null)return;
+      const cart = activeOrder.cart;
+      const input = e.target as HTMLInputElement;
+      if (!input.classList.contains('inputcantidad')) return;
+      //const fila = input?.closest('.productselect') as HTMLTableRowElement;
+      //indexcarrito = Number(fila.dataset.indexcarrito!);
+
+      const row = input.closest<HTMLElement>('[data-cart-product-id]');
+      if (!row) return;
+
+      const productId = Number(row.dataset.cartProductId);
+      if(!Number.isSafeInteger(productId) || productId <= 0)return;
+
+    
+      let val = input.value;
+      val = val.replace(/[^0-9.]/g, '');
+      const partes = val.split('.');
+      if(partes.length > 2)val = partes[0]+'.'+partes.slice(1).join('');
+      if (val.startsWith('.'))val = '1';
+      if (val === '' || isNaN(parseFloat(val))) val = '';
+
+      const inputVal = Number(val);
+      if(inputVal < 0){
+        val = '1';
+      };
+      input.value = val;
+      const item = cart.updateQuantity(productId, inputVal);
+      //actualizar solo fila
+      row.querySelector('.precioTotalItem')!.textContent = "$"+(inputVal*item.unitPrice).toFixed(2);
+      ajustarAnchoCantidad(input, item.quantity);
+      console.table(activeOrder.cart.getItems());
     });
 }
