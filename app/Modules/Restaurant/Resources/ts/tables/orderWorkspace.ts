@@ -70,6 +70,7 @@ function activateOrder(resourceId: number, occupationId: number|null, accountId:
     let cli = clientes.get(key);
     if(!cli){
         //verificar ocupacion.client, si no hay client creamos
+        
         cli = createCli();
         clientes.set(key, cli);
     }
