@@ -2,12 +2,15 @@ import { setElementText } from '../appFunction';
 import {getAccountSummary} from './accountApi';
 import type {AccountAmount, AccountConsumption, AccountSummary} from './accountApi';
 import type {ActiveOccupation, OccupationAccount} from './occupationApi';
+import type { CartTotals } from './cartTotals';
 
 // Cada resultado explica por qué podemos o no activar un carrito.
 export type AccountPanelResult =| {status: 'ready', account: OccupationAccount} | {status: 'empty'} | {status: 'selection-required'} | {status: 'closed'} | {status: 'error'} | {status: 'cancelled'};
 
 let requestVersion = 0;
 let activeRequest: AbortController | null = null;
+let registeredTotal = 0;
+let registeredTax = 0
 
 const currencyFormatter = new Intl.NumberFormat('es-CO', {
     style: 'currency',
@@ -76,19 +79,34 @@ function renderConsumptions(consumptions: AccountConsumption[]): void{
     container.replaceChildren(fragment);
 }
 
+
+// Recibe únicamente los totales del carrito pendiente.
+export function renderAccountTotals(pending: CartTotals): void{
+    const total = registeredTotal + pending.total;
+    const tax = registeredTax + pending.tax;
+    setElementText('accountPanelRegisteredAmount', formatCurrency(registeredTotal));
+    setElementText('accountPanelPendingAmount', formatCurrency(pending.total));
+    setElementText('accountPanelPendingBase', formatCurrency(pending.base));
+    // El impuesto ya está incluido; no se suma otra vez al total.
+    setElementText('accountPanelTax', formatCurrency(tax));
+    setElementText('accountPanelTotal', formatCurrency(total));
+    setElementText('accountPanelPayTotal', formatCurrency(total));
+}
+
+
 function renderSummary(summary: AccountSummary): void{
     setElementText('accountPanelName', summary.name);
     const units = formatQuantity(summary.totales.totalunidades);
     setElementText('accountPanelRegisteredCount', `${units} ${units === '1' ? 'producto' : 'productos'}`);
     renderConsumptions(summary.consumos); //imprimir productos
 
-    // El precio del POS incluye el impuesto; el total ya es el importe guardado.
-    const registeredTotal = formatCurrency(summary.totales.total);
-    setElementText('accountPanelRegisteredAmount', registeredTotal);
+    registeredTotal = Number(summary.totales.total);
+    registeredTax = Number(summary.totales.valorimpuestototal);
+    // El total del backend ya contempla este descuento.
+    // Lo mostramos, pero no lo descontamos nuevamente.
     setElementText('accountPanelDiscount', formatCurrency(summary.totales.descuento));
-    setElementText('accountPanelTax', `${formatCurrency(summary.totales.valorimpuestototal)} incluidos`);
-    setElementText('accountPanelTotal', registeredTotal);
-    setElementText('accountPanelPayTotal', registeredTotal);
+    
+    renderAccountTotals({ base: 0, tax: 0, total: 0 });
     //setStatus(summary.consumos.length === 0 ? 'Cuenta abierta sin productos registrados.' : '');
 }
 
@@ -96,13 +114,17 @@ export function resetAccountPanel(): void{
     ++requestVersion;
     activeRequest?.abort();  // Cancelar la petición anterior controller?.abort();
     activeRequest = null;
+    // Evita arrastrar importes registrados de la mesa anterior.
+    registeredTotal = 0;
+    registeredTax = 0;
+    setElementText('accountPanelPendingBase', '—');
     document.getElementById('accountPanel')?.setAttribute('aria-busy', 'false');
     setElementText('atencionNoActiva', 'Atención por consultar');
     setElementText('atencionEstadoResumen', 'Mesa sin atencion');
     setElementText('atencionEstadoCuenta', 'Listo para ordenar');
     setElementText('accountPanelOccupation', 'Atención por consultar');
     setElementText('accountPanelName', 'Cuenta por consultar');
-    setElementText('accountPanelClientName', 'Consumidor final');
+    setElementText('accountPanelClientName', 'Seleccionar cliente');
     setElementText('accountPanelRegisteredCount', '— ítems');  //conteo de items registrados
     setEmptyMessage('accountPanelConsumptions', 'Los productos registrados aparecerán aquí.');
     setElementText('accountPanelPendingCount', '0 item sin guardar');  //conteo de productos nuevos
@@ -129,7 +151,7 @@ export async function showAccountPanel(occupation: ActiveOccupation, accounts: O
     resetAccountPanel();
     const currentRequest = requestVersion;
     setElementText('accountPanelOccupation', `Atención #${occupation.occupationId}`);
-    setElementText('accountPanelClientName', (occupation.cliente.nombre+' '+occupation.cliente.apellido)?.trim() || (occupation.cliente.id === null ? 'Seleccionar cliente' : 'Seleccionar cliente'));
+    //setElementText('accountPanelClientName', (occupation.client?.nombre+' '+occupation.client?.apellido)?.trim() || (occupation.client?.id === null ? 'Seleccionar cliente' : 'Seleccionar cliente'));
 
     if(accounts.length === 0)return {status: 'empty'};
 
@@ -186,15 +208,19 @@ export function showTemporaryAccountPanel(occupation: ActiveOccupation | null): 
     setElementText('atencionEstadoCuenta', 'Listo para ordenar');
     setElementText('accountPanelOccupation', occupation ? `Atención #${occupation.occupationId}` : 'Sin atención registrada');
     setElementText('accountPanelName', 'Cuenta por crear');
-    let nameClient = "";
+    /*let nameClient = "";
+    console.log(55);
     if(occupation && occupation.client?.nombre)
         nameClient = occupation.client?.nombre + ' ' + occupation.client?.apellido;
     
     setElementText('accountPanelClientName', nameClient.trim() || 'Seleccionar cliente');
     (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-green-100', 'text-green-600');
-    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-gray-100', 'text-gray-700');
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-gray-100', 'text-gray-700');*/
     setElementText('accountPanelRegisteredCount', '0 ítems');
     setElementText('accountPanelRegisteredAmount', formatCurrency(0));
     setEmptyMessage('accountPanelConsumptions', 'Sin productos registrados.');
     // El carrito pendiente se mostrará cuando implementemos su renderizado.
+    // Un pedido temporal todavía no tiene importes registrados.
+    setElementText('accountPanelDiscount', formatCurrency(0));
+    renderAccountTotals({ base: 0, tax: 0, total: 0 });
 }

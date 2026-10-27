@@ -1,5 +1,7 @@
 import type {CartItem} from './cart';
 import {escapeCreateDOMHtml, setElementText} from '../appFunction';
+import { calculateCartTotals } from './cartTotals';
+import { renderAccountTotals } from './accountPanel';
 
 // Estos formateadores solo preparan los números para mostrarlos.
 const currencyFormatter = new Intl.NumberFormat('es-CO', {
@@ -10,6 +12,12 @@ const currencyFormatter = new Intl.NumberFormat('es-CO', {
 });
 
 const quantityFormatter = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 2 });
+
+// Calcula totales y Actualiza únicamente el resumen.
+export function renderCartTotals(items: CartItem[]): void{
+    const totals = calculateCartTotals(items); //calcula los totales del carrito completo
+    renderAccountTotals(totals); //renbderiza el resumen total
+}
 
 // Recibe los productos pendientes y actualiza su sección en la vista.
 // Esta función no modifica el carrito.
@@ -22,8 +30,7 @@ export function renderCartPanel(items: CartItem[]): void{
     setElementText('accountPanelPendingCount', `${lines} ${lines === 1 ? 'ítem' : 'ítems'} sin guardar`);
     // El cálculo del importe pendiente se incorporará después.
 
-    // Así evitamos mostrar $0 cuando ya existen productos.
-    setElementText('accountPanelPendingAmount', lines === 0 ? currencyFormatter.format(0) : 'Por calcular');
+    renderCartTotals(items);
     // Si el carrito está vacío, mostramos el mensaje inicial.
     if(lines === 0){
         container.innerHTML = `<p class="text-sm text-slate-500">No hay productos nuevos.</p>`;
@@ -36,7 +43,7 @@ export function renderCartPanel(items: CartItem[]): void{
         const name = escapeCreateDOMHtml(item.name);
         const quantity = quantityFormatter.format(item.quantity);
         const unitPrice = currencyFormatter.format(item.unitPrice);
-        const precioTotalItem = currencyFormatter.format(item.quantity * item.unitPrice);
+        const precioTotalItem = currencyFormatter.format(calculateCartTotals([item]).total);
 
         /*return `
             <div class="border-b border-slate-100 py-3">

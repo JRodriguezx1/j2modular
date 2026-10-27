@@ -2,10 +2,11 @@ import type {SimpleProduct} from './catalogoApi';
 
 // Un producto pendiente de guardar. El precio conserva el formato del backend.
 export interface CartItem {
-    productId: number;
-    name: string;
-    unitPrice: number;
-    quantity: number;
+    productId: number,
+    name: string,
+    unitPrice: number, // Precio con impuesto incluido.
+    quantity: number,
+    taxRate: number|null, // Porcentaje: 19, 5, 0... o null.
 }
 
 // Cada llamada crea un carrito independiente, que después vincularemos a una cuenta.
@@ -28,6 +29,10 @@ export function createCart(){
     function addProduct(product: SimpleProduct, quantity: number = 1): void{
         validateQuantity(quantity);
         const price = Number(product.precioVenta);
+        const taxRate = product.impuesto;
+        // Si hay porcentaje, debe ser un entero entre 0 y 100.
+        if(taxRate !== null && (!Number.isInteger(taxRate) || taxRate < 0 || taxRate > 100))
+            throw new Error('El impuesto del producto no es válido.');
         if(!Number.isInteger(product.id) || product.id <= 0)
             throw new Error('El producto no es válido.');
         if(!Number.isFinite(price) || price < 0)
@@ -45,7 +50,8 @@ export function createCart(){
             productId: product.id,
             name: product.nombre,
             unitPrice: price,
-            quantity
+            quantity,
+            taxRate
         });
     }
 

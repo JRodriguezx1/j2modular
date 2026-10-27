@@ -187,7 +187,7 @@ class productos extends \App\Models\ActiveRecord {
     }
 
 
-/////////// Metodos usados por restaurant /////////////
+/////////// METODOS USADOS POR RESTAURANT /////////////
 
     //Consultar el producto vendible
     public static function buscarSimpleParaOrden(int $productoId, int $sucursalId): ?array{
@@ -225,7 +225,7 @@ class productos extends \App\Models\ActiveRecord {
         $termino = trim($busqueda ?? '');
         $like = null;
 
-        $sql = "SELECT p.id, p.idcategoria AS categoriaId, p.nombre, p.sku, p.foto, p.precio_venta AS precioVenta
+        $sql = "SELECT p.id, p.idcategoria AS categoriaId, p.nombre, p.foto, p.impuesto, p.tipoproducto, p.tipoproduccion, p.sku, p.rendimientoestandar, p.precio_venta AS precioVenta, p.percentcomision, p.prioridadcomision
                 FROM productos p
                 INNER JOIN stockproductossucursal s ON s.productoid = p.id
                 AND s.sucursalid = ? WHERE p.estado = 1 AND p.visible = 1 AND p.tipoproducto = 0 AND s.habilitarventa = 1";

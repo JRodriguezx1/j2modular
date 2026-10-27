@@ -45,7 +45,7 @@ function renderLoading(): void{
 
 
 function renderOccupation(occupation: ActiveOccupation): void {
-    const client = occupation.clientName ? escapeCreateDOMHtml(occupation.clientName) : 'Sin cliente asociado';
+    const client = occupation.client?.id ? escapeCreateDOMHtml(occupation.client.nombre) : 'Sin cliente asociado';
     const people = occupation.numberOfPeople !== null ? String(occupation.numberOfPeople) : '—';
     const reservation = occupation.reservationId !== null ? `#${occupation.reservationId}` : 'Atención directa';
     const observations = occupation.observations ? escapeCreateDOMHtml(occupation.observations) : 'Sin observaciones';

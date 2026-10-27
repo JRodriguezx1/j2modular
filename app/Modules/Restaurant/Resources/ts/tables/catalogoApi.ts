@@ -9,12 +9,18 @@ export interface I_Categorias {
 }
 
 export interface SimpleProduct {
-    id: number;
-    categoriaId: number | null;
-    nombre: string;
-    sku: string | null;
-    foto: string | null;
-    precioVenta: string|number;
+    id: number,
+    categoriaId: number|null,
+    nombre: string,
+    foto: string|null,
+    impuesto: number|null,
+    tipoproducto: number|null,
+    tipoproduccion: number|null,
+    sku: string|null,
+    rendimientoestandar: string|null,
+    precioVenta: string|number,
+    percentcomision: string|null,
+    prioridadcomision: number|null
 }
 
 export interface ProductPage {

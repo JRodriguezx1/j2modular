@@ -190,6 +190,7 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
             return;
         }
     }catch(error){
+        console.log(error);
         if(currentRequest !== requestVersion)return;
         activeOrder = null;
         showAccountPanelError(error instanceof Error ? error.message : 'No fue posible consultar la mesa.');
@@ -258,7 +259,7 @@ export function initOrderWorkspace(): void{
         registerProductEvents({productosGrid, cartContainer, catalogProducts, ActiveOrderE:getActiveOrder, renderCartPanelE:renderCartPanel});
 
     const getActiveClient = () => activeOrder?.cli ?? null;
-    registeraddclienteEvents(getActiveClient);  //para abrir modal de clientes y seleccionar.
+    registeraddclienteEvents(getActiveClient, () => requestVersion);  //para abrir modal de clientes y seleccionar.
 
     void precargarProductos(); //carga de productos
 }
@@ -377,6 +378,7 @@ async function cargarPaginaProductos(numeroPagina: number, categoriaId: number |
         //count.textContent = `${page.products.length} en esta página`;
         //status.textContent = page.products.length > 0 ? `Mostrando página ${page.page}` : 'No hay productos vendibles en esta sucursal.';
 
+        console.log(page.products);
         const html = page.products.map(product => {
             const name = escapeCreateDOMHtml(product.nombre);
             const photo = product.foto && product.foto !== 'null' && product.foto !== 'undefined' ? product.foto : null;

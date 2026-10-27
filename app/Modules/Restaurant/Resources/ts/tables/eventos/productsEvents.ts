@@ -1,6 +1,8 @@
 import { ajustarAnchoCantidad, setElementText } from "../../appFunction";
 import { createCart } from "../cart";
 import { SimpleProduct } from "../catalogoApi";
+import { calculateCartTotals } from '../cartTotals';
+import { renderCartTotals } from '../cartPanel';
 
 type Cart = ReturnType<typeof createCart>;
 type CartKey = | `account:${number}` | `occupation:${number}` | `table:${number}`;
@@ -48,7 +50,7 @@ export function registerProductEvents({productosGrid, cartContainer, catalogProd
             // Agrega una unidad. Si ya existe, aumenta su cantidad.
             activeOrder.cart.addProduct(product);
             // Volvemos a dibujar la lista usando los datos actualizados.
-            renderCartPanelE(activeOrder.cart.getItems());
+            renderCartPanelE(activeOrder.cart.getItems()); //calcula los totales y muestra los totales en cartPanel.ts
             // Temporal: permite comprobar el resultado en la consola.
             console.log('Cuenta activa:', activeOrder.accountId);
             console.log('Cuenta en MySQL:', activeOrder.accountId);
@@ -98,7 +100,7 @@ export function registerProductEvents({productosGrid, cartContainer, catalogProd
                 default: return;
             }
 
-            renderCartPanelE(cart.getItems());
+            renderCartPanelE(cart.getItems()); //calcula los totales y muestra los totales en cartPanel.ts
             console.table(activeOrder.cart.getItems());
         }catch(error){
             console.error('Error al modificar el carrito:', error);
@@ -135,8 +137,12 @@ export function registerProductEvents({productosGrid, cartContainer, catalogProd
       };
       input.value = val;
       const item = cart.updateQuantity(productId, inputVal);
+      // Actualizamos el importe de esta fila usando el cálculo común.
+      const lineTotal = calculateCartTotals([item]).total;
       //actualizar solo fila
-      row.querySelector('.precioTotalItem')!.textContent = "$"+(inputVal*item.unitPrice).toFixed(2);
+      row.querySelector('.precioTotalItem')!.textContent = "$"+lineTotal.toLocaleString('es-CO', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+      // Actualizamos el resumen sin reconstruir los inputs.
+      renderCartTotals(cart.getItems());
       ajustarAnchoCantidad(input, item.quantity);
       console.table(activeOrder.cart.getItems());
     });

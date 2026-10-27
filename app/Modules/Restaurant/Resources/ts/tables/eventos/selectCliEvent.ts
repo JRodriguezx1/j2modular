@@ -11,7 +11,27 @@ const direccionPreferidaPorCliente = new Map<string, string>();
 type Cli = ReturnType<typeof createCli>;
 
 //evento al boton de seleccionar cliente
-export function registeraddclienteEvents(getClient: () => Cli|null): void{
+export function registeraddclienteEvents(getClient: () => Cli|null, getContextVersion: () => number): void{
+
+    let clientRequestVersion = 0;
+
+    function iniciarOperacionCliente() {
+        const versionConsulta = ++clientRequestVersion;
+        // Capturamos el objeto y el contexto ANTES de consultar.
+        const clientePedido = getClient();
+        const versionContexto = getContextVersion();
+        if(!clientePedido)return null;
+        return {
+            clientePedido,
+            // Esta función se comprobará después del await.
+            sigueVigente: () =>
+                versionConsulta === clientRequestVersion &&
+                versionContexto === getContextVersion() &&
+                getClient() === clientePedido
+        };
+    }
+
+
     btnAddCliente?.addEventListener('click', (e)=>{
         miDialogoAddCliente.showModal();
         ($('#selectCliente') as any).select2({
@@ -25,6 +45,9 @@ export function registeraddclienteEvents(getClient: () => Cli|null): void{
     //////////// evento al btn submit del formulario add nuevo cliente //////////////
     document.querySelector('#formAddCliente')?.addEventListener('submit', e=>{
         e.preventDefault();
+        // Capturamos el pedido antes de comenzar a guardar.
+        const operacion = iniciarOperacionCliente();
+        if (!operacion) return;
         (async ()=>{
             const direccionSeleccionada = dirEntrega.value;
             const datos = new FormData();
@@ -47,6 +70,7 @@ export function registeraddclienteEvents(getClient: () => Cli|null): void{
 
                 const respuesta = await fetch(url, {method: 'POST', body: datos}); 
                 const resultado = await respuesta.json();
+                if(!operacion.sigueVigente())return;
                 if(resultado.exito !== undefined){
                 //msjalertToast('success', '¡Éxito!', resultado.exito[0]);
                 const clienteGuardado = resultado.nextID || selectCliente.value;
@@ -79,23 +103,43 @@ export function registeraddclienteEvents(getClient: () => Cli|null): void{
     //evento 'cambio' al selecionar cliente, tambien se ejecuta cuando se crea cliente nuevo//
     $("#selectCliente").on('change', (e:any)=>{
         const idcli = (e.target as HTMLInputElement).value;
+        const operacion = iniciarOperacionCliente();
+        if(!operacion)return;
+
+        // Una deselección explícita limpia memoria y presentación.
+        // También invalida cualquier consulta anterior.
+        if(!idcli){
+            operacion.clientePedido.clear();
+            renderCli(operacion.clientePedido.getCli());
+            return;
+        }
+
         if(idcli){
             (async ()=>{
                 try{
                     const url = "/admin/api/clientes/direccionesXcliente?id="+idcli; //llamado a la API REST y se trae el cliente y sus direcciones direccionescontrolador, tambien traer sus precios personalizados
-                    const respuesta = await fetch(url); 
-                    const resultado = await respuesta.json();
-                    renderCli(resultado);
-                    addDireccionSelect(resultado);
+                    const respuesta = await fetch(url);
+                    if (!respuesta.ok)throw new Error('No fue posible consultar el cliente.');
+                    const resultado = await respuesta.json() as Cliente;
+
+                    // Mientras esperábamos, pudo cambiar el cliente o la mesa.
+                    // Una respuesta vieja no debe modificar memoria ni pantalla.
+                    if(!operacion.sigueVigente())return;
+
+                    // Primero actualizamos el objeto del pedido original.
+                    operacion.clientePedido.addCli(resultado.id, resultado);
+                    // Después dibujamos usando el estado guardado.
+                    renderCli(operacion.clientePedido.getCli());
+                    
                     //mapear los precios personalizados del cliente con arreglo de los productos
                     //actualizarPreciosCliente(resultado.preciospersonalizados);
-                    getClient()?.addCli(resultado.id, resultado);
                     //POS.gestionRedmir.actualizarPuntosDOM(`${resultado.nombre} ${resultado.apellido}`, resultado.puntos);
                 }catch(error){
                     console.log(error);
+                    if(operacion.sigueVigente())console.error('Error al consultar el cliente:', error);
                 }
             })();
-        }else{
+        }/*else{
             (document.querySelector('#accountPanelClientName') as HTMLParagraphElement).textContent = 'Seleccionar cliente';
             (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = 'SIN CLIENTE';
             (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-green-100', 'text-green-600');
@@ -117,7 +161,7 @@ export function registeraddclienteEvents(getClient: () => Cli|null): void{
                     cr.valorimp = cr.subtotal - cr.base;
                 });*/
             //POS.valorCarritoTotal();
-        }
+        //}
     });
 
 
@@ -164,10 +208,11 @@ export function renderCli(cliente:Cliente){
     (document.querySelector('#tipodocumento') as HTMLSelectElement).value = cliente.tipodocumento;
     (document.querySelector('#identificacion') as HTMLInputElement).value = cliente.identificacion;
     (document.querySelector('#clientenuevoemail') as HTMLInputElement).value = cliente.email;
-    (document.querySelector('#accountPanelClientName') as HTMLParagraphElement).textContent = cliente.nombre+' '+cliente.apellido;
-    (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = cliente.id.trim()===''?'SIN CLIENTE':'SELECCIONADO';
-    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove('bg-gray-100', 'text-gray-700');
-    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add('bg-green-100', 'text-green-600');
+    (document.querySelector('#accountPanelClientName') as HTMLParagraphElement).textContent = cliente.id?cliente.nombre+' '+cliente.apellido:'Seleccionar cliente';
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).textContent = cliente.id?'SELECCIONADO':'SIN CLIENTE';
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.remove(cliente.id?'bg-gray-100':'bg-green-100', cliente.id?'text-gray-700':'text-green-600');
+    (document.querySelector('#badgeEstado') as HTMLParagraphElement).classList.add(cliente.id?'bg-green-100':'bg-gray-100', cliente.id?'text-green-600':'text-gray-700');
+   
 }
 
 
@@ -185,11 +230,11 @@ export function renderCli(cliente:Cliente){
             option.dataset.idtarifa = dir.idtarifa;
             option.dataset.ciudad = dir.ciudad;
             dirEntrega.appendChild(option);
-            dir.tarifa.idcliente = dir.idcliente;
-            if(!setTarifas.has(dir.tarifa.id)){
+            //dir.tarifa.idcliente = dir.idcliente;
+            //if(!setTarifas.has(dir.tarifa.id)){
             //POS.tarifas = [...POS.tarifas, dir.tarifa];
-            setTarifas.add(dir.tarifa.id);
-            }
+            //setTarifas.add(dir.tarifa.id);
+            //}
         });
         if(direccionPreferida && addrs.direcciones?.some(dir=>dir.id === direccionPreferida)){
             dirEntrega.value = direccionPreferida;

@@ -287,7 +287,7 @@
                 <span id="accountPanelDiscount" class="font-semibold">—</span>
               </div>
               <div class="flex justify-between text-slate-600">
-                <span>Impuestos</span>
+                <span>Impuestos (incluidos)</span>
                 <span id="accountPanelTax" class="font-semibold">—</span>
               </div>
             </div>
