@@ -87,4 +87,91 @@ class OpenOrderService{
         return ['orden' => $order, 'consumos' => ventas::listarConsumosOrden($orderId, $branchId)];
     }
 
+
+    /**
+ * Agrega productos pendientes a una factura Abierta existente.
+ *
+ * El llamador debe abrir la transacción y hacer rollback si falla.
+ * Este método no confirma ni revierte la transacción.
+ *
+ * @param array<int, array{productId: int, quantity: string}> $items
+ * @return array{lineIds: array<int, int>, totales: array}
+ */
+public function addSimpleProducts(
+    int $orderId,
+    array $items,
+    int $branchId
+): array {
+    if ($orderId <= 0 || $branchId <= 0) {
+        throw new InvalidArgumentException(
+            'La factura o la sucursal no es válida.'
+        );
+    }
+
+    // Debemos recibir una lista con al menos un producto.
+    if ($items === [] || !array_is_list($items)) {
+        throw new InvalidArgumentException(
+            'El pedido debe contener una lista de productos.'
+        );
+    }
+
+    // Primero comprobamos la estructura de todos los elementos.
+    $validatedItems = [];
+
+    foreach ($items as $item) {
+        if (!is_array($item)) {
+            throw new InvalidArgumentException(
+                'Hay un producto con formato inválido.'
+            );
+        }
+
+        $productId = filter_var(
+            $item['productId'] ?? null,
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1]]
+        );
+
+        $quantity = $item['quantity'] ?? null;
+
+        if ($productId === false || !is_string($quantity)) {
+            throw new InvalidArgumentException(
+                'El producto o la cantidad no tiene el formato esperado.'
+            );
+        }
+
+        $validatedItems[] = [
+            'productId' => $productId,
+            'quantity' => $quantity
+        ];
+    }
+
+    $lineIds = [];
+    $totales = [];
+
+    foreach ($validatedItems as $item) {
+        // Reutilizamos el método existente:
+        // - comprueba que la factura esté Abierta;
+        // - valida producto y cantidad;
+        // - obtiene precio e impuesto en el servidor;
+        // - inserta la línea y recalcula la factura.
+        $result = $this->addSimpleProduct(
+            $orderId,
+            $item['productId'],
+            $item['quantity'],
+            $branchId
+        );
+
+        $lineIds[] = $result['lineId'];
+
+        // La última respuesta contiene los totales de toda la factura:
+        // consumos anteriores más los productos recién agregados.
+        $totales = $result['totales'];
+    }
+
+    return [
+        'lineIds' => $lineIds,
+        'totales' => $totales
+    ];
+}
+
 }

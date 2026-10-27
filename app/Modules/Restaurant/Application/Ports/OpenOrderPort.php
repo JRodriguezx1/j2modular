@@ -13,5 +13,12 @@ interface OpenOrderPort{
      */
     public function addSimpleProduct(int $orderId, int $productId, string $quantity, int $branchId): array;
     public function getSummary(int $orderId, int $branchId): array;
+    /**
+ * Agrega un lote dentro de la transacción del llamador.
+ *
+ * @param array<int, array{productId: int, quantity: string}> $items
+ * @return array{lineIds: array<int, int>, totales: array}
+ */
+public function addSimpleProducts(int $orderId, array $items, int $branchId): array;
 
 }

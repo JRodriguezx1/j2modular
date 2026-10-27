@@ -21,5 +21,18 @@ class PosOpenOrderAdapter implements OpenOrderPort{
     public function getSummary(int $orderId, int $branchId): array{
         return $this->openOrderService->getSummary($orderId, $branchId);
     }
+
+    public function addSimpleProducts(
+    int $orderId,
+    array $items,
+    int $branchId
+): array {
+    // El adaptador delega la operación al servicio comercial.
+    return $this->openOrderService->addSimpleProducts(
+        $orderId,
+        $items,
+        $branchId
+    );
+}
     
 }
