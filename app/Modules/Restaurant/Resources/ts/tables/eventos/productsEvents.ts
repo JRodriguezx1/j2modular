@@ -9,8 +9,8 @@ type CartKey = | `account:${number}` | `occupation:${number}` | `table:${number}
 
 interface ActiveOrder {
     resourceId: number;
-    occupationId: number | null;
-    accountId: number | null;
+    occupationId: number|null;
+    accountId: number|null;
     cartKey: CartKey;
     cart: Cart;
 }
@@ -19,7 +19,7 @@ interface itemsEventsDependencies {
     productosGrid: HTMLElement,
     cartContainer: HTMLElement,
     catalogProducts: Map<number, SimpleProduct>,
-    ActiveOrderE: () => ActiveOrder | null,  //propiedad que contiene una funcion sin parametro, devuelve ActiveOrder | null
+    ActiveOrderE: () => ActiveOrder|null,  //propiedad que contiene una funcion sin parametro, devuelve ActiveOrder | null
     renderCartPanelE: (items: ReturnType<Cart['getItems']>) => void,
 }
 

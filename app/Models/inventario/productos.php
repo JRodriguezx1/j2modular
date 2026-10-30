@@ -210,6 +210,43 @@ class productos extends \App\Models\ActiveRecord {
 
 
     /**
+    * Consulta todos los productos simples del pedido.
+    * Devuelve un arreglo indexado por ID del producto.
+    */
+    public static function buscarSimplesParaOrden(array $productIds, int $sucursalId): array{
+        $productIds = array_values(array_unique(array_map('intval', $productIds)));
+
+        if($sucursalId <= 0 || $productIds === [] || min($productIds) <= 0)
+            throw new \InvalidArgumentException('Los productos o la sucursal no son válidos.');
+
+        $placeholders = implode(', ', array_fill(0, count($productIds), '?'));
+        $sql = "
+            SELECT
+                p.id, p.nombre, p.foto,
+                p.tipoproduccion, p.rendimientoestandar,
+                p.precio_compra, p.precio_venta, p.impuesto,
+                p.percentcomision, p.prioridadcomision,
+                s.promediostock
+            FROM productos p
+            INNER JOIN stockproductossucursal s ON s.productoid = p.id
+            AND s.sucursalid = ? WHERE p.id IN ($placeholders) AND p.estado = 1 AND p.visible = 1 AND p.tipoproducto = 0 AND s.habilitarventa = 1";
+        $stmt = self::getDB()->prepare($sql);
+
+        try {
+            $stmt->execute([$sucursalId, ...$productIds]);
+            $products = [];
+            $result = $stmt->get_result();
+            while ($row = $result->fetch_assoc())
+                $products[(int)$row['id']] = $row;
+
+            return $products;
+        } finally {
+            $stmt->close();
+        }
+    }
+
+
+    /**
     * Primera página del catálogo de productos simples vendibles.
     * Devuelve únicamente los campos necesarios para mostrar las tarjetas.
     */

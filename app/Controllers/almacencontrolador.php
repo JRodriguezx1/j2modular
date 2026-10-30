@@ -369,9 +369,8 @@ class almacencontrolador{
       $producto->preciosadicionales = precios_personalizados::idregistros('idproductoid', $producto->id);
       $producto->precio_original = $producto->precio_venta;
       $producto->insumos = productos_sub::unJoinWhereArrayObj(subproductos::class, 'id_subproducto', 'id', ['id_producto'=>$producto->id]);
-      foreach($producto->insumos as $value){
+      foreach($producto->insumos as $value)
         $value->grupos_insumos = $gi[$value->grupos_insumos]??null;
-      }
     }
    echo json_encode($productos);
    return;

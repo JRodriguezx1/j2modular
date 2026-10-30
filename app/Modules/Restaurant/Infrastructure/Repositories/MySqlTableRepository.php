@@ -173,4 +173,28 @@ class MySqlTableRepository implements RestaurantTableRepository{
             throw new \InvalidArgumentException('La mesa seleccionada no existe.');
     }
 
+
+    public function lockTableForOrder(int $resourceId, int $branchId): void {
+        // Comprobamos que el recurso sea una mesa de la sucursal indicada.
+        // El bloqueo se mantiene hasta el commit o rollback.
+        $sql = "SELECT r.id, r.activo, r.estado
+                FROM recursos r
+                INNER JOIN mesas m ON m.recurso_id = r.id
+                WHERE r.id = ? AND r.sucursal_id = ? LIMIT 1 FOR UPDATE";
+        $stmt = $this->db->prepare($sql);
+        try{
+            $stmt->bind_param('ii', $resourceId, $branchId);
+            $stmt->execute();
+            $table = $stmt->get_result()->fetch_assoc();
+            if($table === null)
+                throw new \InvalidArgumentException('La mesa no existe en la sucursal actual.');
+            if((int)$table['activo'] !== 1)
+                throw new \InvalidArgumentException('La mesa está deshabilitada.');
+            if($table['estado'] !== 'disponible')
+                throw new \InvalidArgumentException('La mesa no está disponible para iniciar una atención.');
+        }finally{
+            $stmt->close();
+        }
+    }
+
 }

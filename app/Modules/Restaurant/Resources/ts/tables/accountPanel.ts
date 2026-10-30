@@ -46,7 +46,7 @@ function formatQuantity(value: AccountAmount): string{
     return Number.isFinite(quantity) ? quantityFormatter.format(quantity) : '—';
 }
 
-function renderConsumptions(consumptions: AccountConsumption[]): void{
+function renderConsumptions(consumptions: AccountConsumption[]): void{  //imprimir productos ya registrados
     if(consumptions.length === 0){
         setEmptyMessage('accountPanelConsumptions', 'Sin productos registrados.');
         return;
@@ -98,7 +98,7 @@ function renderSummary(summary: AccountSummary): void{
     setElementText('accountPanelName', summary.name);
     const units = formatQuantity(summary.totales.totalunidades);
     setElementText('accountPanelRegisteredCount', `${units} ${units === '1' ? 'producto' : 'productos'}`);
-    renderConsumptions(summary.consumos); //imprimir productos
+    renderConsumptions(summary.consumos); //imprimir productos ya registrados
 
     registeredTotal = Number(summary.totales.total);
     registeredTax = Number(summary.totales.valorimpuestototal);
@@ -108,6 +108,17 @@ function renderSummary(summary: AccountSummary): void{
     
     renderAccountTotals({ base: 0, tax: 0, total: 0 });
     //setStatus(summary.consumos.length === 0 ? 'Cuenta abierta sin productos registrados.' : '');
+}
+
+
+// Dibuja una cuenta cuyo resumen ya fue consultado y validado.
+export function renderConfirmedAccount(summary: AccountSummary): void {
+    setElementText('atencionNoActiva', `Atención #${summary.occupationId}`);
+    setElementText('atencionEstadoResumen', `Atención #${summary.occupationId} · En uso`);
+    setElementText('accountPanelOccupation', `Atención #${summary.occupationId}`);
+    setElementText('atencionEstadoCuenta', 'Cuenta abierta');
+    // Dibuja los productos registrados y actualiza, registeredTotal y registeredTax con los datos del backend.
+    renderSummary(summary);
 }
 
 export function resetAccountPanel(): void{
@@ -145,6 +156,7 @@ export function showAccountPanelError(message: string): void{
     //setStatus(message);
     setEmptyMessage('accountPanelConsumptions', 'No fue posible consultar los productos registrados.');
 }
+
 
 //llamada desdes orderWorkspace.ts
 export async function showAccountPanel(occupation: ActiveOccupation, accounts: OccupationAccount[]): Promise<AccountPanelResult>{

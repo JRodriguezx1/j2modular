@@ -3,11 +3,14 @@ import {createCart} from './cart';
 import { I_Categorias, getAllCategorias, listSimpleProducts } from './catalogoApi';
 import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
 import type { ProductPage, SimpleProduct } from './catalogoApi';
-import {resetAccountPanel, showAccountPanel, showAccountPanelError, showTemporaryAccountPanel} from './accountPanel';
+import {resetAccountPanel, showAccountPanel, showAccountPanelError, showTemporaryAccountPanel, renderConfirmedAccount } from './accountPanel';
 import {renderCartPanel} from './cartPanel';
 import { registerProductEvents } from './eventos/productsEvents';
 import { registeraddclienteEvents, renderCli } from './eventos/selectCliEvent';
 import { createCli } from './cli';
+import { registrarProcesarOrdenEvent } from './eventos/ProcesarOrdenEvent';
+import type { OrderSaveResult } from './eventos/ProcesarOrdenEvent';
+import { getAccountSummary } from './accountApi';
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
@@ -23,7 +26,11 @@ let catalogLoading = false;                           // Evita solicitudes dupli
 // Variables de búsqueda
 let itemSearch = '';
 let catalogSearchTimer: number | undefined;
+// Evita guardar dos veces o modificar el pedido mientras se envía.
+let savingOrder = false;
 
+// Funciones para consultar y recuperar confirmaciones por mesa.
+let orderEvents: ReturnType<typeof registrarProcesarOrdenEvent>|null = null;
 // Obtiene el tipo del objeto que devuelve createCart().
 type Cart = ReturnType<typeof createCart>;
 type Cli = ReturnType<typeof createCli>;
@@ -46,6 +53,21 @@ const catalogProducts = new Map<number, SimpleProduct>();
 
 const productosGrid = document.querySelector<HTMLDivElement>('#catalogProductGrid');
 const cartContainer = document.getElementById('accountPanelPendingProducts');
+
+
+function isSavingOrder(): boolean{
+    return savingOrder;
+}
+
+function setSavingOrder(saving: boolean): void{
+    if(saving && !savingOrder){
+        //Invalidar consultas anteriores al inicio del guardado.
+        ++requestVersion;
+    }
+    savingOrder = saving;
+    drawer.inert = saving;
+    drawer.setAttribute('aria-busy', String(saving));
+}
 
 
 // Selecciona el carrito correspondiente al contexto confirmado.
@@ -79,6 +101,70 @@ function activateOrder(resourceId: number, occupationId: number|null, accountId:
     renderCli(cli.getCli());
 }
 
+//Migrar el estado interno
+function confirmFirstOrder(order: NonNullable<typeof activeOrder>, result: OrderSaveResult): void{
+
+    if(result.resourceId !== order.resourceId)
+        throw new Error('La respuesta no corresponde a la mesa actual.');
+    
+    const oldKey: CartKey = `table:${order.resourceId}`;
+    const newKey: CartKey = `account:${result.accountId}`;
+
+    // Si esta confirmación ya se aplicó, no limpiamos otra vez. Esto protege cualquier producto agregado posteriormente.
+    if(order.cartKey === newKey && order.accountId === result.accountId && order.occupationId === result.occupationId)return;
+
+    if(order.accountId !== null || order.occupationId !== null || order.cartKey !== oldKey)
+        throw new Error('El pedido tiene un contexto diferente al confirmado.');
+
+    // Nunca sobrescribir otro carrito o cliente de la cuenta.
+    if((carts.has(newKey) && carts.get(newKey) !== order.cart) || (clientes.has(newKey) && clientes.get(newKey) !== order.cli))
+        throw new Error('La cuenta ya tiene otro contexto local.');
+
+    // El contexto puede seguir en la clave temporal o haberse trasladado parcialmente durante un intento anterior.
+    if((carts.get(oldKey) !== order.cart && carts.get(newKey) !== order.cart) || (clientes.get(oldKey) !== order.cli && clientes.get(newKey) !== order.cli))
+        throw new Error('No se encontró el contexto original del pedido.');
+
+    carts.set(newKey, order.cart);
+    clientes.set(newKey, order.cli);
+
+    // Eliminar solamente las referencias del pedido confirmado.
+    if(carts.get(oldKey) === order.cart)carts.delete(oldKey);
+    if(clientes.get(oldKey) === order.cli)clientes.delete(oldKey);
+
+    order.cart.clear();
+    order.occupationId = result.occupationId;
+    order.accountId = result.accountId;
+    order.cartKey = newKey;
+}
+
+
+//Actualizar visualmente el carrito
+async function refreshConfirmedOrderCart(): Promise<void>{
+    const order = activeOrder;
+    if(order === null || order.accountId === null || order.occupationId === null)
+        throw new Error('No hay una cuenta confirmada para actualizar.');
+
+    // Capturamos los identificadores antes de esperar la respuesta.
+    const accountId = order.accountId;
+    const occupationId = order.occupationId;
+    const currentVersion = requestVersion;
+    // El carrito ya se limpió en memoria. Quitamos los pendientes de la pantalla.
+    renderCartPanel(order.cart.getItems());
+    // Una petición para obtener productos registrados y totales.
+    const summary = await getAccountSummary(accountId);
+
+    // Una respuesta anterior no debe modificar otra mesa.
+    if(activeOrder !== order || requestVersion !== currentVersion)
+        throw new Error('El contexto cambió mientras se consultaba la cuenta.');
+
+    // Confirmamos que el resumen corresponde al pedido actual.
+    if(summary.accountId !== accountId || summary.occupationId !== occupationId)
+        throw new Error('El resumen recibido no corresponde a esta cuenta.');
+
+    // Primero actualizamos los importes registrados.
+    renderConfirmedAccount(summary);
+}
+
 
 function openDrawer(): void{
     window.clearTimeout(hideOverlayTimer);
@@ -89,6 +175,7 @@ function openDrawer(): void{
 }
 
 export function closeOrderWorkspace(): void{
+    if(savingOrder)return;
     if(drawer.getAttribute('aria-hidden') === 'true') return;
     ++requestVersion;
     activeOrder = null;
@@ -142,7 +229,14 @@ export function closeOrderWorkspace(): void{
         </div>`;
 }*/
 
-export async function openOrderWorkspace(resourceId: number, tableName: string): Promise<void>{
+export async function openOrderWorkspace(resourceId: number, tableName: string): Promise<void> {
+    // No cambiamos de mesa mientras se está guardando.
+    if(savingOrder)return;
+    await loadOrderWorkspace(resourceId, tableName);
+}
+
+
+async function loadOrderWorkspace(resourceId: number, tableName: string): Promise<void>{
     if(!resourceId || !drawer)return;
     const currentRequest = ++requestVersion;
     activeOrder = null; //Mientras consultamos, no hay un destino habilitado para productos.
@@ -150,6 +244,8 @@ export async function openOrderWorkspace(resourceId: number, tableName: string):
     title.textContent = tableName;
     openDrawer();
     try{
+        // Completar primero cualquier confirmación local de esta mesa. No hace peticiones ni vuelve a guardar productos.
+        orderEvents?.recoverConfirmedOrder(resourceId);
         const occupation = await fetchActiveOccupation(resourceId); //consulta ocupacion activa
 
         if(currentRequest !== requestVersion) return;
@@ -255,11 +351,21 @@ export function initOrderWorkspace(): void{
     
     
     const getActiveOrder = () => activeOrder;  //funcion flecha getActiveOrder que no recibe parametros y devuelve activeOrder, es lo mismo que escribir function getActiveOrder(){return activeOrder;}
+    
+    // Productos y clientes solo pueden editar un pedido disponible.
+    const getEditableOrder = () => {
+        if(savingOrder || activeOrder === null || orderEvents?.hasPendingConfirmation(activeOrder.resourceId))
+            return null;
+        return activeOrder;
+    };
+    
     if(productosGrid && cartContainer)
-        registerProductEvents({productosGrid, cartContainer, catalogProducts, ActiveOrderE:getActiveOrder, renderCartPanelE:renderCartPanel});
+        registerProductEvents({productosGrid, cartContainer, catalogProducts, ActiveOrderE:getEditableOrder, renderCartPanelE:renderCartPanel});
 
-    const getActiveClient = () => activeOrder?.cli ?? null;
+    const getActiveClient = () => getEditableOrder()?.cli ?? null;
     registeraddclienteEvents(getActiveClient, () => requestVersion);  //para abrir modal de clientes y seleccionar.
+
+    orderEvents = registrarProcesarOrdenEvent(getActiveOrder, () => requestVersion, isSavingOrder, setSavingOrder, confirmFirstOrder, refreshConfirmedOrderCart);
 
     void precargarProductos(); //carga de productos
 }

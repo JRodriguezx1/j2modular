@@ -106,17 +106,13 @@ class MySqlAccountRepository implements AccountRepository{
     }
 
 
-    public function createMain(int $occupationId): int{
-
-        $sql = "INSERT INTO cuentas (ocupacion_id, nombre, es_principal, estado)
-            VALUES (?, 'General', 1, 'abierta')";
-
+    public function createMain(int $occupationId, ?int $idfactura = null): int{
+        $sql = "INSERT INTO cuentas (ocupacion_id, idfactura, nombre, es_principal, estado)
+            VALUES (?, ?, 'General', 1, 'abierta')";
         $stmt = $this->db->prepare($sql);
-
         try{
-            $stmt->bind_param('i', $occupationId);
+            $stmt->bind_param('ii', $occupationId, $idfactura);
             $stmt->execute();
-
             return (int)$this->db->insert_id;
         }finally{
             $stmt->close();

@@ -11,6 +11,6 @@ interface AccountRepository{
     public function findByIdForUpdate(int $accountId): ?Account;
     public function linkOpenOrder(int $accountId, int $orderId): void;
     public function create(int $occupationId, string $name = 'General'): int;
-    public function createMain(int $occupationId): int;
+    public function createMain(int $occupationId, ?int $idfactura = null): int;
     public function findMainByOccupationId(int $occupationId): ?Account;  //consultar la cuenta principal:
 }

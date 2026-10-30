@@ -190,18 +190,16 @@ class MySqlReservationRepository implements ReservationRepository{
         $result = $stmt->get_result();
         $reservationRows = [];
         $reservationIds = [];
-        while ($row = $result->fetch_assoc()) {
-            $resourceId = (int) $row['recurso_id'];
-
+        while($row = $result->fetch_assoc()){
+            $resourceId = (int)$row['recurso_id'];
             /*
             * Si por alguna inconsistencia existen varias reservas
             * activas para el mismo recurso, nos quedamos con
             * la más próxima por fecha_entrada.
             */
             if(isset($reservationRows[$resourceId]))continue;
-
             $reservationRows[$resourceId] = $row;
-            $reservationIds[] = (int) $row['id'];
+            $reservationIds[] = (int)$row['id'];
         }
 
         $stmt->close();
@@ -216,12 +214,12 @@ class MySqlReservationRepository implements ReservationRepository{
         $reservations = [];
 
         foreach($reservationRows as $resourceId => $row){
-            $reservationId = (int) $row['id'];
+            $reservationId = (int)$row['id'];
             $reservations[$resourceId] =
                 new Reservation(
                     id: $reservationId,
-                    clientId: (int) $row['cliente_id'],
-                    numberOfPeople: $row['numero_personas'] !== null ? (int) $row['numero_personas'] : null,
+                    clientId: (int)$row['cliente_id'],
+                    numberOfPeople: $row['numero_personas'] !== null ? (int)$row['numero_personas'] : null,
                     startDate: $row['fecha_entrada'],
                     endDate: $row['fecha_salida'],
                     status: $row['estado'],

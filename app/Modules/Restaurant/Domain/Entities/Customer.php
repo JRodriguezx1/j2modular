@@ -4,7 +4,13 @@ namespace App\Modules\Restaurant\Domain\Entities;
 
 class Customer{
 
-    public function __construct(private int $id, private string $name, private string $lastName, private ?string $identification, private ?string $phone, private ?string $email)
+    public function __construct(
+        private int $id, 
+        private string $name, 
+        private string $lastName, 
+        private ?string $identification, 
+        private ?string $phone, 
+        private ?string $email)
     {}
 
 

@@ -78,15 +78,12 @@ class facturacionService
 
             $this->separarLineasOrden();
             $this->ordenOrigen = $this->buscarOrdenOrigen(); //devuelve la orden guardada (cotizacion/remision)
-
             //prepara items para mover y descontar de inventario
             $erroresStock = $this->prepararYValidarInventario();
             if(!empty($erroresStock))return ['error'=>$erroresStock];
-
             //contizacion/remision
             if($this->ordenOrigen && $this->estado !== 'Paga')
                 return $this->editarOrdenExistente();
-
             //procesar factura o crear nueva cotizacion/remision o redimido
             return $this->procesarEnTransaccion();
         }catch(InvalidArgumentException $th){
@@ -215,12 +212,8 @@ class facturacionService
         $this->cargarDetalleOrdenPersistido();
 
         $this->mediosPago = $this->decodificarArray('mediosPago');
-        $this->valoresCredito = (object)[
-                                    'capital' => 0,
-                                    'abonoinicial' => 0,
-                                ];
+        $this->valoresCredito = (object)['capital' => 0, 'abonoinicial' => 0];
         $this->datosAdquiriente = json_decode(json_encode(adquirientes::find('id', 1)));
-
         return true;
     }
 
@@ -543,8 +536,7 @@ class facturacionService
         }
 
         $this->marcarOrdenEliminada($orden);
-        if(!$orden->actualizar())
-            throw new RuntimeException('No fue posible actualizar el estado de la orden.');
+        if(!$orden->actualizar())throw new RuntimeException('No fue posible actualizar el estado de la orden.');
 
         if($inventarioVenta !== null)
             ventasService::devolverInventarioXVenta( $inventarioVenta, $this->sucursalId, 'devolucion', "retorno de unidades por anulacion de remision #{$orden->id}", false );
@@ -722,7 +714,6 @@ class facturacionService
      * abierta por procesarEnTransaccion().
      */
     private function guardarFacturaPagada(facturas $factura, cierrescajas $cierre):array{
-
         $esRemisionOrigen = $this->ordenOrigen && (int)$this->ordenOrigen->remision === 1;
         $inventarioYaDescontado = $esRemisionOrigen && (int)$this->ordenOrigen->entregado === 1;
 
@@ -736,7 +727,7 @@ class facturacionService
         if(!$consecutivo->actualizar()) throw new RuntimeException('No fue posible actualizar el consecutivo.');
 
         $this->relacionarOrdenOrigen($factura, $cierre);
-        self::createInvoiceElectronic( $this->carrito, $this->datosAdquiriente, $factura->idconsecutivo, $idFactura, $factura->num_consecutivo, $this->mediosPago,  $factura->descuento, $factura->valortarifa, $factura->observacion );
+        self::createInvoiceElectronic($this->carrito, $this->datosAdquiriente, $factura->idconsecutivo, $idFactura, $factura->num_consecutivo, $this->mediosPago,  $factura->descuento, $factura->valortarifa, $factura->observacion );
         $idCuota = $this->registrarCredito($factura, (int)$idFactura);
         $this->actualizarPuntosCliente($factura, (int)$idFactura);
         $this->actualizarCierreYRelaciones( $factura, $cierre, (int)$idFactura, $idCuota );
@@ -835,7 +826,6 @@ class facturacionService
             $linea->idfactura = $idFactura;
             $linea->dato1 = '';
             $linea->dato2 = '';
-
             // Los productos libres llamados "Otros" se relacionan con el
             // producto y categoria reservados por el sistema.
             if((int)($linea->idproducto ?? 0) < 0
@@ -882,12 +872,10 @@ class facturacionService
         $sucursalId = $this->sucursalId;
         $sucursal = sucursales::find('id', $sucursalId);
         $caja = caja::uniquewhereArray(['id' => (int)$factura->idcaja, 'idsucursalid' => $sucursalId]);
-
         if(!$caja)throw new \Exception('La caja seleccionada no existe.');
 
         if(!empty($caja->idemisor)){
             $emisor = emisores::uniquewhereArray(['id' => (int)$caja->idemisor, 'idsucursal' => $sucursalId]);
-
             if(!$emisor)throw new \Exception('El emisor asociado a la caja no existe.');
 
             $factura->idemisor = (int)$emisor->id;

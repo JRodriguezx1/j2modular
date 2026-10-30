@@ -22,17 +22,13 @@ class PosOpenOrderAdapter implements OpenOrderPort{
         return $this->openOrderService->getSummary($orderId, $branchId);
     }
 
-    public function addSimpleProducts(
-    int $orderId,
-    array $items,
-    int $branchId
-): array {
-    // El adaptador delega la operación al servicio comercial.
-    return $this->openOrderService->addSimpleProducts(
-        $orderId,
-        $items,
-        $branchId
-    );
-}
+    public function addSimpleProducts(int $orderId, array $items, int $branchId): array{
+        // El adaptador delega la operación al servicio comercial.
+        return $this->openOrderService->addSimpleProducts($orderId, $items, $branchId);
+    }
+
+    public function procesarNuevaAbierta(int $branchId, ?int $customerId, int $sellerId, array $items): array{
+        return $this->openOrderService->procesarNuevaAbierta($branchId, $customerId, $sellerId, $items);
+    }
     
 }

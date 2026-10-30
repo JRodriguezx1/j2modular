@@ -17,4 +17,6 @@ interface RestaurantTableRepository{
     //isAvailableForPeriod Responde algo diferente: ¿Esta mesa específica sigue disponible?
     public function isAvailableForPeriod(int $resourceId, string $startDate, string $endDate, int $capacity): bool;
     public function lockResource(int $resourceId): void;
+    //Bloquea y valida una mesa para iniciar un pedido.
+    public function lockTableForOrder(int $resourceId, int $branchId): void;
 }
