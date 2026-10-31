@@ -51,6 +51,7 @@ let activeOrder: {
 
 const catalogProducts = new Map<number, SimpleProduct>();
 
+const otrosProducts = document.querySelector('#otrosProducts') as HTMLButtonElement;
 const productosGrid = document.querySelector<HTMLDivElement>('#catalogProductGrid');
 const cartContainer = document.getElementById('accountPanelPendingProducts');
 
@@ -373,9 +374,7 @@ export function initOrderWorkspace(): void{
         catalogSearchTimer = window.setTimeout(() => { void precargarProductos(catalogSelectedCategory); }, 350);
     });
 
-    btnLoadMore?.addEventListener('click', () => { //boton de cargar mas productos.
-        void cargarMasProductos();
-    });
+    btnLoadMore?.addEventListener('click', () => { void cargarMasProductos(); }); //boton de cargar mas productos.
     
     
     const getActiveOrder = () => activeOrder;  //funcion flecha getActiveOrder que no recibe parametros y devuelve activeOrder, es lo mismo que escribir function getActiveOrder(){return activeOrder;}
@@ -388,7 +387,7 @@ export function initOrderWorkspace(): void{
     };
     
     if(productosGrid && cartContainer)
-        registerProductEvents({productosGrid, cartContainer, catalogProducts, ActiveOrderE:getEditableOrder, renderCartPanelE:renderCartPanel});
+        registerProductEvents({otrosProducts, productosGrid, cartContainer, catalogProducts, ActiveOrderE:getEditableOrder, renderCartPanelE:renderCartPanel});
 
     const getActiveClient = () => getEditableOrder()?.cli ?? null;
     registeraddclienteEvents(getActiveClient, () => requestVersion);  //para abrir modal de clientes y seleccionar.

@@ -83,7 +83,7 @@
           <div id="catalogoPaginador" class="min-h-0 flex-1 overflow-y-auto p-4">
             <div class="mb-3 flex items-center justify-between">
               <p id="catalogProductStatus" class="text-base font-medium text-slate-500">Cargando productos...</p>
-              <button type="button" class="btnApp btnApp--indigo btnApp--sm">
+              <button id="otrosProducts" type="button" class="btnApp btnApp--indigo btnApp--sm">
                 <span class="material-symbols-outlined text-2xl">tune</span>
                 Otros
               </button>
