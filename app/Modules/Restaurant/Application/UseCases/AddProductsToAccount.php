@@ -72,8 +72,7 @@ class AddProductsToAccount
                 $this->accountRepository->linkOpenOrder($accountId, $orderId);
             }
 
-            // POS valida los productos y sus cantidades.
-            // También obtiene precios e impuestos del servidor,
+            // POS valida los productos y sus cantidades. También obtiene precios e impuestos del servidor,
             // inserta las líneas y recalcula la factura.
             $result = $this->openOrderPort->addSimpleProducts($orderId, $items, $branchId);
 

@@ -40,4 +40,27 @@ export function cerrarDialogoExterno(event:Event): void{
 export function ajustarAnchoCantidad(input:HTMLInputElement, cantidad:number|string): void{
     const largo = String(cantidad || 0).length;
     input.style.width = `${Math.min(Math.max(largo + 2, 5), 10)}ch`;
-  }
+}
+
+
+export function msjalertToast(icono:string, tipo:string, msj:string){
+    Swal.fire({
+        icon: icono,
+        title: tipo,
+        text: msj,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3200,
+        timerProgressBar: true,
+        showClass: { popup: 'animate__animated animate__fadeInRight animate__faster' },
+        hideClass: { popup: 'animate__animated animate__fadeOutRight animate__faster' },
+        customClass: {
+            popup: `j2-toast j2-toast--${icono}`,
+            icon: 'j2-toast__icon',
+            title: 'j2-toast__title',
+            htmlContainer: 'j2-toast__text',
+            timerProgressBar: 'j2-toast__progress'
+        }
+    });
+}

@@ -1324,11 +1324,6 @@ video {
   height: 1.75rem;
 }
 
-.size-8 {
-  width: 2rem;
-  height: 2rem;
-}
-
 .size-9 {
   width: 2.25rem;
   height: 2.25rem;
@@ -7657,6 +7652,10 @@ video {
 @media (min-width: 1024px) {
   .xlg\:col-span-1 {
     grid-column: span 1 / span 1;
+  }
+
+  .xlg\:max-w-screen-tlg {
+    max-width: 992px;
   }
 
   .xlg\:grid-cols-2 {

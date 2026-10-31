@@ -108,7 +108,7 @@
                                 <!-- Nombre + estado visual -->
                                 <div class="flex items-start justify-between gap-3">
                                     <h2 class=" text-base font-semibold text-slate-900"><?= htmlspecialchars($table['name']) ?></h2>
-                                    <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full <?= $status === 'disponible' ? 'bg-emerald-500' : ($status === 'ocupada' ? 'bg-amber-500' : 'bg-slate-400')?>"></span>
+                                    <span data-estado-visual class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full <?= $status === 'disponible' ? 'bg-emerald-500' : ($status === 'ocupada' ? 'bg-amber-500' : 'bg-slate-400')?>"></span>
                                 </div>
 
                                 <!-- Capacidad -->
@@ -118,7 +118,7 @@
                                 </div>
 
                                 <!-- Estado -->
-                                <div class="flex items-center justify-between gap-2">
+                                <div data-contenidoBtn class="flex items-center justify-between gap-2">
                                     <button type="button" data-open-active-detail
                                         aria-label="Ver detalle de <?= htmlspecialchars($table['name'], ENT_QUOTES, 'UTF-8') ?>"
                                         class="pointer-events-auto relative rounded-lg px-2.5 py-1.5 text-lg leading-4 font-semibold uppercase focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600 <?= $badgeClasses ?>">

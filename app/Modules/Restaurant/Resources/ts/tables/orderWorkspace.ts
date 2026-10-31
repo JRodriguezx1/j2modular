@@ -135,6 +135,8 @@ function confirmFirstOrder(order: NonNullable<typeof activeOrder>, result: Order
     order.occupationId = result.occupationId;
     order.accountId = result.accountId;
     order.cartKey = newKey;
+    // actualizar estado visual de la mesa
+    actualizarMesa(order.resourceId);
 }
 
 
@@ -163,6 +165,32 @@ async function refreshConfirmedOrderCart(): Promise<void>{
 
     // Primero actualizamos los importes registrados.
     renderConfirmedAccount(summary);
+}
+
+
+function actualizarMesa(recursoId:number){
+    console.log(recursoId);
+    const mesa = document.querySelector(`[data-table-id="${recursoId}"]`) as HTMLElement;
+    mesa.dataset.status = "ocupada";
+    mesa.className = '';  //eliminar las clases
+    mesa.classList.add('group', 'relative', 'min-h-[145px]', 'rounded-2xl', 'border', 'p-4', 'text-left', 'shadow-sm', 'transition', 
+                        'duration-200', 'hover:-translate-y-0.5', 'hover:shadow-md', 'border-amber-200', 'bg-amber-50/40');
+
+    const estadoVisual = mesa.querySelector('[data-estado-visual]') as HTMLSpanElement;
+    estadoVisual.classList.remove('bg-emerald-500');
+    estadoVisual.classList.add('bg-amber-500');
+
+    const contenidoBtn = mesa.querySelector('[data-contenidoBtn]') as HTMLElement;
+    const iconoEstado = `<div class="flex items-center gap-1.5 text-base font-medium text-slate-500">
+                            <span class="material-symbols-outlined text-3xl">schedule</span>
+                            En uso
+                        </div>`
+    contenidoBtn.insertAdjacentHTML('beforeend', iconoEstado);
+
+    const btn = contenidoBtn.querySelector('[data-open-active-detail]') as HTMLButtonElement;
+    btn.textContent = "ocupada";
+    btn.classList.remove('bg-emerald-100', 'text-emerald-700');
+    btn.classList.add('bg-amber-100', 'text-amber-700');
 }
 
 

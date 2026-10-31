@@ -1,4 +1,4 @@
-import { setElementText } from "../../appFunction";
+import { msjalertToast, setElementText } from "../../appFunction";
 import { createCart } from "../cart";
 import { createCli } from "../cli";
 import { saveFirstTableOrder, saveProductsToAccount } from "../orderApi";
@@ -35,8 +35,7 @@ export function registrarProcesarOrdenEvent(
     confirmFirstOrder: (order: ActiveOrder, result: OrderSaveResult) => void,
     refreshConfirmedOrderCart: () => Promise<void>){
 
-
-        // Cada mesa conserva su propia confirmación.
+    // Cada mesa conserva su propia confirmación.
     const pendingConfirmations = new Map<number, { order: ActiveOrder; result: OrderSaveResult; }>();
 
     function hasPendingConfirmation(resourceId: number): boolean{
@@ -54,16 +53,15 @@ export function registrarProcesarOrdenEvent(
                 try{
                     recoverConfirmedOrder(order.resourceId);
                     await refreshConfirmedOrderCart();
-                    //////setElementText('orderWorkspaceSaveStatus', 'Pedido recuperado correctamente.');
+                    msjalertToast('success', 'Exito!', 'Pedido recuperado correctamente.');
                 }catch(error){
                     console.error('No fue posible completar la recuperación del pedido.', error);
-                    ///////setElementText('orderWorkspaceSaveStatus', 'Pedido recuperado, pero no se pudo actualizar el carrito.');
+                    msjalertToast('warning', 'Pedido recuperado', 'Pero no se pudo actualizar el carrito.');
                 }finally{
                     setSavingOrder(false);
                 }
             return;
         }
-        //void saveFirstOrder();  // Si no existe una confirmación pendiente, procesar el primer pedido normalmente.
       
         if(order.accountId !== null){
             await saveAdditionalOrder(); // La cuenta ya existe: corresponde al guardado adicional.
@@ -93,7 +91,6 @@ export function registrarProcesarOrdenEvent(
         let saved = false;
 
         try{
-            //////setElementText('orderWorkspaceSaveStatus', 'Guardando pedido...');
             const result = await saveFirstTableOrder(order.resourceId, customerId, items);
             saved = true;
             pendingConfirmations.set(order.resourceId, {order, result});
@@ -101,21 +98,14 @@ export function registrarProcesarOrdenEvent(
             // Recuperar memoria no requiere que el panel siga abierto.
             // Dibujar sí requiere que siga siendo el mismo contexto.
             if(getContextVersion() !== contextVersion || getActiveOrder() !== order)return;
-            
             await refreshConfirmedOrderCart();
-            
-                ///////setElementText('orderWorkspaceSaveStatus', 'Pedido guardado correctamente.');
-
-            //Consulta nuevamente ocupación, cuenta y productos registrados.
-            //await loadOrderWorkspace(order.resourceId, tableName);
-
+            msjalertToast('success', 'Exito!', 'Pedido guardado correctamente.');
         }catch(error){
-            console.error(saved ? 'El pedido se guardó, pero falta actualizar el contexto o el resumen.' : 'No fue posible confirmar el guardado.', error);
+            msjalertToast('warning', saved ? 'El pedido se guardó':'Verificar pedido', saved ? 'falta actualizar el contexto o el resumen.' : 'No fue posible confirmar el guardado.');
         }finally{
             setSavingOrder(false);
         }
     }
-
 
 
     async function saveAdditionalOrder(): Promise<void>{
@@ -128,7 +118,7 @@ export function registrarProcesarOrdenEvent(
         // Verificar que existan productos pendientes.
         const items = order.cart.getItems();
         if(items.length === 0){
-            setElementText('orderWorkspaceSaveStatus', 'No hay productos pendientes para guardar.');
+            msjalertToast('warning', 'No hay items', 'No hay productos pendientes para guardar.');
             return;
         }
 
@@ -141,18 +131,18 @@ export function registrarProcesarOrdenEvent(
             await saveProductsToAccount(accountId, items);
             saved = true;
             order.cart.clear(); // La cuenta y su clave ya existen: no hay que migrarlas. Limpiar.
+            msjalertToast('success', 'Exito!', 'Pedido actualizado correctamente.');
             // No dibujar sobre otro contexto.
             if(getActiveOrder() !== order || getContextVersion() !== contextVersion)return;
             await refreshConfirmedOrderCart(); // Mostrar los productos registrados y sus nuevos totales.
         }catch(error){
-            console.error(saved ? 'Los productos se guardaron, pero no se pudo actualizar el resumen.' : 'No fue posible confirmar el guardado. Revisa la cuenta.', error);
+            msjalertToast('warning', saved ? 'Los productos se guardaron':'Verificar cuenta', saved ? 'No se pudo actualizar el resumen.' : 'No fue posible confirmar el guardado.');
         }finally{
             setSavingOrder(false);
         }
     }
 
 
-    //si falla confirmFirstOrder(), podamos volver a intentar la actualización local sin llamar nuevamente a saveFirstTableOrder().
     function recoverConfirmedOrder(resourceId: number): void{
         const pending = pendingConfirmations.get(resourceId);
         if(!pending)return;

@@ -8,7 +8,7 @@
   aria-modal="true"
   aria-labelledby="orderWorkspaceTitle"
   aria-hidden="true"
-  class="fixed right-0 top-0 z-[70] flex h-full w-full translate-x-full flex-col bg-slate-50 shadow-2xl transition-transform duration-300 tlg:max-w-screen-md 2xlg:max-w-screen-lg 3xlg:max-w-screen-xl">
+  class="fixed right-0 top-0 z-[70] flex h-full w-full translate-x-full flex-col bg-slate-50 shadow-2xl transition-transform duration-300 tlg:max-w-screen-md xlg:max-w-screen-tlg 2xlg:max-w-screen-lg 3xlg:max-w-screen-xl">
 
   <!-- ENCABEZADO -->
   <header class="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
@@ -83,9 +83,9 @@
           <div id="catalogoPaginador" class="min-h-0 flex-1 overflow-y-auto p-4">
             <div class="mb-3 flex items-center justify-between">
               <p id="catalogProductStatus" class="text-base font-medium text-slate-500">Cargando productos...</p>
-              <button type="button" class="flex items-center gap-1 text-base font-medium text-slate-600">
+              <button type="button" class="btnApp btnApp--indigo btnApp--sm">
                 <span class="material-symbols-outlined text-2xl">tune</span>
-                Filtros
+                Otros
               </button>
             </div>
 
@@ -310,7 +310,6 @@
 
               <button
                 type="button"
-                disabled
                 class="flex items-center justify-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-base font-semibold text-indigo-700 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50">
                 <span class="material-symbols-outlined text-lg">skillet</span>
                 Enviar a cocina
@@ -319,7 +318,6 @@
 
             <button
               type="button"
-              disabled
               class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-base font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">
               <span class="material-symbols-outlined text-xl">payments</span>
               Cobrar cuenta
@@ -341,3 +339,5 @@
   <?php include __DIR__. "/../../admin/ventas/modalprocesarpago.php"; ?>
   <!-- MODAL DATOS DEL ADQUIRIENTE -->
   <?php include __DIR__. "/../../admin/ventas/modaladquiriente.php"; ?>
+    <!-- MODAL OTROS PRODUCTOS -->
+  <?php include __DIR__. "/../../admin/ventas/modalotrosproductos.php"; ?>

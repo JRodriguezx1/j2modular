@@ -76,7 +76,7 @@ class facturacionService
             $alertasFactura = $this->facturaSolicitud->validar_nueva_factura();
             if(!empty($alertasFactura['error']))return $alertasFactura;
 
-            $this->separarLineasOrden();
+            $this->separarLineasOrden(); //Separa las lineas de las agregadas al editar una orden.
             $this->ordenOrigen = $this->buscarOrdenOrigen(); //devuelve la orden guardada (cotizacion/remision)
             //prepara items para mover y descontar de inventario
             $erroresStock = $this->prepararYValidarInventario();
