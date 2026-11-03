@@ -29,10 +29,13 @@ class AddProductsToAccount
      *     totales: array
      * }
      */
-    public function execute(int $accountId, array $items, int $branchId, int $sellerId): array{
+    public function execute(int $accountId, array $items, int $branchId, int $sellerId, ?int $clientId = null, bool $changeCustomer = false): array{
         // Validaciones básicas antes de abrir la transacción.
         if($accountId <= 0 || $branchId <= 0 || $sellerId <= 0)
             throw new InvalidArgumentException('La cuenta, la sucursal o el vendedor no es válido.');
+
+        if($clientId !== null && $clientId <= 0)
+            throw new InvalidArgumentException('El cliente no es válido.');
 
         if($items === [] || !array_is_list($items)) 
             throw new InvalidArgumentException('El pedido debe contener una lista de productos.');
@@ -67,10 +70,14 @@ class AddProductsToAccount
             // Creamos la factura Abierta solamente cuando la cuenta
             // todavía no tiene una vinculada.
             if($orderId === null){
-                $orderId = $this->openOrderPort->create($branchId, $occupation->getClientId(), $sellerId);
+                $initialCustomerId = $changeCustomer ? $clientId : $occupation->getClientId();
+                $orderId = $this->openOrderPort->create($branchId, $initialCustomerId, $sellerId);
                 // Guarda el vínculo en cuentas.idfactura.
                 $this->accountRepository->linkOpenOrder($accountId, $orderId);
             }
+
+            // Actualizar únicamente cuando la petición lo indique.
+            if($changeCustomer)$this->openOrderPort->updateCustomer($orderId, $branchId, $clientId);
 
             // POS valida los productos y sus cantidades. También obtiene precios e impuestos del servidor,
             // inserta las líneas y recalcula la factura.

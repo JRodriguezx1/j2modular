@@ -1,7 +1,7 @@
 @use 'base/variables' as v;
 @use 'base/mixins' as m;
 
-  .ventas .producto {
+  .ventas .producto, .ventasRestaurant .producto-agregado-feedback {
     position: relative;
 
     // Indicador al agregar un producto en cualquier tamaño de pantalla.

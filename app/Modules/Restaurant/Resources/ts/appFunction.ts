@@ -64,3 +64,31 @@ export function msjalertToast(icono:string, tipo:string, msj:string){
         }
     });
 }
+
+
+let ventaCarritoToastTimer:number|undefined;
+export function mostrarFeedbackCarrito(nombre:string, cantidadProducto:number): void{
+    if(window.innerWidth >= 992)return;
+    const ventaCarritoToast = document.querySelector('#ventaCarritoToast') as HTMLElement;
+    const ventaCarritoToastTitle = document.querySelector('#ventaCarritoToastTitle') as HTMLElement;
+    const ventaCarritoToastMeta = document.querySelector('#ventaCarritoToastMeta') as HTMLElement;
+    ventaCarritoToastTitle.textContent = `${nombre} agregado`;
+    ventaCarritoToastMeta.textContent = `Cantidad: ${cantidadProducto}`;
+    ventaCarritoToast.classList.add('is-visible');
+    if(ventaCarritoToastTimer)window.clearTimeout(ventaCarritoToastTimer);
+    ventaCarritoToastTimer = window.setTimeout(()=>ventaCarritoToast.classList.remove('is-visible'), 1500);
+}
+
+
+export function getDgv(nit: number): number {
+    const multiplicadores = [3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71];
+    const digitos = nit.toString().trim().split('').map(Number);
+    let suma = 0;
+    digitos.forEach((digito, indice) => {
+        const posicionMultiplicador = digitos.length - indice;
+        suma += digito * multiplicadores[posicionMultiplicador - 1];
+    }); 
+    const modulo = suma%11;
+    return modulo > 1 ?(11 - modulo):modulo;
+}
+

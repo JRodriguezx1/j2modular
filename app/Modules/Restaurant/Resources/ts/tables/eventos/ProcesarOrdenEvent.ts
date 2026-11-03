@@ -1,6 +1,7 @@
 import { msjalertToast, setElementText } from "../../appFunction";
 import { createCart } from "../cart";
 import { createCli } from "../cli";
+import { createCliDian } from "../cliDian";
 import { saveFirstTableOrder, saveProductsToAccount } from "../orderApi";
 
 const saveFirstOrderButton = document.getElementById('saveFirstOrderButton') as HTMLButtonElement;
@@ -23,6 +24,7 @@ interface ActiveOrder {
     cartKey: CartKey,
     cart: Cart,
     cli: Cli,
+    cliDian: ReturnType<typeof createCliDian>
 }
 
 
@@ -55,7 +57,6 @@ export function registrarProcesarOrdenEvent(
                     await refreshConfirmedOrderCart();
                     msjalertToast('success', 'Exito!', 'Pedido recuperado correctamente.');
                 }catch(error){
-                    console.error('No fue posible completar la recuperación del pedido.', error);
                     msjalertToast('warning', 'Pedido recuperado', 'Pero no se pudo actualizar el carrito.');
                 }finally{
                     setSavingOrder(false);
@@ -68,7 +69,7 @@ export function registrarProcesarOrdenEvent(
             return;
         }
         if(order.occupationId !== null){
-            console.info('Esta atención todavía no tiene una cuenta asignada.');
+            msjalertToast('warning', 'Verficar', 'Esta atención todavía no tiene una cuenta asignada.');
             return;
         }
         await saveFirstOrder(order);
@@ -80,9 +81,6 @@ export function registrarProcesarOrdenEvent(
         if(isSavingOrder() || hasPendingConfirmation(order.resourceId))return;
         if(order.occupationId !== null || order.accountId !== null)return;
 
-        //const tableName = title.textContent ?? 'Mesa';
-        const clientId = order.cli.getCli().id;
-        const customerId = clientId === '' ? null : Number(clientId);
         const items = order.cart.getItems();
 
         setSavingOrder(true); // Bloquear el panel e invalidar consultas anteriores.
@@ -91,8 +89,12 @@ export function registrarProcesarOrdenEvent(
         let saved = false;
 
         try{
+            // Capturar y validar el cliente que se enviará.
+            const customerId = order.cli.getClientId();
             const result = await saveFirstTableOrder(order.resourceId, customerId, items);
             saved = true;
+            // La factura se creó con este cliente, incluso si es null.
+            order.cli.confirmSavedClient(customerId);
             pendingConfirmations.set(order.resourceId, {order, result});
             recoverConfirmedOrder(order.resourceId);
             // Recuperar memoria no requiere que el panel siga abierto.
@@ -128,8 +130,13 @@ export function registrarProcesarOrdenEvent(
         const contextVersion = getContextVersion();
         let saved = false;
         try{
-            await saveProductsToAccount(accountId, items);
+            // Capturar la intención de cambio antes de enviar.
+            const clientChange = order.cli.getClientChange();
+            await saveProductsToAccount(accountId, clientChange, items);
             saved = true;
+            // Actualizar la referencia solo si enviamos un cambio de cliente.
+            if(clientChange !== undefined)
+                order.cli.confirmSavedClient(clientChange);
             order.cart.clear(); // La cuenta y su clave ya existen: no hay que migrarlas. Limpiar.
             msjalertToast('success', 'Exito!', 'Pedido actualizado correctamente.');
             // No dibujar sobre otro contexto.

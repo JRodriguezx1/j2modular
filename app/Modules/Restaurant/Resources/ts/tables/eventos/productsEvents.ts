@@ -1,4 +1,4 @@
-import { ajustarAnchoCantidad, setElementText } from "../../appFunction";
+import { ajustarAnchoCantidad, mostrarFeedbackCarrito, setElementText } from "../../appFunction";
 import { createCart } from "../cart";
 import { SimpleProduct } from "../catalogoApi";
 import { calculateCartTotals } from '../cartTotals';
@@ -52,6 +52,10 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
             activeOrder.cart.addProduct(product);
             // Volvemos a dibujar la lista usando los datos actualizados.
             renderCartPanelE(activeOrder.cart.getItems()); //calcula los totales y muestra los totales en cartPanel.ts
+            article.classList.remove('producto-agregado-feedback');
+            article.classList.add('producto-agregado-feedback');
+            setTimeout(()=>article.classList.remove('producto-agregado-feedback'), 900);
+            mostrarFeedbackCarrito(product.nombre, 1);
             // Temporal: permite comprobar el resultado en la consola.
             console.log('Cuenta activa:', activeOrder.accountId);
             console.log('Cuenta en MySQL:', activeOrder.accountId);
@@ -82,6 +86,13 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
         try {
             switch(action){
                 case 'increase': {
+                    if(productId === 1){
+                        const item = cart.getItems().find(item => item.productId === productId);
+                        if(!item)return;
+                        if(item.quantity < 1)return;
+                        cart.updateQuantity(productId, Math.round((item.quantity + 1) * 100) / 100);
+                        break;
+                    }
                     const product = catalogProducts.get(productId);
                     if(!product)return;
                     cart.addProduct(product);
@@ -123,7 +134,6 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
 
       const productId = Number(row.dataset.cartProductId);
       if(!Number.isSafeInteger(productId) || productId <= 0)return;
-
     
       let val = input.value;
       val = val.replace(/[^0-9.]/g, '');
@@ -133,9 +143,7 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
       if (val === '' || isNaN(parseFloat(val))) val = '';
 
       const inputVal = Number(val);
-      if(inputVal < 0){
-        val = '1';
-      };
+      if(inputVal < 0)val = '1';
       input.value = val;
       const item = cart.updateQuantity(productId, inputVal);
       // Actualizamos el importe de esta fila usando el cálculo común.
@@ -157,51 +165,47 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
       valorunidad: 0,
       total: 0
     }
-    otrosProducts.addEventListener('click', (e:Event)=>{
-      miDialogoOtrosProductos.showModal();
-    });
+    otrosProducts.addEventListener('click', ()=> miDialogoOtrosProductos.showModal() );
 
     /////////////////////Evento al formulario de agregar otros productos //////////////////////
-        document.querySelector('#formOtrosProductos')?.addEventListener('submit', (e:Event)=>{
-            e.preventDefault();
-            const formelements = (e.target as HTMLFormElement).elements;
-            const impuesto = (formelements.namedItem('porcentaje_de_impuesto') as HTMLSelectElement).value;
-            const cantidadotros = Number((formelements.namedItem('cantidadotros') as HTMLInputElement).value);
-            const preciootros = Number((formelements.namedItem('preciootros') as HTMLInputElement).value);
-            
-            otrosproductos!.id += -1 ;
-            otrosproductos!.nombre = (formelements.namedItem('nombreotros') as HTMLInputElement).value;
-            otrosproductos!.cantidad = cantidadotros;
-            otrosproductos!.valorunidad = preciootros/cantidadotros;
-            otrosproductos!.total = preciootros;
+    document.querySelector('#formOtrosProductos')?.addEventListener('submit', (e:Event)=>{
+        e.preventDefault();
+        const formelements = (e.target as HTMLFormElement).elements;
+        const impuesto = (formelements.namedItem('porcentaje_de_impuesto') as HTMLSelectElement).value;
+        const cantidadotros = Number((formelements.namedItem('cantidadotros') as HTMLInputElement).value);
+        const preciootros = Number((formelements.namedItem('preciootros') as HTMLInputElement).value);
+        
+        otrosproductos!.id += -1 ;
+        otrosproductos!.nombre = (formelements.namedItem('nombreotros') as HTMLInputElement).value;
+        otrosproductos!.cantidad = cantidadotros;
+        otrosproductos!.valorunidad = preciootros/cantidadotros;
+        otrosproductos!.total = preciootros;
 
-            const activeOrder = ActiveOrderE();
-            if(activeOrder === null)return;
+        const activeOrder = ActiveOrderE();
+        if(activeOrder === null)return;
 
-            const product:SimpleProduct = {
-                id: otrosproductos!.id,
-                categoriaId: -1,
-                nombre: otrosproductos!.nombre,
-                foto: '',
-                impuesto: impuesto==''?null:Number(impuesto), //impuesto en %,
-                tipoproducto: -1,
-                tipoproduccion: -1,
-                sku: '-1',
-                rendimientoestandar: '1',
-                precioVenta: otrosproductos.valorunidad,
-                percentcomision: '0',
-                prioridadcomision: 0
-            }
+        const product:SimpleProduct = {
+            id: 1,
+            categoriaId: 1,
+            nombre: otrosproductos!.nombre,
+            foto: '',
+            impuesto: impuesto==''?null:Number(impuesto), //impuesto en %,
+            tipoproducto: -1,
+            tipoproduccion: -1,
+            sku: '-1',
+            rendimientoestandar: '1',
+            precioVenta: otrosproductos.valorunidad,
+            percentcomision: '0',
+            prioridadcomision: 0
+        }
 
-            const carrito = activeOrder.cart;
-            carrito.addProduct(product);
-
-            //POS.mostrarFeedbackCarrito?.(otrosproductos!.nombre || 'Producto personalizado', cantidadotros);
-            miDialogoOtrosProductos.close();
-            //document.removeEventListener("click", POS.cerrarDialogoExterno);
-            (e.target as HTMLFormElement).reset();
-            renderCartPanelE(activeOrder.cart.getItems());
-        });
+        const carrito = activeOrder.cart;
+        carrito.addProduct(product, otrosproductos.cantidad);
+        mostrarFeedbackCarrito(otrosproductos.nombre ?? 'Producto personalizado', otrosproductos.cantidad ?? 1);
+        miDialogoOtrosProductos.close();
+        (e.target as HTMLFormElement).reset();
+        renderCartPanelE(activeOrder.cart.getItems());
+    });
 
 
 }

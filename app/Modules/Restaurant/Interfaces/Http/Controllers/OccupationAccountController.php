@@ -101,8 +101,9 @@ class OccupationAccountController{
     }
 
 
-    // Guarda productos pendientes en una cuenta que ya existe.
+    // Guarda productos pendientes en una cuenta que ya existe. llamada desde saveProductsToAccount de orderApi.ts
     public function addProducts(): void{
+        $clientId = null;
         header('Content-Type: application/json; charset=utf-8');
         if(($_SESSION['login'] ?? false) !== true){
             http_response_code(401);
@@ -117,6 +118,14 @@ class OccupationAccountController{
             // Sucursal y vendedor siempre vienen de la sesión.
             $branchId = filter_var($_SESSION['idsucursal']??null, FILTER_VALIDATE_INT, $positiveId);
             $sellerId = filter_var($_SESSION['id']??null, FILTER_VALIDATE_INT, $positiveId);
+            $changeCustomer = array_key_exists('clientId', $_POST);
+
+            if($changeCustomer){
+                if($_POST['clientId'] !== '' && $_POST['clientId'] !== null){
+                    $clientId = filter_var($_POST['clientId'], FILTER_VALIDATE_INT, $positiveId);
+                    if($clientId === false)throw new InvalidArgumentException('El cliente no es válido.');
+                }
+            }
 
             if($accountId === false || $branchId === false || $sellerId === false)
                 throw new InvalidArgumentException('La cuenta, la sucursal o el vendedor no es válido.');
@@ -131,7 +140,7 @@ class OccupationAccountController{
                 throw new InvalidArgumentException('El pedido debe contener una lista de productos.');
 
             //El caso de uso controla la transacción y valida la cuenta. POS valida los productos, obtiene precios y guarda el lote.
-            $result = $this->addProductsToAccount->execute($accountId, $items, $branchId, $sellerId);
+            $result = $this->addProductsToAccount->execute($accountId, $items, $branchId, $sellerId, $clientId, $changeCustomer);
             http_response_code(201);
             echo json_encode(['success' => true, 'data' => $result], JSON_UNESCAPED_UNICODE);
         }catch(InvalidArgumentException $e){

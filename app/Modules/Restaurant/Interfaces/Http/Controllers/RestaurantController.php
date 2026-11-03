@@ -96,8 +96,10 @@ class RestaurantController
 
         $conflocal = $this->getDatosPort->getParam();
         $clientes = $this->getDatosPort->getClientes();
+        $departments = $this->getDatosPort->getDepartments();
+        
 
-        $this->router->render('restaurant/tables/index', ['page' => 'tables', 'titulo' => 'Restaurante', 'tables' => $tablesView, 'zones' => $zonesView, 'reservations' => $reservationsView, 'totalReservations' => $upcomingReservations['total'], 'conflocal' => $conflocal, 'clientes' => $clientes], 'restaurant');
+        $this->router->render('restaurant/tables/index', ['page' => 'tables', 'titulo' => 'Restaurante', 'tables' => $tablesView, 'zones' => $zonesView, 'reservations' => $reservationsView, 'totalReservations' => $upcomingReservations['total'], 'conflocal' => $conflocal, 'clientes' => $clientes, 'departments'=>$departments,], 'restaurant');
 
         // Temporalmente:
         //debuguear(['tables' => $tablesView, 'zones' => $zonesView]);

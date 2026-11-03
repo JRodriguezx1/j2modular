@@ -66,16 +66,24 @@ export async function saveFirstTableOrder(resourceId: number, customerId: number
 
 
 // Agregar únicamente los pendientes a una cuenta existente.
-export async function saveProductsToAccount(accountId: number, cartItems: CartItem[]): Promise<AdditionalOrderData>{
+export async function saveProductsToAccount(accountId: number, clientId:number|null|undefined, cartItems: CartItem[]): Promise<AdditionalOrderData>{
     if(!Number.isSafeInteger(accountId) || accountId <= 0)
         throw new Error('La cuenta no es válida.');
+
+    // undefined y null tienen significados válidos y distintos.
+    if(clientId !== undefined && clientId !== null && (!Number.isSafeInteger(clientId) || clientId <= 0))
+        throw new Error('El cliente seleccionado no es válido.');
 
     const items = prepareOrderItems(cartItems);
     const form = new FormData();
     form.set('accountId', String(accountId));
+    // undefined: no enviar el campo.
+    // null: enviar vacío para retirar.
+    // número: enviar el cliente que se quiere asignar.
+    if(clientId !== undefined)form.set('clientId', clientId === null ? '' : String(clientId));
     form.set('items', JSON.stringify(items));
 
-    const response = await fetch('/restaurant/api/accounts/products/addProducts',
+    const response = await fetch('/restaurant/api/accounts/products/addProducts', //llama controlador OccupationAccountController::addProducts
         {
             method: 'POST',
             headers: { Accept: 'application/json' },
@@ -115,6 +123,6 @@ function prepareOrderItems(cartItems: CartItem[]){
             throw new Error('Las cantidades deben tener como máximo dos decimales y ocho dígitos enteros.');
         
         // Precios e impuestos se obtienen en el backend.
-        return {productId: item.productId, quantity};
+        return {productId: item.productId, name: item.name, unitPrice: item.unitPrice, taxRate: item.taxRate, quantity};
     });
 }

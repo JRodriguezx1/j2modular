@@ -58,7 +58,7 @@ class OpenInvoiceService{
             // Cantidad positiva, como texto, con máximo dos decimales.
             if($productId === false || !is_string($quantity) || preg_match('/\A(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?\z/', $quantity) !== 1 || (float)$quantity <= 0)
                 throw new InvalidArgumentException('Producto o cantidad no válido.');
-            $validated[] = ['productId' => $productId, 'quantity' => $quantity];
+            $validated[] = ['productId' => $productId, 'name' => $item['name'], 'unitPrice' => $item['unitPrice'], 'taxRate' => $item['taxRate'], 'quantity' => $quantity];
         }
 
         return $validated;
@@ -94,7 +94,7 @@ class OpenInvoiceService{
                 $tax = (string)$porcentaje;
             }
 
-            $price = (float)$product['precio_venta'];
+            $price = (float)$item['unitPrice'] ?? (float)$product['precio_venta'];
 
             if(!is_finite($price) || $price < 0)
                 throw new RuntimeException('El precio del producto no es válido.');
@@ -114,7 +114,7 @@ class OpenInvoiceService{
                 'tipoproducto' => 0,
                 'tipoproduccion' => (int) $product['tipoproduccion'],
                 'rendimientoestandar' => $product['rendimientoestandar'] ?? '1.00',
-                'nombreproducto' => $product['nombre'],
+                'nombreproducto' => $item['name'],
                 'foto' => $product['foto'] ?? '',
                 'costo' => $product['precio_compra'] ?? '0.00',
                 'valorunidad' => $product['precio_venta'],
@@ -144,4 +144,14 @@ class OpenInvoiceService{
         ];
     }
     
+
+    // Participa en la transacción del caso de uso.
+    public function updateCustomer(int $invoiceId, int $branchId, ?int $customerId): void{
+        if($invoiceId <= 0 || $branchId <= 0 || ($customerId !== null && $customerId <= 0))
+            throw new InvalidArgumentException('Factura, sucursal o cliente no válido.');
+        // El bloqueo dura hasta el commit o rollback del caso de uso.
+        $order = facturas::bloquearOrdenAbierta($invoiceId, $branchId);
+        if($order === null)throw new InvalidArgumentException('La factura no está abierta en esta sucursal.');
+        facturas::actualizarClienteOrdenAbierta($invoiceId, $branchId, $customerId);
+    }
 }

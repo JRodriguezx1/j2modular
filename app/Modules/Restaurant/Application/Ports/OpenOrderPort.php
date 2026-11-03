@@ -28,4 +28,7 @@ interface OpenOrderPort{
     */
     public function procesarNuevaAbierta(int $branchId, ?int $customerId, int $sellerId, array $items): array;
 
+    // Requiere una transacción abierta por el caso de uso.
+    public function updateCustomer(int $orderId, int $branchId, ?int $customerId): void;
+
 }

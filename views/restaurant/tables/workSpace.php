@@ -36,7 +36,7 @@
   <!-- CONTENIDO -->
   <div id="orderWorkspaceContent" class="min-h-0 flex-1 overflow-y-auto p-3 sm:p-5 lg:overflow-hidden">
 
-    <div class="flex h-full min-h-0 flex-col gap-4">
+    <div class="ventasRestaurant flex h-full min-h-0 flex-col gap-4">
       <!-- INFORMACIÓN DE OCUPACIÓN -->
       <div id="atencionEstado" class="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
         <div class="flex items-center gap-3">
@@ -83,10 +83,16 @@
           <div id="catalogoPaginador" class="min-h-0 flex-1 overflow-y-auto p-4">
             <div class="mb-3 flex items-center justify-between">
               <p id="catalogProductStatus" class="text-base font-medium text-slate-500">Cargando productos...</p>
-              <button id="otrosProducts" type="button" class="btnApp btnApp--indigo btnApp--sm">
-                <span class="material-symbols-outlined text-2xl">tune</span>
-                Otros
-              </button>
+              <div class="flex items-center gap-2">
+                <button id="consumidorFinal" type="button" class="btnApp btnApp--primary btnApp--sm">
+                  <span class="material-symbols-outlined text-2xl">person</span>
+                  DIAN
+                </button>
+                <button id="otrosProducts" type="button" class="btnApp btnApp--indigo btnApp--sm">
+                  <span class="material-symbols-outlined text-2xl">tune</span>
+                  Otros
+                </button>
+              </div>
             </div>
 
             <div id="catalogProductGrid" class="grid grid-cols-1 gap-3 xxs:grid-cols-2 xs:grid-cols-3 xsm:grid-cols-4 xmd:grid-cols-3 2xlg:grid-cols-4">
@@ -331,13 +337,23 @@
   </div>
 </aside>
 
-  <!-- MODAL PARA CREAR CLIENTE-->
-  <?php include __DIR__. "/../../admin/ventas/modalCreateAddCli.php"; ?>
-  <!-- MODAL PARA GUARDAR EL PEDIDO-->
-  <?php include __DIR__. "/../../admin/ventas/modalguardarpedido.php"; ?>
-  <!--///////////////////// Modal procesar el pago boton facturar /////////////////////////-->
-  <?php include __DIR__. "/../../admin/ventas/modalprocesarpago.php"; ?>
-  <!-- MODAL DATOS DEL ADQUIRIENTE -->
-  <?php include __DIR__. "/../../admin/ventas/modaladquiriente.php"; ?>
-    <!-- MODAL OTROS PRODUCTOS -->
-  <?php include __DIR__. "/../../admin/ventas/modalotrosproductos.php"; ?>
+
+<div id="ventaCarritoToast" role="status" aria-live="polite" class=" tlg:hidden">
+  <span class="venta-carrito-toast__icon"><i class="fa-solid fa-check"></i></span>
+  <span>
+    <span id="ventaCarritoToastTitle" class="venta-carrito-toast__title">Producto agregado</span>
+    <span id="ventaCarritoToastMeta" class="venta-carrito-toast__meta">Cantidad: 1</span>
+  </span>
+</div>
+
+
+<!-- MODAL PARA CREAR CLIENTE-->
+<?php include __DIR__. "/../../admin/ventas/modalCreateAddCli.php"; ?>
+<!-- MODAL PARA GUARDAR EL PEDIDO-->
+<?php include __DIR__. "/../../admin/ventas/modalguardarpedido.php"; ?>
+<!--///////////////////// Modal procesar el pago boton facturar /////////////////////////-->
+<?php include __DIR__. "/../../admin/ventas/modalprocesarpago.php"; ?>
+<!-- MODAL DATOS DEL ADQUIRIENTE -->
+<?php include __DIR__. "/../../admin/ventas/modaladquiriente.php"; ?>
+  <!-- MODAL OTROS PRODUCTOS -->
+<?php include __DIR__. "/../../admin/ventas/modalotrosproductos.php"; ?>

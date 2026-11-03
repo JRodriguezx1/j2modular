@@ -14,6 +14,7 @@ class PosOpenOrderAdapter implements OpenOrderPort{
         return $this->openOrderService->create($branchId, $customerId, $sellerId);
     }
 
+    // llamado por el caso de uso: GetAccountSummary
     public function getSummary(int $orderId, int $branchId): array{
         return $this->openOrderService->getSummary($orderId, $branchId);
     }
@@ -23,8 +24,13 @@ class PosOpenOrderAdapter implements OpenOrderPort{
         return $this->openOrderService->addSimpleProducts($orderId, $items, $branchId);
     }
 
+    // llamado por el caso de uso: SaveFirstTableOrder
     public function procesarNuevaAbierta(int $branchId, ?int $customerId, int $sellerId, array $items): array{
         return $this->openOrderService->procesarNuevaAbierta($branchId, $customerId, $sellerId, $items);
+    }
+
+    public function updateCustomer(int $orderId, int $branchId, ?int $customerId): void {
+        $this->openOrderService->updateCustomer($orderId, $branchId, $customerId);
     }
     
 }

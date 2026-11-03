@@ -230,6 +230,38 @@ class facturas extends \App\Models\ActiveRecord {
         }
     }
 
+
+    // Se llama con la factura bloqueada y una transacción abierta.
+    public static function actualizarClienteOrdenAbierta(int $invoiceId, int $branchId, ?int $customerId): void {
+        $db = self::getDB();
+        if (!$db instanceof \mysqli)
+            throw new \RuntimeException('No hay conexión disponible.');
+
+        // Comprobar que el cliente exista antes de asignarlo.
+        if($customerId !== null){
+            $stmt = $db->prepare("SELECT id FROM clientes WHERE id = ? LIMIT 1 FOR UPDATE");
+            try {
+                $stmt->bind_param('i', $customerId);
+                $stmt->execute();
+                if(!$stmt->get_result()->fetch_assoc()) 
+                    throw new \InvalidArgumentException('El cliente no existe.');
+            }finally{
+                $stmt->close();
+            }
+        }
+
+        $stmt = $db->prepare("UPDATE facturas SET idcliente = ? WHERE id = ? AND id_sucursal = ? AND estado = 'Abierta'");
+        try {
+            // Si customerId es null, mysqli envía SQL NULL.
+            $stmt->bind_param('iii', $customerId, $invoiceId, $branchId);
+            if(!$stmt->execute())
+                throw new \RuntimeException('No fue posible actualizar el cliente.');
+        } finally {
+            $stmt->close();
+        }
+    }
+    
+
     //recalcular la factura
     public static function recalcularTotalesOrdenAbierta(int $ordenId, int $sucursalId): array{
         $db = self::getDB();

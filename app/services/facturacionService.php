@@ -828,8 +828,7 @@ class facturacionService
             $linea->dato2 = '';
             // Los productos libres llamados "Otros" se relacionan con el
             // producto y categoria reservados por el sistema.
-            if((int)($linea->idproducto ?? 0) < 0
-                && (int)($linea->idcategoria ?? 0) < 0){
+            if((int)($linea->idproducto ?? 0) < 0 && (int)($linea->idcategoria ?? 0) < 0){
                 $linea->idproducto = 1;
                 $linea->idcategoria = 1;
             }

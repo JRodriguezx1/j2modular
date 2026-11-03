@@ -190,7 +190,7 @@ class productos extends \App\Models\ActiveRecord {
 /////////// METODOS USADOS POR RESTAURANT /////////////
 
     //Consultar el producto vendible
-    public static function buscarSimpleParaOrden(int $productoId, int $sucursalId): ?array{
+    /*public static function buscarSimpleParaOrden(int $productoId, int $sucursalId): ?array{
         $db = self::getDB();
         $sql = "SELECT p.id, p.nombre, p.foto, p.tipoproducto, p.tipoproduccion, p.rendimientoestandar,
                     p.precio_compra, p.precio_venta, p.impuesto, p.percentcomision, p.prioridadcomision, s.promediostock
@@ -206,7 +206,7 @@ class productos extends \App\Models\ActiveRecord {
         }finally{
             $stmt->close();
         }
-    }
+    }*/
 
 
     /**
@@ -229,7 +229,7 @@ class productos extends \App\Models\ActiveRecord {
                 s.promediostock
             FROM productos p
             INNER JOIN stockproductossucursal s ON s.productoid = p.id
-            AND s.sucursalid = ? WHERE p.id IN ($placeholders) AND p.estado = 1 AND p.visible = 1 AND p.tipoproducto = 0 AND s.habilitarventa = 1";
+            AND s.sucursalid = ? WHERE p.id IN ($placeholders) AND p.estado = 1 AND p.tipoproducto = 0 AND s.habilitarventa = 1";
         $stmt = self::getDB()->prepare($sql);
 
         try {

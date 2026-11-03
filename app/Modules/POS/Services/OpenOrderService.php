@@ -25,10 +25,14 @@ class OpenOrderService{
      * @param array<int, array{productId: int, quantity: string}> $items
      * @return array{lineIds: array<int, int>, totales: array}
      */
-    public function addSimpleProducts(int $orderId, array $items, int $branchId): array {
+    public function addSimpleProducts(int $orderId, array $items, int $branchId): array{
         return (new OpenInvoiceService())->addSimpleProducts($orderId, $items, $branchId);
     }
 
+
+    public function updateCustomer(int $orderId, int $branchId, ?int $customerId): void{
+        (new OpenInvoiceService())->updateCustomer($orderId, $branchId, $customerId);
+    }
 
     //Este método reúne la cabecera y sus productos sin modificar datos. Una orden abierta sin productos devolverá consumos: [] y los totales iniciales de su cabecera.
     public function getSummary(int $orderId, int $branchId): array{
