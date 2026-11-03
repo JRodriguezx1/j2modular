@@ -71,13 +71,17 @@ class AddProductsToAccount
             // todavía no tiene una vinculada.
             if($orderId === null){
                 $initialCustomerId = $changeCustomer ? $clientId : $occupation->getClientId();
-                $orderId = $this->openOrderPort->create($branchId, $initialCustomerId, $sellerId);
+                $orderId = $this->openOrderPort->create($branchId, $initialCustomerId, $sellerId); //creación de la factura Abierta en POS
                 // Guarda el vínculo en cuentas.idfactura.
                 $this->accountRepository->linkOpenOrder($accountId, $orderId);
             }
 
             // Actualizar únicamente cuando la petición lo indique.
-            if($changeCustomer)$this->openOrderPort->updateCustomer($orderId, $branchId, $clientId);
+            if($changeCustomer){
+                $this->openOrderPort->updateCustomer($orderId, $branchId, $clientId);
+                // Actualizar cliente de la ocupación.
+                $this->occupationRepository->updateCustomer($occupation->getId(), $clientId);
+            }
 
             // POS valida los productos y sus cantidades. También obtiene precios e impuestos del servidor,
             // inserta las líneas y recalcula la factura.

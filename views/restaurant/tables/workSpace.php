@@ -308,7 +308,6 @@
               <button
                 id="saveFirstOrderButton"
                 type="button"
-                
                 class="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50">
                 <span class="material-symbols-outlined text-lg">save</span>
                 Guardar pedido
@@ -323,6 +322,7 @@
             </div>
 
             <button
+              id="processPaymentButton"
               type="button"
               class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-base font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">
               <span class="material-symbols-outlined text-xl">payments</span>

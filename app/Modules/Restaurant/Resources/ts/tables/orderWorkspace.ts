@@ -407,6 +407,7 @@ export function initOrderWorkspace(): void{
     registeraddclienteEvents(getActiveClient, () => requestVersion);  //para abrir modal de clientes y seleccionar.
     asignarClienteDianEvent(getActiveClientDian, () => requestVersion);
     orderEvents = registrarProcesarOrdenEvent(getActiveOrder, () => requestVersion, isSavingOrder, setSavingOrder, confirmFirstOrder, refreshConfirmedOrderCart);
+    
 
     void precargarProductos(); //carga de productos
 }

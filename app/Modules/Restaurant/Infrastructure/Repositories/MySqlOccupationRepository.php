@@ -234,5 +234,21 @@ class MySqlOccupationRepository implements OccupationRepository{
             $stmt->close();
         }
     }
+
     
+    public function updateCustomer(int $occupationId, ?int $clientId): void{
+        $sql = "UPDATE ocupaciones SET cliente_id = ? WHERE id = ? AND estado = 'en_uso'";
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando actualización del cliente: ' . $this->db->error);
+
+        try {
+            $stmt->bind_param('ii', $clientId, $occupationId);
+            if(!$stmt->execute())
+                throw new \RuntimeException('Error actualizando cliente de la ocupación: ' . $stmt->error);
+        }finally{
+            $stmt->close();
+        }
+    }
+
 }
