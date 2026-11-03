@@ -73,8 +73,8 @@ function pago(){
         if(POS.valorTotal.total-totalotrosmedios == 0 && mapMediospago.has('1'))mapMediospago.delete('1');
         calcularCambio(document.querySelector<HTMLInputElement>('#recibio')!.value);
         
-        ocultarMensajeMetodosPago();
-        if(POS.tipoventa == "Credito")calculoTasaInteres();
-        if(POS.tipoventa == "Contado")initvaloresCredito();
+        //ocultarMensajeMetodosPago();
+        //if(POS.tipoventa == "Credito")calculoTasaInteres();
+        //if(POS.tipoventa == "Contado")initvaloresCredito();
       },
 }
