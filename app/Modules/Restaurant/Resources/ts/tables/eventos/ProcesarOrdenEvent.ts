@@ -3,7 +3,7 @@ import { AccountTotals } from "../accountApi";
 import { createCart } from "../cart";
 import { createCli } from "../cli";
 import { createCliDian } from "../cliDian";
-import { saveFirstTableOrder, saveProductsToAccount } from "../orderApi";
+import { saveFirstTableOrder, saveProductsToAccount, UpdateAccountCustomer } from "../orderApi";
 
 const saveFirstOrderButton = document.getElementById('saveFirstOrderButton') as HTMLButtonElement;
 
@@ -119,9 +119,19 @@ export function registrarProcesarOrdenEvent(
         // Solo aplica cuando ya existe una ocupación y una cuenta.
         if(order.occupationId === null || order.accountId === null)return;
 
+        // Capturar la intención de cambio antes de enviar.
+        const clientChange = order.cli.getClientChange();
         // Verificar que existan productos pendientes.
         const items = order.cart.getItems();
         if(items.length === 0){
+            try{
+                if(clientChange !== undefined){
+                    await UpdateAccountCustomer(order.accountId, clientChange);
+                    order.cli.confirmSavedClient(clientChange);
+                }
+            }catch(error){
+                
+            }
             msjalertToast('warning', 'No hay items', 'No hay productos pendientes para guardar.');
             return;
         }
@@ -132,8 +142,6 @@ export function registrarProcesarOrdenEvent(
         const contextVersion = getContextVersion();
         let saved = false;
         try{
-            // Capturar la intención de cambio antes de enviar.
-            const clientChange = order.cli.getClientChange();
             await saveProductsToAccount(accountId, clientChange, items);
             saved = true;
             // Actualizar la referencia solo si enviamos un cambio de cliente.
