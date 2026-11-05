@@ -14,9 +14,7 @@
           <p class="m-0 text-xs font-bold uppercase tracking-[0.22em] text-emerald-700">
             Total de la venta
           </p>
-          <p id="totalPagar"
-            class="m-0 text-4xl font-bold text-emerald-600"
-            style="font-family:'Tektur', serif;">
+          <p id="totalPagar" class="m-0 text-4xl font-bold text-emerald-600" style="font-family:'Tektur', serif;">
               $0
           </p>
         </div>

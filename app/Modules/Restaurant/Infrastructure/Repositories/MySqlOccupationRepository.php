@@ -236,6 +236,43 @@ class MySqlOccupationRepository implements OccupationRepository{
     }
 
     
+    // Debe llamarse después de iniciar una transacción.
+    public function findByIdForUpdate(int $id): ?Occupation{
+        // FOR UPDATE bloquea la fila encontrada.
+        // Otra transacción que intente modificarla deberá esperar.
+        $sql = "SELECT id, sucursal_id, reserva_id, cliente_id, tipo, fecha_inicio, fecha_fin_estimada, fecha_fin_real, estado, observaciones
+                FROM ocupaciones WHERE id = ? LIMIT 1 FOR UPDATE";
+        $stmt = $this->db->prepare($sql);
+
+        if(!$stmt)
+            throw new \RuntimeException('Error preparando bloqueo de la ocupación: ' . $this->db->error);
+
+        try {
+            $stmt->bind_param('i', $id);
+            if(!$stmt->execute())
+                throw new \RuntimeException('Error consultando la ocupación: ' . $stmt->error);
+
+            $row = $stmt->get_result()->fetch_assoc();
+
+            if(!$row)return null;
+
+            return new Occupation(
+                id: (int) $row['id'],
+                sucursalId: (int) $row['sucursal_id'],
+                reservationId: $row['reserva_id'] !== null ? (int) $row['reserva_id'] : null,
+                clientId: $row['cliente_id'] !== null ? (int) $row['cliente_id'] : null,
+                type: $row['tipo'],
+                startDate: $row['fecha_inicio'],
+                estimatedEndDate: $row['fecha_fin_estimada'],
+                actualEndDate: $row['fecha_fin_real'],
+                status: $row['estado'],
+                observations: $row['observaciones']
+            );
+        } finally {
+            $stmt->close();
+        }
+    }
+
     public function updateCustomer(int $occupationId, ?int $clientId): void{
         $sql = "UPDATE ocupaciones SET cliente_id = ? WHERE id = ? AND estado = 'en_uso'";
         $stmt = $this->db->prepare($sql);

@@ -21,5 +21,21 @@ class PosGetDatosAdapter implements GetDatosPort{
     public function getDepartments(): array{
         return $this->getDatosService->getDepartments();
     }
+
+    public function getCajas(): array{
+        return $this->getDatosService->getCajas();
+    }
+
+    public function getConsecutivos(): array{
+        return $this->getDatosService->getConsecutivos();
+    }
+
+    public function getMediosPago(): array{
+        return $this->getDatosService->getMediosPago();
+    }
+
+    public function getCanalesVenta(): array{
+        return $this->getDatosService->getCanalesVenta();
+    }
     
 }

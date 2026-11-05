@@ -10,9 +10,10 @@ import { registeraddclienteEvents, renderCli } from './eventos/selectCliEvent';
 import { createCli } from './cli';
 import { registrarProcesarOrdenEvent } from './eventos/ProcesarOrdenEvent';
 import type { OrderSaveResult } from './eventos/ProcesarOrdenEvent';
-import { getAccountSummary } from './accountApi';
+import { getAccountSummary, AccountTotals } from './accountApi';
 import { asignarClienteDianEvent } from './eventos/customerDianEvent';
 import { createCliDian } from './cliDian';
+import { registerProcesarPagoEvents } from './eventos/ProcesarPagoEvent';
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
@@ -43,13 +44,14 @@ const clientesDian = new Map<CartKey, ReturnType<typeof createCliDian>>();
 
 // Representa el pedido que estamos preparando en el panel.
 let activeOrder: {
-    resourceId: number;
-    occupationId: number | null;
-    accountId: number | null;
-    cartKey: CartKey;
+    resourceId: number,
+    occupationId: number|null,
+    accountId: number|null,
+    cartKey: CartKey,
     cart: Cart;
     cli: Cli,
-    cliDian: ReturnType<typeof createCliDian>
+    cliDian: ReturnType<typeof createCliDian>,
+    totales: AccountTotals|null
 } | null = null;
 
 
@@ -76,7 +78,7 @@ function setSavingOrder(saving: boolean): void{
 
 
 // Selecciona el carrito correspondiente al contexto confirmado.
-function activateOrder(resourceId: number, occupationId: number|null, accountId: number|null, client:Cliente|null,): void{
+function activateOrder(resourceId: number, occupationId: number|null, accountId: number|null, client:Cliente|null, totales:AccountTotals|null = null): void{
     let key: CartKey;
     if(accountId !== null){
         key = `account:${accountId}`;
@@ -108,7 +110,7 @@ function activateOrder(resourceId: number, occupationId: number|null, accountId:
         clientesDian.set(key, cliDian);
     }
 
-    activeOrder = {resourceId, occupationId, accountId, cartKey: key, cart, cli, cliDian};
+    activeOrder = {resourceId, occupationId, accountId, cartKey: key, cart, cli, cliDian, totales};
     renderCartPanel(cart.getItems());  //Muestra el carrito recién creado. Así reaparecen los pendientes al abrir la mesa.
     renderCli(cli.getCli());
 }
@@ -316,7 +318,7 @@ async function loadOrderWorkspace(resourceId: number, tableName: string): Promis
        // Caso 2: existe una cuenta abierta y su resumen fue consultado.
         if(result.status === 'ready'){
             console.log(occupation);
-            activateOrder(resourceId, occupation.occupationId, result.account.id, occupation.client);
+            activateOrder(resourceId, occupation.occupationId, result.account.id, occupation.client, result.totales);
             return;
         }
 
@@ -407,6 +409,7 @@ export function initOrderWorkspace(): void{
     registeraddclienteEvents(getActiveClient, () => requestVersion);  //para abrir modal de clientes y seleccionar.
     asignarClienteDianEvent(getActiveClientDian, () => requestVersion);
     orderEvents = registrarProcesarOrdenEvent(getActiveOrder, () => requestVersion, isSavingOrder, setSavingOrder, confirmFirstOrder, refreshConfirmedOrderCart);
+    registerProcesarPagoEvents(getActiveOrder, () => requestVersion);
     
 
     void precargarProductos(); //carga de productos

@@ -1,9 +1,11 @@
+import { registrarFuncionesLegacy } from '../appFunction';
 import {closeActiveOccupation, initActiveOccupation, openActiveOccupationDetails} from './activeOccupation';
 import {closeOrderWorkspace, initOrderWorkspace, openOrderWorkspace} from './orderWorkspace';
 
 export function initTables(): void {
     initActiveOccupation();
     initOrderWorkspace();
+    registrarFuncionesLegacy();
 
     document.addEventListener('click', event => {
         const target = event.target as HTMLElement;

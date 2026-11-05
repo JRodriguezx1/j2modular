@@ -29,6 +29,18 @@ interface AdditionalOrderResponse {
     message?: string;
 }
 
+interface CliUpOrderData {
+    accountId: number,
+    occupationId: number,
+    orderId: number,
+    clientId: number,
+}
+
+interface CliUpOrderResponse {
+    success: boolean,
+    data: CliUpOrderData,
+    message?: string,
+}
 
 
 export async function saveFirstTableOrder(resourceId: number, customerId: number|null, cartItems: CartItem[]): Promise<FirstOrderData>{
@@ -125,4 +137,35 @@ function prepareOrderItems(cartItems: CartItem[]){
         // Precios e impuestos se obtienen en el backend.
         return {productId: item.productId, name: item.name, unitPrice: item.unitPrice, taxRate: item.taxRate, quantity};
     });
+}
+
+
+// Actualiza únicamente el cliente de la ocupación y de su factura.
+export async function UpdateAccountCustomer(accountId: number, clientId:number|null|undefined): Promise<CliUpOrderData>{
+    if(!Number.isSafeInteger(accountId) || accountId <= 0)
+        throw new Error('La cuenta no es válida.');
+
+    // undefined y null tienen significados válidos y distintos.
+    if(clientId !== undefined && clientId !== null && (!Number.isSafeInteger(clientId) || clientId <= 0))
+        throw new Error('El cliente seleccionado no es válido.');
+
+    const form = new FormData();
+    form.set('accountId', String(accountId));
+    if(clientId !== undefined)
+        form.set('clientId', clientId === null ? '' : String(clientId));
+
+    const response = await fetch('/restaurant/api/accounts/customer/UpdateAccountCustomer', //llama controlador OccupationAccountController::UpdateAccountCustomer
+        {
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+            body: form
+        }
+    );
+
+    const result = await response.json() as CliUpOrderResponse;
+
+    if(!result || !response.ok || result.success !== true)
+        throw new Error(result?.message ?? 'No fue posible confirmar el guardado del lote.' );
+
+    return result.data;
 }

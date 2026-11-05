@@ -1,4 +1,5 @@
 import { msjalertToast, setElementText } from "../../appFunction";
+import { AccountTotals } from "../accountApi";
 import { createCart } from "../cart";
 import { createCli } from "../cli";
 import { createCliDian } from "../cliDian";
@@ -24,7 +25,8 @@ interface ActiveOrder {
     cartKey: CartKey,
     cart: Cart,
     cli: Cli,
-    cliDian: ReturnType<typeof createCliDian>
+    cliDian: ReturnType<typeof createCliDian>,
+    totales: AccountTotals|null
 }
 
 

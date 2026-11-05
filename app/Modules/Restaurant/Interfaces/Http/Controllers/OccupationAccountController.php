@@ -9,6 +9,7 @@ use App\Modules\Restaurant\Application\UseCases\GetOccupationAccounts;
 use App\Modules\Restaurant\Application\UseCases\GetAccountSummary;
 use App\Modules\Restaurant\Application\UseCases\SaveFirstTableOrder;
 use App\Modules\Restaurant\Application\UseCases\AddProductsToAccount;
+use App\Modules\Restaurant\Application\UseCases\UpdateAccountCustomer;
 
 class OccupationAccountController{
 
@@ -16,7 +17,8 @@ class OccupationAccountController{
         private GetOccupationAccounts $getOccupationAccounts, 
         private GetAccountSummary $getAccountSummary,
         private SaveFirstTableOrder $saveFirstTableOrder,
-        private AddProductsToAccount $addProductsToAccount
+        private AddProductsToAccount $addProductsToAccount,
+        private UpdateAccountCustomer $updateAccountCustomer
     ){}
 
     //llamada desdes occupationApi.ts, consultar las cuentas asociadas a la ocupacion
@@ -182,6 +184,45 @@ class OccupationAccountController{
             error_log('GetAccountSummary: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'No fue posible consultar la cuenta.'], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+
+    // // Actualiza únicamente el cliente de la ocupación y de su factura.
+    public function UpdateAccountCustomer(): void{
+        $clientId = null;
+        header('Content-Type: application/json; charset=utf-8');
+        if(($_SESSION['login'] ?? false) !== true){
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Debes iniciar sesión.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        try {
+            $positiveId = ['options' => ['min_range' => 1]];
+            $accountId = filter_var($_POST['accountId']??null, FILTER_VALIDATE_INT, $positiveId);
+            $branchId = filter_var($_SESSION['idsucursal']??null, FILTER_VALIDATE_INT, $positiveId);
+            // El campo debe estar presente: omitirlo no significa retirar cliente.
+            if(!array_key_exists('clientId', $_POST))
+                throw new InvalidArgumentException('Debes indicar el cliente que deseas asignar o retirar.');
+            if($_POST['clientId'] !== '' && $_POST['clientId'] !== null){ // Vacío o null: retirar. Número positivo: asignar.
+                $clientId = filter_var($_POST['clientId'], FILTER_VALIDATE_INT, $positiveId);
+                if($clientId === false)throw new InvalidArgumentException('El cliente no es válido.');
+            }
+
+            if($accountId === false || $branchId === false)
+                throw new InvalidArgumentException('La cuenta o sucursal no es válido.');
+
+            $result = $this->updateAccountCustomer->execute($accountId, $branchId, $clientId);
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $result], JSON_UNESCAPED_UNICODE);
+        }catch(InvalidArgumentException $e){
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }catch(Throwable $e){
+            error_log('Actualiza únicamente el cliente de la ocupación y de su factura. ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible actualizar el cliente.'], JSON_UNESCAPED_UNICODE);
         }
     }
 

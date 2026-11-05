@@ -1,3 +1,4 @@
+import { UpdateAccountCustomer } from '../orderApi';
 import { createCli } from './../cli';
 const btnAddCliente = document.querySelector('#addcliente') as HTMLElement;
 const miDialogoAddCliente = document.querySelector('#miDialogoAddCliente') as HTMLDialogElement;
@@ -130,6 +131,7 @@ export function registeraddclienteEvents(getClient: () => Cli|null, getContextVe
                     operacion.clientePedido.addCli(resultado.id, resultado);
                     // Después dibujamos usando el estado guardado.
                     renderCli(operacion.clientePedido.getCli());
+                    //UpdateAccountCustomer();
                     
                     //mapear los precios personalizados del cliente con arreglo de los productos
                     //actualizarPreciosCliente(resultado.preciospersonalizados);

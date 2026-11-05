@@ -80,7 +80,7 @@ export function mostrarFeedbackCarrito(nombre:string, cantidadProducto:number): 
 }
 
 
-export function getDgv(nit: number): number {
+export function getDgv(nit: number): number{
     const multiplicadores = [3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71];
     const digitos = nit.toString().trim().split('').map(Number);
     let suma = 0;
@@ -92,3 +92,21 @@ export function getDgv(nit: number): number {
     return modulo > 1 ?(11 - modulo):modulo;
 }
 
+
+function formatearMoneda(input: HTMLInputElement): void{
+    let valor = input.value.replace(/[^\d,]/g, '');
+    let [entera, ...decimales] = valor.split(',');
+    entera= parseInt(entera || '0').toLocaleString('es-CO');
+    input.value = entera+(decimales.length ? ',' + decimales.join('') : '');
+}
+
+
+declare global {
+    interface Window {
+        formatearMoneda: typeof formatearMoneda;
+    }
+}
+
+export function registrarFuncionesLegacy(): void {
+    window.formatearMoneda = formatearMoneda;
+}

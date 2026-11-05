@@ -16,7 +16,7 @@ class AddProductsToAccount
         private OccupationRepository $occupationRepository,
         private OpenOrderPort $openOrderPort,
         private TransactionManager $transactionManager
-    ) {}
+    ){}
 
     /**
      * Guarda los productos pendientes en la factura de una cuenta.
@@ -56,9 +56,10 @@ class AddProductsToAccount
             if($account->getStatus() !== 'abierta')
                 throw new InvalidArgumentException( 'La cuenta no está abierta.');
 
-            // La ocupación permite comprobar que la atención
-            // siga en uso y pertenezca a la sucursal actual.
-            $occupation = $this->occupationRepository->findById($account->getOccupationId());
+            // La transacción ya comenzó y la cuenta ya está bloqueada.
+            // Ahora bloqueamos la ocupación antes de comprobar su estado.
+            // Así no podrán finalizarla o cambiar su cliente mientras guardamos.
+            $occupation = $this->occupationRepository->findByIdForUpdate($account->getOccupationId());
 
             if($occupation === null || $occupation->getStatus() !== 'en_uso')
                 throw new InvalidArgumentException('La atención de esta cuenta no está en uso.');

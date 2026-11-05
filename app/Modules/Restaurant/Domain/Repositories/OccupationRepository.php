@@ -14,5 +14,7 @@ interface OccupationRepository{
     public function create(int $sucursalId, ?int $reservationId, ?int $clientId, string $type, string $startDate, ?string $estimatedEndDate, ?string $observations): int;
     public function attachResource(int $occupationId, int $resourceId, float $baseValue = 0): void;
     public function findById(int $id): ?Occupation;
+    // Consultar y bloquear la ocupación dentro de una transacción.
+    public function findByIdForUpdate(int $id): ?Occupation;
     public function updateCustomer(int $occupationId, ?int $clientId): void;
 }
