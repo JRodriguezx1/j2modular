@@ -3,15 +3,19 @@ namespace App\Models\ventas;
 
 class ventas extends \App\Models\ActiveRecord {
     protected static $tabla = 'ventas';
-    protected static $columnasDB = ['id', 'idfactura', 'idproducto', 'tipoproducto', 'tipoproduccion', 'rendimientoestandar', 'nombreproducto', 'foto', 'anotacion', 'costo', 'valorunidad', 'cantidad', 'promediostock', 'percentcomision', 'valorcomision', 'subtotal', 'base', 'impuesto', 'valorimp', 'descuento', 'total', 'dato1', 'dato2'];
+    protected static $columnasDB = ['id', 'idfactura', 'idproducto', 'idusuarioanulada', 'tipoproducto', 'tipoproduccion', 'anulada', 'fecha_anulacion', 'motivo_anulacion', 'rendimientoestandar', 'nombreproducto', 'foto', 'anotacion', 'costo', 'valorunidad', 'cantidad', 'promediostock', 'percentcomision', 'valorcomision', 'subtotal', 'base', 'impuesto', 'valorimp', 'descuento', 'total', 'dato1', 'dato2'];
     
     public function __construct($args = [])
     {
         $this->id = $args['id'] ?? null;
         $this->idfactura = $args['idfactura'] ?? '';
         $this->idproducto = $args['idproducto'] ?? '';
+        $this->idusuarioanulada = $args['idusuarioanulada'] ?? 'NULL';
         $this->tipoproducto = $args['tipoproducto'] ?? '';
         $this->tipoproduccion = $args['tipoproduccion']??0; // 0 = inmediato,  1 = construccion solo aplica para productos compuesto
+        $this->anulada = $args['anulada']??0;
+        $this->fecha_anulacion = $args['fecha_anulacion']??'NULL';
+        $this->motivo_anulacion = $args['motivo_anulacion']??'NULL';
         $this->rendimientoestandar = $args['rendimientoestandar']??1;
         $this->nombreproducto = $args['nombreproducto'] ?? '';
         $this->foto = $args['foto'] ?? '';
@@ -47,6 +51,46 @@ class ventas extends \App\Models\ActiveRecord {
 
     
     /////////// METODOS USADOS POR RESTAURANT /////////////
+    // Requiere una transacción abierta y la factura previamente bloqueada.
+    public static function bloquearLineaOrden(
+        int $ordenId,
+        int $lineaId
+    ): ?array {
+        $db = self::getDB();
+
+        // Consultamos también las anuladas para reconocer un segundo intento.
+        // Ambos identificadores aseguran que la línea pertenece a esta factura.
+        $sql = "SELECT id, idfactura, anulada
+                FROM ventas
+                WHERE id = ? AND idfactura = ?
+                LIMIT 1
+                FOR UPDATE";
+
+        $stmt = $db->prepare($sql);
+
+        if (!$stmt) {
+            throw new \RuntimeException(
+                'No fue posible preparar la consulta de la línea.'
+            );
+        }
+
+        try {
+            $stmt->bind_param('ii', $lineaId, $ordenId);
+
+            if (!$stmt->execute()) {
+                throw new \RuntimeException(
+                    'No fue posible consultar la línea.'
+                );
+            }
+
+            return $stmt->get_result()->fetch_assoc() ?: null;
+        } finally {
+            // El bloqueo permanece hasta el commit o rollback.
+            $stmt->close();
+        }
+    }
+
+
     public static function insertarLineaOrdenAbierta(array $linea): int{
         $columnas = [
             'idfactura', 'idproducto', 'tipoproducto', 'tipoproduccion',
@@ -83,13 +127,68 @@ class ventas extends \App\Models\ActiveRecord {
                     v.impuesto, v.valorimp, v.descuento, v.total, v.anotacion
                 FROM ventas AS v
                 INNER JOIN facturas AS f ON f.id = v.idfactura
-                WHERE v.idfactura = ? AND f.id_sucursal = ? AND f.estado = 'Abierta'
+                WHERE v.idfactura = ? AND f.id_sucursal = ? AND f.estado = 'Abierta' AND (v.anulada IS NULL OR v.anulada = 0)
                 ORDER BY v.id ASC";
         $stmt = $db->prepare($sql);
         try {
             $stmt->bind_param('ii', $ordenId, $sucursalId);
             $stmt->execute();
             return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        } finally {
+            $stmt->close();
+        }
+    }
+
+
+    // Marca una línea vigente sin borrar sus cantidades ni importes.
+    // La factura y la línea deben estar bloqueadas previamente.
+    public static function marcarLineaAnulada(
+        int $ordenId,
+        int $lineaId,
+        int $usuarioId,
+        string $motivo
+    ): void {
+        $db = self::getDB();
+
+        $sql = "UPDATE ventas
+                SET anulada = 1,
+                    idusuarioanulada = ?,
+                    fecha_anulacion = NOW(),
+                    motivo_anulacion = ?
+                WHERE id = ?
+                AND idfactura = ?
+                AND (anulada IS NULL OR anulada = 0)";
+
+        $stmt = $db->prepare($sql);
+
+        if (!$stmt) {
+            throw new \RuntimeException(
+                'No fue posible preparar la anulación.'
+            );
+        }
+
+        try {
+            $stmt->bind_param(
+                'isii',
+                $usuarioId,
+                $motivo,
+                $lineaId,
+                $ordenId
+            );
+
+            if (!$stmt->execute()) {
+                throw new \RuntimeException(
+                    'No fue posible anular la línea.'
+                );
+            }
+
+            // Aquí sí esperamos una modificación:
+            // la línea debe pasar de vigente a anulada.
+            if ($stmt->affected_rows !== 1) {
+                throw new \RuntimeException(
+                    'La línea ya no está disponible para anular.'
+                );
+            }
         } finally {
             $stmt->close();
         }

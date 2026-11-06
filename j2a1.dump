@@ -3298,8 +3298,12 @@ CREATE TABLE `ventas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `idfactura` int NOT NULL,
   `idproducto` int DEFAULT NULL,
+  `idusuarioanulada` int DEFAULT NULL,
   `tipoproducto` tinyint(1) DEFAULT NULL,
   `tipoproduccion` tinyint(1) DEFAULT NULL,
+  `anulada` tinyint(1) DEFAULT '0',
+  `fecha_anulacion` datetime DEFAULT NULL,
+  `motivo_anulacion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `rendimientoestandar` decimal(11,2) DEFAULT NULL,
   `nombreproducto` varchar(124) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci NOT NULL,
   `foto` varchar(99) CHARACTER SET utf8mb3 COLLATE utf8mb3_spanish_ci DEFAULT NULL,
@@ -3321,8 +3325,10 @@ CREATE TABLE `ventas` (
   PRIMARY KEY (`id`),
   KEY `idproducto_idx` (`idproducto`),
   KEY `idfactura_idx` (`idfactura`),
+  KEY `idusuarioanulada_idx` (`idusuarioanulada`),
   CONSTRAINT `idfactura` FOREIGN KEY (`idfactura`) REFERENCES `facturas` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `idproducto` FOREIGN KEY (`idproducto`) REFERENCES `productos` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT `idproducto` FOREIGN KEY (`idproducto`) REFERENCES `productos` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `idusuarioanulada` FOREIGN KEY (`idusuarioanulada`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3348,4 +3354,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-08  0:12:52
+-- Dump completed on 2026-11-06  1:14:51

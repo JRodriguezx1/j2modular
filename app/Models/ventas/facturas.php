@@ -265,36 +265,38 @@ class facturas extends \App\Models\ActiveRecord {
     //recalcular la factura
     public static function recalcularTotalesOrdenAbierta(int $ordenId, int $sucursalId): array{
         $db = self::getDB();
-        $sql = "UPDATE facturas f
-                JOIN (
-                    SELECT idfactura,
-                        COALESCE(SUM(cantidad), 0) AS unidades,
-                        COALESCE(SUM(subtotal), 0) AS suma_subtotal,
-                        COALESCE(SUM(base), 0) AS suma_base,
-                        COALESCE(SUM(valorimp), 0) AS suma_impuesto,
-                        COALESCE(SUM(descuento), 0) AS suma_descuento,
-                        COALESCE(SUM(total), 0) AS suma_total,
-                        COALESCE(SUM(valorcomision), 0) AS suma_comision
-                    FROM ventas
-                    WHERE idfactura = ?
-                    GROUP BY idfactura
-                ) t ON t.idfactura = f.id
-                SET f.totalunidades = t.unidades,
-                    f.subtotal = t.suma_subtotal,
-                    f.base = t.suma_base,
-                    f.valorimpuestototal = t.suma_impuesto,
-                    f.descuento = t.suma_descuento,
-                    f.total = t.suma_total,
-                    f.valorgananciauser = t.suma_comision,
-                    f.porcentgananciauser = CASE WHEN t.suma_subtotal > 0 THEN ROUND(100 * t.suma_comision / t.suma_subtotal, 2) ELSE 0 END
-                WHERE f.id = ? AND f.id_sucursal = ? AND f.estado = 'Abierta'";
+        $sql = "UPDATE facturas AS f
+        CROSS JOIN (
+            SELECT
+                COALESCE(SUM(cantidad), 0) AS unidades,
+                COALESCE(SUM(subtotal), 0) AS suma_subtotal,
+                COALESCE(SUM(base), 0) AS suma_base,
+                COALESCE(SUM(valorimp), 0) AS suma_impuesto,
+                COALESCE(SUM(descuento), 0) AS suma_descuento,
+                COALESCE(SUM(total), 0) AS suma_total,
+                COALESCE(SUM(valorcomision), 0) AS suma_comision
+            FROM ventas
+            WHERE idfactura = ? AND (anulada IS NULL OR anulada = 0)
+        ) AS t
+        SET f.totalunidades = t.unidades,
+            f.subtotal = t.suma_subtotal,
+            f.base = t.suma_base,
+            f.valorimpuestototal = t.suma_impuesto,
+            f.descuento = t.suma_descuento,
+            f.total = t.suma_total,
+            f.valorgananciauser = t.suma_comision,
+            f.porcentgananciauser = CASE WHEN t.suma_subtotal > 0 THEN ROUND(100 * t.suma_comision / t.suma_subtotal, 2) ELSE 0 END
+        WHERE f.id = ? AND f.id_sucursal = ? AND f.estado = 'Abierta'";
 
         $stmt = $db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('No fue posible preparar el recálculo de la orden.');
         try{
             $stmt->bind_param('iii', $ordenId, $ordenId, $sucursalId);
-            $stmt->execute();
-            if($stmt->affected_rows !== 1)
-                throw new \RuntimeException('No fue posible actualizar la orden abierta.');
+            if(!$stmt->execute())
+                throw new \RuntimeException('No fue posible actualizar los totales de la orden.');
+            // No exigimos affected_rows === 1:
+            // los totales pueden ser correctos y no haber cambiado.
         }finally{
             $stmt->close();
         }

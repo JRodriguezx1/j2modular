@@ -145,6 +145,68 @@ class OpenInvoiceService{
     }
     
 
+    /**
+     * Anula un consumo y recalcula la misma factura.
+     * Participa en la transacción del caso de uso de Restaurant.
+     *
+     * @return array{
+     *     lineId: int,
+     *     alreadyCancelled: bool,
+     *     totales: array
+     * }
+     */
+    public function cancelLine(
+        int $invoiceId,
+        int $lineId,
+        int $branchId,
+        int $userId,
+        string $reason
+    ): array {
+        if (
+            $invoiceId <= 0 ||
+            $lineId <= 0 ||
+            $branchId <= 0 ||
+            $userId <= 0
+        ) {
+            throw new InvalidArgumentException(
+                'Los datos de la anulación no son válidos.'
+            );
+        }
+
+        // Comprobar sucursal y estado, y bloquear la factura.
+        // Se utiliza el mismo bloqueo que al agregar productos.
+        $order = facturas::bloquearOrdenAbierta(
+            $invoiceId,
+            $branchId
+        );
+
+        if ($order === null) {
+            throw new InvalidArgumentException(
+                'La factura no está disponible como Abierta en esta sucursal.'
+            );
+        }
+
+        $cancelled = ventasService::anularLineaOrdenAbierta(
+            $invoiceId,
+            $lineId,
+            $userId,
+            $reason
+        );
+
+        // El recálculo ya excluye las líneas anuladas.
+        // Si no queda ninguna vigente, deja los totales en cero.
+        $totals = facturas::recalcularTotalesOrdenAbierta(
+            $invoiceId,
+            $branchId
+        );
+
+        return [
+            'lineId' => $lineId,
+            'alreadyCancelled' => !$cancelled,
+            'totales' => $totals,
+        ];
+    }
+
     // Participa en la transacción del caso de uso.
     public function updateCustomer(int $invoiceId, int $branchId, ?int $customerId): void{
         if($invoiceId <= 0 || $branchId <= 0 || ($customerId !== null && $customerId <= 0))

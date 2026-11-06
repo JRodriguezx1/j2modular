@@ -119,29 +119,27 @@ export function registrarProcesarOrdenEvent(
         // Solo aplica cuando ya existe una ocupación y una cuenta.
         if(order.occupationId === null || order.accountId === null)return;
 
-        // Capturar la intención de cambio antes de enviar.
-        const clientChange = order.cli.getClientChange();
-        // Verificar que existan productos pendientes.
-        const items = order.cart.getItems();
-        if(items.length === 0){
-            try{
-                if(clientChange !== undefined){
-                    await UpdateAccountCustomer(order.accountId, clientChange);
-                    order.cli.confirmSavedClient(clientChange);
-                }
-            }catch(error){
-                
-            }
-            msjalertToast('warning', 'No hay items', 'No hay productos pendientes para guardar.');
-            return;
-        }
-
-        const accountId = order.accountId;
         // Bloquear nuevos envíos y modificaciones mientras guardamos.
         setSavingOrder(true);
+
+        const accountId = order.accountId;
         const contextVersion = getContextVersion();
         let saved = false;
         try{
+            // Capturar la intención de cambio antes de enviar.
+            const clientChange = order.cli.getClientChange();
+            // Verificar que existan productos pendientes.
+            const items = order.cart.getItems();
+
+            if(items.length === 0){
+                if(clientChange !== undefined){
+                    await UpdateAccountCustomer(order.accountId, clientChange);
+                    order.cli.confirmSavedClient(clientChange);
+                    msjalertToast('success', 'Exito!', 'Cliente actualizado con exito');
+                }
+                return;
+            }
+
             await saveProductsToAccount(accountId, clientChange, items);
             saved = true;
             // Actualizar la referencia solo si enviamos un cambio de cliente.

@@ -819,4 +819,63 @@ class ventasService {
         ];
     }
 
+
+    /**
+     * Anula una línea completa.
+     *
+     * Requiere una transacción abierta y la factura Abierta bloqueada.
+     *
+     * Retorna:
+     * - true: la línea se anuló ahora.
+     * - false: la línea ya estaba anulada.
+     */
+    public static function anularLineaOrdenAbierta(
+        int $ordenId,
+        int $lineaId,
+        int $usuarioId,
+        string $motivo
+    ): bool {
+        if ($ordenId <= 0 || $lineaId <= 0 || $usuarioId <= 0) {
+            throw new \InvalidArgumentException(
+                'La factura, la línea o el usuario no es válido.'
+            );
+        }
+
+        $motivo = trim($motivo);
+
+        if ($motivo === '') {
+            throw new \InvalidArgumentException(
+                'Debes indicar el motivo de la anulación.'
+            );
+        }
+
+        if (mb_strlen($motivo, 'UTF-8') > 255) {
+            throw new \InvalidArgumentException(
+                'El motivo no puede superar los 255 caracteres.'
+            );
+        }
+
+        $linea = ventas::bloquearLineaOrden($ordenId, $lineaId);
+
+        if ($linea === null) {
+            throw new \InvalidArgumentException(
+                'La línea no pertenece a esta factura.'
+            );
+        }
+
+        // Un segundo intento no sobrescribe la auditoría original.
+        if ((int) $linea['anulada'] === 1) {
+            return false;
+        }
+
+        ventas::marcarLineaAnulada(
+            $ordenId,
+            $lineaId,
+            $usuarioId,
+            $motivo
+        );
+
+        return true;
+    }
+
 }

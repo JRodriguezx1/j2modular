@@ -33,12 +33,12 @@ interface CliUpOrderData {
     accountId: number,
     occupationId: number,
     orderId: number,
-    clientId: number,
+    clientId: number|null,
 }
 
 interface CliUpOrderResponse {
     success: boolean,
-    data: CliUpOrderData,
+    data?: CliUpOrderData,
     message?: string,
 }
 
@@ -141,18 +141,17 @@ function prepareOrderItems(cartItems: CartItem[]){
 
 
 // Actualiza únicamente el cliente de la ocupación y de su factura.
-export async function UpdateAccountCustomer(accountId: number, clientId:number|null|undefined): Promise<CliUpOrderData>{
+export async function UpdateAccountCustomer(accountId: number, clientId:number|null): Promise<CliUpOrderData>{
     if(!Number.isSafeInteger(accountId) || accountId <= 0)
         throw new Error('La cuenta no es válida.');
 
-    // undefined y null tienen significados válidos y distintos.
-    if(clientId !== undefined && clientId !== null && (!Number.isSafeInteger(clientId) || clientId <= 0))
+    // Solo admitimos null para retirar o un ID positivo para asignar.
+    if(clientId !== null && (!Number.isSafeInteger(clientId) || clientId <= 0))
         throw new Error('El cliente seleccionado no es válido.');
 
     const form = new FormData();
     form.set('accountId', String(accountId));
-    if(clientId !== undefined)
-        form.set('clientId', clientId === null ? '' : String(clientId));
+    form.set('clientId', clientId === null ? '' : String(clientId));
 
     const response = await fetch('/restaurant/api/accounts/customer/UpdateAccountCustomer', //llama controlador OccupationAccountController::UpdateAccountCustomer
         {
@@ -165,7 +164,13 @@ export async function UpdateAccountCustomer(accountId: number, clientId:number|n
     const result = await response.json() as CliUpOrderResponse;
 
     if(!result || !response.ok || result.success !== true)
-        throw new Error(result?.message ?? 'No fue posible confirmar el guardado del lote.' );
+        throw new Error(result?.message ?? 'No fue posible actualizar el cliente.' );
 
-    return result.data;
+    const data = result.data;
+    // Confirmar que la respuesta corresponde al cambio solicitado.
+    if(!data || data.accountId!==accountId || !Number.isSafeInteger(data.occupationId) || data.occupationId<=0 || !Number.isSafeInteger(data.orderId) ||  data.orderId<=0 || data.clientId!==clientId)
+        throw new Error('La respuesta de actualización está incompleta o no corresponde.');
+
+    return data;
+
 }
