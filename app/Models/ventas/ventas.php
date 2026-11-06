@@ -39,53 +39,30 @@ class ventas extends \App\Models\ActiveRecord {
     // Validación para venta nueva
     public function validar_nueva_venta():array {
         if(!$this->idfactura)self::$alertas['error'][] = 'La factura es obligatoria';
-        
         if(!$this->idproducto)self::$alertas['error'][] = 'El producto es obligatorio';
-        
         if(!$this->cantidad)self::$alertas['error'][] = 'La cantidad es obligatoria';
-
         if(strlen($this->cantidad)>9999)self::$alertas['error'][] = 'Maxima cantidad 9999';
-
         return self::$alertas;
     }
 
     
     /////////// METODOS USADOS POR RESTAURANT /////////////
     // Requiere una transacción abierta y la factura previamente bloqueada.
-    public static function bloquearLineaOrden(
-        int $ordenId,
-        int $lineaId
-    ): ?array {
+    public static function bloquearLineaOrden(int $ordenId, int $lineaId): ?array{
         $db = self::getDB();
-
         // Consultamos también las anuladas para reconocer un segundo intento.
-        // Ambos identificadores aseguran que la línea pertenece a esta factura.
-        $sql = "SELECT id, idfactura, anulada
-                FROM ventas
-                WHERE id = ? AND idfactura = ?
-                LIMIT 1
-                FOR UPDATE";
-
+        $sql = "SELECT id, idfactura, anulada FROM ventas WHERE id = ? AND idfactura = ? LIMIT 1 FOR UPDATE";
         $stmt = $db->prepare($sql);
 
-        if (!$stmt) {
-            throw new \RuntimeException(
-                'No fue posible preparar la consulta de la línea.'
-            );
-        }
+        if(!$stmt)
+            throw new \RuntimeException('No fue posible preparar la consulta de la línea.');
 
-        try {
+        try{
             $stmt->bind_param('ii', $lineaId, $ordenId);
-
-            if (!$stmt->execute()) {
-                throw new \RuntimeException(
-                    'No fue posible consultar la línea.'
-                );
-            }
-
+            if(!$stmt->execute())
+                throw new \RuntimeException('No fue posible consultar la línea.');
             return $stmt->get_result()->fetch_assoc() ?: null;
-        } finally {
-            // El bloqueo permanece hasta el commit o rollback.
+        }finally{
             $stmt->close();
         }
     }
@@ -142,53 +119,21 @@ class ventas extends \App\Models\ActiveRecord {
 
     // Marca una línea vigente sin borrar sus cantidades ni importes.
     // La factura y la línea deben estar bloqueadas previamente.
-    public static function marcarLineaAnulada(
-        int $ordenId,
-        int $lineaId,
-        int $usuarioId,
-        string $motivo
-    ): void {
+    public static function marcarLineaAnulada(int $ordenId, int $lineaId, int $usuarioId, string $motivo): void {
         $db = self::getDB();
-
-        $sql = "UPDATE ventas
-                SET anulada = 1,
-                    idusuarioanulada = ?,
-                    fecha_anulacion = NOW(),
-                    motivo_anulacion = ?
-                WHERE id = ?
-                AND idfactura = ?
-                AND (anulada IS NULL OR anulada = 0)";
-
+        $sql = "UPDATE ventas SET anulada = 1, idusuarioanulada = ?, fecha_anulacion = NOW(), motivo_anulacion = ?
+                WHERE id = ? AND idfactura = ? AND (anulada IS NULL OR anulada = 0)";
         $stmt = $db->prepare($sql);
-
-        if (!$stmt) {
-            throw new \RuntimeException(
-                'No fue posible preparar la anulación.'
-            );
-        }
+        if(!$stmt)
+            throw new \RuntimeException('No fue posible preparar la anulación.');
 
         try {
-            $stmt->bind_param(
-                'isii',
-                $usuarioId,
-                $motivo,
-                $lineaId,
-                $ordenId
-            );
-
-            if (!$stmt->execute()) {
-                throw new \RuntimeException(
-                    'No fue posible anular la línea.'
-                );
-            }
-
-            // Aquí sí esperamos una modificación:
-            // la línea debe pasar de vigente a anulada.
-            if ($stmt->affected_rows !== 1) {
-                throw new \RuntimeException(
-                    'La línea ya no está disponible para anular.'
-                );
-            }
+            $stmt->bind_param('isii', $usuarioId, $motivo, $lineaId, $ordenId);
+            if(!$stmt->execute())
+                throw new \RuntimeException('No fue posible anular la línea.');
+            // Aquí sí esperamos una modificación: la línea debe pasar de vigente a anulada.
+            if($stmt->affected_rows !== 1)
+                throw new \RuntimeException('La línea ya no está disponible para anular.');
         } finally {
             $stmt->close();
         }
