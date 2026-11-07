@@ -1,8 +1,14 @@
-import { ajustarAnchoCantidad, mostrarFeedbackCarrito, setElementText } from "../../appFunction";
+import { ajustarAnchoCantidad, mostrarFeedbackCarrito, msjalertToast, setElementText } from "../../appFunction";
 import { createCart } from "../cart";
 import { SimpleProduct } from "../catalogoApi";
 import { calculateCartTotals } from '../cartTotals';
 import { renderCartTotals } from '../cartPanel';
+
+const productsRegistrados = document.getElementById('accountPanelConsumptions');
+const popover = document.querySelector<HTMLDivElement>("#cart-popover");
+let activeItemId: string|number|null = null;
+let activeButton: HTMLElement | null = null;
+let rowId:number|null = null;
 
 type Cart = ReturnType<typeof createCart>;
 type CartKey = | `account:${number}` | `occupation:${number}` | `table:${number}`;
@@ -30,15 +36,12 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
     productosGrid?.addEventListener('click', event => {
         const target = event.target;
         if(!(target instanceof Element))return;
-
         const article = target.closest<HTMLElement>('article[data-product-id]');
         if(!article || !productosGrid.contains(article))return;
         
         const activeOrder = ActiveOrderE();
-        // La cuenta debe haber terminado de cargar correctamente.
         if(activeOrder === null){
-            setElementText('catalogProductStatus', 'El pedido aún no está disponible. Revisa el estado del panel.');
-            //msjalertToast('warning', 'Pedido recuperado', 'Pero no se pudo actualizar el carrito.');
+            msjalertToast('warning', 'Advertencia', 'El pedido aún no está disponible. Revisa el estado del panel.');
             return;
         }
 
@@ -208,4 +211,70 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
     });
 
 
+    //EVENTO A LOS PRODUCTOS REGISTRADOS
+    productsRegistrados?.addEventListener('click', (e:MouseEvent)=>{
+        const target = e.target;
+        if(!(target instanceof Element))return;
+        const registroDiv = target.closest<HTMLElement>('div[data-idregistro]');
+        if(!registroDiv)return;
+        
+        const activeOrder = ActiveOrderE();
+        if(activeOrder === null){
+            msjalertToast('warning', 'Advertencia', 'El pedido aún no está disponible. Revisa el estado del panel.');
+            return;
+        }
+
+
+        const registroId = Number(registroDiv.dataset.idregistro);
+        rowId = registroId;
+
+        if(activeButton === registroDiv){
+            closePopover();
+        }else{
+            openPopover(registroDiv, registroId);
+        }
+    });
+
+
+    const modalDescuento = document.querySelector('#modalDescuento') as HTMLButtonElement;
+    modalDescuento.addEventListener('click', ()=>{
+        console.log('lupelulu = ', rowId);
+    });
+
+
 }
+
+
+export const closePopover = (): void => {
+    if(!popover)return;
+    popover.hidden = true;
+    activeButton?.setAttribute("aria-expanded", "false");
+    activeButton = null;
+    activeItemId = null;
+};
+
+
+const openPopover = (registroDiv: HTMLElement, registroId: string|number): void => {
+    const rect = registroDiv.getBoundingClientRect();
+
+    if(!popover)return;
+    if(activeButton && activeButton !== registroDiv)activeButton.setAttribute("aria-expanded", "false");
+
+    activeButton = registroDiv;
+    activeItemId = registroId;
+    registroDiv.setAttribute("aria-expanded", "true");
+
+    popover.hidden = false;
+
+    const width = popover.offsetWidth;
+    const height = popover.offsetHeight;
+    const margin = 8;
+
+    // Ajustar horizontalmente a la pantalla
+    const left = Math.max(margin, Math.min(rect.right - width, window.innerWidth - width - margin));
+    // Abrir hacia abajo o arriba según espacio
+    const top = rect.bottom + height + margin <= window.innerHeight ? rect.bottom - 24 : rect.top - height - 4;
+
+    popover.style.left = `${left}px`;
+    popover.style.top = `${Math.max(margin, top)}px`;
+};

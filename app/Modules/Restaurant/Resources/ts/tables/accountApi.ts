@@ -44,7 +44,7 @@ interface AccountSummaryResponse{
 export async function getAccountSummary(accountId:number, signal?:AbortSignal): Promise<AccountSummary>{
     if(!Number.isInteger(accountId) || accountId <= 0)throw new Error('El ID de la cuenta no es válido.');
 
-    const url = `/restaurant/api/accounts/summary?accountId=${encodeURIComponent(String(accountId))}`;
+    const url = `/restaurant/api/accounts/summary?accountId=${encodeURIComponent(String(accountId))}`; //llamada a OccupationAccountController::summary
     const response = await fetch(url, { headers: { Accept: 'application/json' }, signal });
     const result = await response.json() as AccountSummaryResponse;
     if(!response.ok || !result.success || !result.data)

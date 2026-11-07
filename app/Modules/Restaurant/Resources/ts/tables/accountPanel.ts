@@ -46,7 +46,8 @@ function formatQuantity(value: AccountAmount): string{
     return Number.isFinite(quantity) ? quantityFormatter.format(quantity) : '—';
 }
 
-function renderConsumptions(consumptions: AccountConsumption[]): void{  //imprimir productos ya registrados
+//imprimir productos ya registrados
+function renderConsumptions(consumptions: AccountConsumption[]): void{
     if(consumptions.length === 0){
         setEmptyMessage('accountPanelConsumptions', 'Sin productos registrados.');
         return;
@@ -63,6 +64,7 @@ function renderConsumptions(consumptions: AccountConsumption[]): void{  //imprim
         const row = template.content.firstElementChild?.cloneNode(true);
         if(!(row instanceof HTMLElement))
             throw new Error('La vista de productos registrados no es válida.');
+        row.dataset.idregistro = consumption.id+'';
         const quantity = row.querySelector<HTMLElement>('[data-consumption-quantity]');
         const name = row.querySelector<HTMLElement>('[data-consumption-name]');
         const unitPrice = row.querySelector<HTMLElement>('[data-consumption-unit-price]');

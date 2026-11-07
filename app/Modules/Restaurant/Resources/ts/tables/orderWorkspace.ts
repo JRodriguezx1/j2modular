@@ -5,7 +5,7 @@ import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
 import type { ProductPage, SimpleProduct } from './catalogoApi';
 import {resetAccountPanel, showAccountPanel, showAccountPanelError, showTemporaryAccountPanel, renderConfirmedAccount } from './accountPanel';
 import {renderCartPanel} from './cartPanel';
-import { registerProductEvents } from './eventos/productsEvents';
+import { closePopover, registerProductEvents } from './eventos/productsEvents';
 import { registeraddclienteEvents, renderCli } from './eventos/selectCliEvent';
 import { createCli } from './cli';
 import { registrarProcesarOrdenEvent } from './eventos/ProcesarOrdenEvent';
@@ -365,7 +365,14 @@ export function initOrderWorkspace(): void{
     });*/
     overlay.addEventListener('click', closeOrderWorkspace);
 
-    document.addEventListener("click", cerrarDialogoExterno);
+    document.addEventListener("click", (e)=> {
+        cerrarDialogoExterno(e);
+        const target = e.target;
+        if(!(target instanceof Element))return;
+        const accountPanelConsumptions = target.closest<HTMLElement>('#accountPanelConsumptions');
+        const popover = document.querySelector('#cart-popover') as HTMLElement;
+        if(accountPanelConsumptions == null && popover.hidden==false)closePopover();
+    });
     
     document.addEventListener('keydown', event => {
         if(event.key === 'Escape' && drawer.getAttribute('aria-hidden') === 'false')closeOrderWorkspace();
@@ -401,7 +408,7 @@ export function initOrderWorkspace(): void{
     };
     
     if(productosGrid && cartContainer)
-        registerProductEvents({otrosProducts, productosGrid, cartContainer, catalogProducts, ActiveOrderE:getEditableOrder, renderCartPanelE:renderCartPanel});
+        registerProductEvents({otrosProducts, productosGrid, cartContainer, catalogProducts, ActiveOrderE:getEditableOrder, renderCartPanelE:renderCartPanel}); //evento a los productos del catalago, productos del carrito, otros productos, 
 
     const getActiveClient = () => getEditableOrder()?.cli ?? null;
     const getActiveClientDian = () => getEditableOrder()?.cliDian ?? null;

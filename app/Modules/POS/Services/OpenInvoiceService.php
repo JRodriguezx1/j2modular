@@ -146,11 +146,11 @@ class OpenInvoiceService{
     
 
     /**
-     * Anula un consumo y recalcula la misma factura.
-     * Participa en la transacción del caso de uso de Restaurant.
-     *
-     * @return array{lineId: int, alreadyCancelled: bool, totales: array}
-     */
+    * Anula un consumo y recalcula la misma factura.
+    * Participa en la transacción del caso de uso de Restaurant.
+    *
+    * @return array{lineId: int, alreadyCancelled: bool, totales: array}
+    */
     public function cancelLine(int $invoiceId, int $lineId, int $branchId, int $userId, string $reason): array{
         if($invoiceId <= 0 || $lineId <= 0 || $branchId <= 0 || $userId <= 0)
             throw new InvalidArgumentException('Los datos de la anulación no son válidos.');

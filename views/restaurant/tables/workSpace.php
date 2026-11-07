@@ -1,5 +1,5 @@
 <!-- Overlay -->
-<div id="orderWorkspaceOverlay" class="fixed inset-0 z-[60] hidden bg-slate-950/50 backdrop-blur-[2px]"></div>
+<div id="orderWorkspaceOverlay" class="fixed inset-0 z-20 hidden bg-slate-950/50 backdrop-blur-[2px]"></div>
 
 <!-- Drawer -->
 <aside
@@ -8,7 +8,7 @@
   aria-modal="true"
   aria-labelledby="orderWorkspaceTitle"
   aria-hidden="true"
-  class="fixed right-0 top-0 z-[70] flex h-full w-full translate-x-full flex-col bg-slate-50 shadow-2xl transition-transform duration-300 tlg:max-w-screen-md xlg:max-w-screen-tlg 2xlg:max-w-screen-lg 3xlg:max-w-screen-xl">
+  class="fixed right-0 top-0 z-30 flex h-full w-full translate-x-full flex-col bg-slate-50 shadow-2xl transition-transform duration-300 tlg:max-w-screen-md xlg:max-w-screen-tlg 2xlg:max-w-screen-lg 3xlg:max-w-screen-xl">
 
   <!-- ENCABEZADO -->
   <header class="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
@@ -249,7 +249,7 @@
               </div>
 
               <template id="accountConsumptionTemplate">
-                <div class="border-b border-slate-100 py-3">
+                <div class="border-b border-slate-100 py-3 cursor-pointer">
                   <div class="flex items-start gap-3">
                     <span data-consumption-quantity class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-sm font-bold text-slate-600"></span>
                     <div class="min-w-0 flex-1">
@@ -345,6 +345,75 @@
     <span id="ventaCarritoToastMeta" class="venta-carrito-toast__meta">Cantidad: 1</span>
   </span>
 </div>
+
+
+<div id="cart-popover" class="fixed z-40 w-72 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg" hidden>
+    <!-- Descuento -->
+    <button
+        id="modalDescuento"
+        type="button"
+        data-action="discount"
+        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-amber-50"
+    >
+        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-100">
+            <i class="fa-solid fa-percent"></i>
+        </span>
+
+        <span class="flex flex-col gap-0.5">
+            <span class="text-lg font-semibold text-slate-700">
+                Aplicar descuento
+            </span>
+            <span class="text-sm text-slate-500">
+                Modificar precio
+            </span>
+        </span>
+    </button>
+
+    <!-- Cortesía -->
+    <button
+        type="button"
+        data-action="courtesy"
+        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-indigo-50"
+    >
+        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
+            <i class="fa-solid fa-gift"></i>
+        </span>
+
+        <span class="flex flex-col gap-0.5">
+            <span class="text-lg font-semibold text-slate-700">
+                Cortesía
+            </span>
+            <span class="text-sm text-slate-500">
+                Sin costo para el cliente
+            </span>
+        </span>
+    </button>
+
+    <!-- Separador -->
+    <div class="my-1 border-t border-slate-100"></div>
+
+    <!-- Cancelar -->
+    <button
+        type="button"
+        data-action="cancel"
+        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-rose-50"
+    >
+        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-500 group-hover:bg-rose-100">
+           <i class="fa-regular fa-trash-can"></i>
+        </span>
+
+        <span class="flex flex-col gap-0.5">
+            <span class="text-lg font-semibold text-rose-600">
+                Cancelar producto
+            </span>
+            <span class="text-sm text-slate-500">
+                Retirar de la cuenta
+            </span>
+        </span>
+    </button>
+</div>
+
+
 
 
 <!-- MODAL PARA CREAR CLIENTE-->
