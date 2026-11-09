@@ -227,7 +227,42 @@ class ApiInventoryController{
     $resultado = (new ActualizarCostoInventarioService())->ejecutar($_POST, id_sucursal());
     echo json_encode($resultado);
   }
+  
 
+  /** Guarda el costo vigente de un proveedor para un producto o insumo. */
+  public static function guardarCostoProveedor(): void{
+    if(!self::autorizarComandoInventario())return;
+    header('Content-Type: application/json; charset=utf-8');
+    if($_SERVER['REQUEST_METHOD'] !== 'POST'){
+      http_response_code(405);
+      echo json_encode(['error'=>['Método no permitido.']]);
+      return;
+    }
+    $resultado = (new ActualizarCostoInventarioService())->guardarCostoProveedor($_POST, id_sucursal());
+    echo json_encode($resultado, JSON_UNESCAPED_UNICODE);
+  }
+
+
+  /** Devuelve artículos y costos activos por proveedor para la sucursal actual. */
+  public static function obtenerCostosProveedor(): void{
+    isadmin();
+    header('Content-Type: application/json; charset=utf-8');
+    if(!tienePermiso('Habilitar modulo de inventario') && userPerfil()>3){
+      http_response_code(403);
+      echo json_encode(['error'=>['No tienes permiso para consultar el inventario.']]);
+      return;
+    }
+
+    try{
+      $resultado = (new CostosProveedorConsultaService())->obtener(id_sucursal());
+      echo json_encode($resultado, JSON_UNESCAPED_UNICODE);
+    }catch(\Throwable $error){
+      error_log('Error al consultar costos por proveedor: '.$error->getMessage());
+      http_response_code(500);
+      echo json_encode(['error'=>['No fue posible consultar los costos.']]);
+    }
+  }
+  
 
   public static function actualizarPreciosVenta(): void{
     if(!self::autorizarComandoInventario())return;

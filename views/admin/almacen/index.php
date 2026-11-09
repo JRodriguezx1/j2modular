@@ -122,18 +122,12 @@
     <!-- Encabezado -->
     <div class="flex justify-between items-center border-b border-slate-200 pb-5 mb-6">
         <div>
-            <h4 id="modalMasOpciones" class="text-2xl font-bold text-slate-900">
-                Más opciones
-            </h4>
-
-            <p class="text-sm text-slate-500 mt-1">
-                Herramientas y funciones adicionales del inventario.
-            </p>
+            <h4 id="modalMasOpciones" class="text-2xl font-bold text-slate-900">Más opciones</h4>
+            <p class="text-sm text-slate-500 mt-1">Herramientas y funciones adicionales del inventario.</p>
         </div>
 
         <button class="rounded-lg hover:bg-slate-100 transition">
-            <i id="btnXCerrarMasOpciones"
-               class="p-2 fa-solid fa-xmark text-slate-500 text-3xl"></i>
+            <i id="btnXCerrarMasOpciones" class="p-2 fa-solid fa-xmark text-slate-500 text-3xl"></i>
         </button>
     </div>
 
@@ -142,56 +136,50 @@
         <a
             class="flex items-center justify-between px-6 py-6 rounded-xl border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300 hover:shadow-sm transition-all duration-200"
             href="/admin/almacen/cambioPrecios">
-
             <span class="flex items-center gap-3 text-gray-900 text-lg font-medium">
                 <span class="material-symbols-outlined text-indigo-600 text-4xl">
-                    price_change
-                </span>
-                Cambio de precios
+                    price_change</span>Cambio de precios
             </span>
-
             <i class="fa-solid fa-chevron-right text-gray-400 text-xl"></i>
         </a>
 
         <a
             class="flex items-center justify-between px-6 py-6 rounded-xl border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300 hover:shadow-sm transition-all duration-200"
             href="/admin/almacen/estadisticas">
-
             <span class="flex items-center gap-3 text-gray-900 text-lg font-medium">
-                <span class="material-symbols-outlined text-indigo-600 text-4xl">
-                    bar_chart
-                </span>
+                <span class="material-symbols-outlined text-indigo-600 text-4xl">bar_chart</span>
                 Estadísticas
             </span>
-
             <i class="fa-solid fa-chevron-right text-gray-400 text-xl"></i>
         </a>
 
         <a
             class="flex items-center justify-between px-6 py-6 rounded-xl border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300 hover:shadow-sm transition-all duration-200"
             href="/admin/almacen/productosParaFormulas">
-
             <span class="flex items-center gap-3 text-gray-900 text-lg font-medium">
-                <span class="material-symbols-outlined text-indigo-600 text-4xl">
-                    functions
-                </span>
+                <span class="material-symbols-outlined text-indigo-600 text-4xl">functions</span>
                 Motor de fórmulas
             </span>
-
             <i class="fa-solid fa-chevron-right text-gray-400 text-xl"></i>
         </a>
 
         <a
             class="flex items-center justify-between px-6 py-6 rounded-xl border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300 hover:shadow-sm transition-all duration-200"
             href="/admin/almacen/conversionUnidades">
-
             <span class="flex items-center gap-3 text-gray-900 text-lg font-medium">
-                <span class="material-symbols-outlined text-indigo-600 text-4xl">
-                    design_services
-                </span>
+                <span class="material-symbols-outlined text-indigo-600 text-4xl">design_services</span>
                 Conversion de unidades
             </span>
+            <i class="fa-solid fa-chevron-right text-gray-400 text-xl"></i>
+        </a>
 
+        <a
+            class="flex items-center justify-between px-6 py-6 rounded-xl border border-slate-200 hover:bg-indigo-50 hover:border-indigo-300 hover:shadow-sm transition-all duration-200"
+            href="/admin/almacen/costosProductosPorProveedor">
+            <span class="flex items-center gap-3 text-gray-900 text-lg font-medium">
+                <span class="material-symbols-outlined text-indigo-600 text-4xl">price_check</span>
+                Costos por proveedor
+            </span>
             <i class="fa-solid fa-chevron-right text-gray-400 text-xl"></i>
         </a>
     </div>

@@ -25,7 +25,7 @@ use App\services\comisionesService;
 use App\services\contableService;
 use App\services\ventasService;
 use App\Core\Routing\Router;  //namespace\clase
- 
+
 class ModoRapidoController{
 
     use DocumentTrait;

@@ -3,22 +3,30 @@ import { createCart } from "../cart";
 import { SimpleProduct } from "../catalogoApi";
 import { calculateCartTotals } from '../cartTotals';
 import { renderCartTotals } from '../cartPanel';
+import type { AccountConsumption } from '../accountApi';
 
 const productsRegistrados = document.getElementById('accountPanelConsumptions');
 const popover = document.querySelector<HTMLDivElement>("#cart-popover");
+const btnsdevolverinv = document.querySelectorAll<HTMLInputElement>('input[name="devolverinventario"]'); //radio buttom
+const miDialogoDescuento = document.querySelector('#miDialogoDescuento') as HTMLDialogElement;
+const miDialogoEliminarItem = document.querySelector('#miDialogoEliminarItem') as HTMLDialogElement;
+
 let activeItemId: string|number|null = null;
-let activeButton: HTMLElement | null = null;
+let activePop: HTMLElement | null = null;
 let rowId:number|null = null;
+// Permite comprobar que seguimos trabajando con el mismo pedido.
+let rowOrder: ActiveOrder | null = null;
 
 type Cart = ReturnType<typeof createCart>;
 type CartKey = | `account:${number}` | `occupation:${number}` | `table:${number}`;
 
 interface ActiveOrder {
-    resourceId: number;
-    occupationId: number|null;
-    accountId: number|null;
-    cartKey: CartKey;
-    cart: Cart;
+    resourceId: number,
+    occupationId: number|null,
+    accountId: number|null,
+    cartKey: CartKey,
+    cart: Cart,
+    itemsregistrados: AccountConsumption[]
 }
 
 interface itemsEventsDependencies {
@@ -211,34 +219,97 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
     });
 
 
-    //EVENTO A LOS PRODUCTOS REGISTRADOS
+    //////////  EVENTO A LOS PRODUCTOS REGISTRADOS  ///////////////
     productsRegistrados?.addEventListener('click', (e:MouseEvent)=>{
         const target = e.target;
         if(!(target instanceof Element))return;
-        const registroDiv = target.closest<HTMLElement>('div[data-idregistro]');
-        if(!registroDiv)return;
+        const row = target.closest<HTMLElement>('div[data-idregistro]');
+        if(!row)return;
         
-        const activeOrder = ActiveOrderE();
-        if(activeOrder === null){
-            msjalertToast('warning', 'Advertencia', 'El pedido aún no está disponible. Revisa el estado del panel.');
+        const order  = ActiveOrderE();
+        if(order  === null || order.accountId === null){
+            msjalertToast('warning', 'Verificar', 'La cuenta no esta disponible.');
             return;
         }
 
+        const lineId = Number(row.dataset.idregistro);
+        if(!Number.isSafeInteger(lineId) || lineId <= 0)return;
 
-        const registroId = Number(registroDiv.dataset.idregistro);
-        rowId = registroId;
-
-        if(activeButton === registroDiv){
-            closePopover();
-        }else{
-            openPopover(registroDiv, registroId);
+        // Buscar por ID de ventas, no por ID del producto.
+        const item = order.itemsregistrados.find(item => Number(item.id) === lineId);
+        if(!item){
+            msjalertToast('warning','Verificar', 'El consumo ya no está disponible. Actualiza la cuenta.');
+            return;
         }
+
+        if(activePop === row){
+            closePopover();
+            return;
+        }
+        rowId = lineId;
+        rowOrder = order;
+        openPopover(row, lineId);
     });
 
 
-    const modalDescuento = document.querySelector('#modalDescuento') as HTMLButtonElement;
-    modalDescuento.addEventListener('click', ()=>{
-        console.log('lupelulu = ', rowId);
+    const btnModalDescuento = document.querySelector('#btnModalDescuento') as HTMLButtonElement;
+    btnModalDescuento.addEventListener('click', ()=>{
+        console.log(rowId);
+        miDialogoDescuento.showModal();
+    });
+
+    const btnModalEliminarItem = document.querySelector('#btnModalEliminarItem') as HTMLButtonElement;
+    btnModalEliminarItem.addEventListener('click', ()=>{
+        console.log(rowId);
+        const order = ActiveOrderE();
+        //Evitar usar una selección que pertenecía a otro contexto.
+        if(order === null || order.accountId === null || order !== rowOrder || rowId === null){
+            closePopover();
+            msjalertToast('warning', 'Verificar', 'Selecciona nuevamente el producto de la cuenta.');
+            return;
+        }
+
+        const item = order.itemsregistrados.find(item => Number(item.id) === rowId);
+        if(!item){
+            closePopover();
+            msjalertToast('warning', 'Verificar', 'El consumo ya no está disponible.');
+            return;
+        }
+
+        const quantity = Number(item.cantidad);
+        if(!Number.isFinite(quantity) || quantity <= 0){
+            msjalertToast('warning', 'Verificar', 'La cantidad registrada no es válida.');
+            return;
+        }
+
+        const nameElement = miDialogoEliminarItem.querySelector<HTMLElement>('#productoNombreId');
+        const quantityInput = miDialogoEliminarItem.querySelector<HTMLInputElement>('#productoQtyId');
+        if(!nameElement || !quantityInput)return;
+        
+        // Mostrar datos del resumen, sin otra consulta al backend.
+        nameElement.textContent = item.nombreproducto;
+        quantityInput.value = String(quantity);
+        quantityInput.max = String(quantity);
+
+        // Conservar los identificadores del producto mostrado en el modal.
+        miDialogoEliminarItem.dataset.lineId = String(item.id);
+        miDialogoEliminarItem.dataset.accountId = String(order.accountId);
+
+        // Evitar conservar el motivo y la clave de una apertura anterior.
+        const motivo = miDialogoEliminarItem.querySelector<HTMLTextAreaElement>(
+            '#observacionEliminacion'
+        );
+        const clave = miDialogoEliminarItem.querySelector<HTMLInputElement>(
+            '#inputEliminarClave'
+        );
+
+        if (motivo) motivo.value = '';
+        if (clave) clave.value = '';
+
+        closePopover();
+        miDialogoEliminarItem.showModal();
+        quantityInput.focus();
+        quantityInput.select();
     });
 
 
@@ -246,11 +317,13 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
 
 
 export const closePopover = (): void => {
-    if(!popover)return;
-    popover.hidden = true;
-    activeButton?.setAttribute("aria-expanded", "false");
-    activeButton = null;
+    if(popover)popover.hidden = true;
+    activePop?.setAttribute("aria-expanded", "false");
+    activePop = null;
     activeItemId = null;
+    // Limpiar también la selección asociada al popover.
+    rowId = null;
+    rowOrder = null;
 };
 
 
@@ -258,9 +331,9 @@ const openPopover = (registroDiv: HTMLElement, registroId: string|number): void 
     const rect = registroDiv.getBoundingClientRect();
 
     if(!popover)return;
-    if(activeButton && activeButton !== registroDiv)activeButton.setAttribute("aria-expanded", "false");
+    if(activePop && activePop !== registroDiv)activePop.setAttribute("aria-expanded", "false");
 
-    activeButton = registroDiv;
+    activePop = registroDiv;
     activeItemId = registroId;
     registroDiv.setAttribute("aria-expanded", "true");
 

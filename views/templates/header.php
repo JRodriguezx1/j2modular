@@ -1,7 +1,3 @@
-<!-- <script src="https://cdn.tailwindcss.com"></script> -->
-
-<!-- Flowbite -->
-<!-- <script src="https://unpkg.com/flowbite@2.5.1/dist/flowbite.min.js"></script> -->
 
 <div class="barra-mobile">
     <div class="barra-mobile__logo">

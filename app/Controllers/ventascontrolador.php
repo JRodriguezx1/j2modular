@@ -20,13 +20,22 @@ use App\Models\sucursales;
 use App\Repositories\ventas\canalVentaRepository;
 use App\services\facturacionService;
 use App\services\ventasService;
-
-use App\Core\Routing\Router;
+use App\Shared\Currency\CurrencyService;
+use App\Shared\Currency\MonedaRepository;
+use App\Shared\Currency\TasaCambioRepository;
+use MVC\Router;  //namespace\clase
 use stdClass;
 
 class ventascontrolador{
 
   use DocumentTrait;
+
+  public static $currencyData = [
+      'mostrarEquivalencia' => false,
+      'monedaBase' => null,
+      'monedaVisualizacion' => null,
+      'totalEquivalente' => null
+  ];
 
   public static function index(Router $router):void{
     isadmin();
@@ -79,7 +88,28 @@ class ventascontrolador{
       }
     }
 
-    $router->render('admin/ventas/index', ['titulo'=>'Ventas', 'num_orden'=>$num_orden, 'facturacotz'=>$facturacotz, 'productoscotz'=>$productoscotz, 'categorias'=>$categorias, 'productos'=>$productos, 'mediospago'=>$mediospago, 'clientes'=>$clientes, 'cajas'=>$cajas, 'consecutivos'=>$consecutivos, 'canalesVenta'=>$canalesVenta, 'departments'=>$departments, 'usuarios'=>$usuarios, 'conflocal'=>$conflocal, 'resolucionesVencidas'=>$resolucionesVencidas, 'alertas'=>$alertas, 'sucursales'=>sucursales::all(), 'user'=>$_SESSION]);
+    //$conexion = $canalesVentaRepo->getDB();
+    //$sucursalActiva = $_SESSION['sucursal'];
+
+    /*$tasaRepository = new TasaCambioRepository($conexion);
+    $currencyService = new CurrencyService($tasaRepository);*/
+
+    /*$monedaRepository = new MonedaRepository($conexion);
+    $monedaBase = $monedaRepository->buscarPorId((int)$sucursalActiva->moneda_base_id);
+    static::$currencyData['monedaBase'] = $monedaBase;*/
+    
+    /*if($sucursalActiva->mostrar_equivalencia && $sucursalActiva->moneda_visualizacion_id !== null){
+      $monedaVisualizacion = $monedaRepository->buscarPorId((int)$sucursalActiva->moneda_visualizacion_id);
+      if($monedaVisualizacion !== null){
+        //$totalEquivalente = $currencyService->convertir($total, $monedaBase->getId(), $monedaVisualizacion->getId());
+        //$tasa = $currencyService->obtenerTasa($sucursalActiva->moneda_base_id, $sucursalActiva->moneda_visualizacion_id);
+        static::$currencyData['mostrarEquivalencia'] = true;
+        static::$currencyData['monedaVisualizacion'] = $monedaVisualizacion;
+        //static::$currencyData['totalEquivalente'] = $totalEquivalente;
+      }
+    }*/
+
+    $router->render('admin/ventas/index', ['titulo'=>'Ventas', 'num_orden'=>$num_orden, 'facturacotz'=>$facturacotz, 'productoscotz'=>$productoscotz, 'categorias'=>$categorias, 'productos'=>$productos, 'mediospago'=>$mediospago, 'clientes'=>$clientes, 'cajas'=>$cajas, 'consecutivos'=>$consecutivos, 'canalesVenta'=>$canalesVenta, 'departments'=>$departments, 'usuarios'=>$usuarios, 'conflocal'=>$conflocal, 'resolucionesVencidas'=>$resolucionesVencidas, 'alertas'=>$alertas, 'sucursales'=>sucursales::all(), /*'currencyData'=>static::$currencyData,*/ 'user'=>$_SESSION]);
   }
 
 

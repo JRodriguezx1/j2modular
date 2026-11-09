@@ -80,7 +80,7 @@
 
       <div id="hacker-list" class="paginadorventas">
         <div class="formulario__dato justify-center">
-            <input id="buscarproducto" class="search bg-white border border-slate-300 text-gray-900 rounded-l-lg focus:border-indigo-600 block w-full p-3 h-14 text-xl focus:outline-none focus:ring-1" type="text" placeholder="Buscar producto, SKU o escanear codigo" name="buscarproducto" value="" required>
+            <input id="buscarproducto" class="bg-white border border-slate-300 text-gray-900 rounded-l-lg focus:border-indigo-600 block w-full p-3 h-14 text-xl focus:outline-none focus:ring-1" type="text" placeholder="Buscar producto, SKU o escanear codigo" name="buscarproducto" value="" required>
             <div class="grid place-items-center w-12 rounded-r-lg border-solid border border-slate-300 !border-l-0 hover:cursor-pointer bg-white">
               <span class="material-symbols-outlined text-2xl">search</span>
             </div>
@@ -102,7 +102,6 @@
               <?php endif; endforeach; ?>
             </div>
           </div>
-
 
           <!-- Boton Otros -->
           <button id="btnotros" class="btn-md btn-turquoise !mb-0 !inline-flex !h-14 !min-h-[3.5rem] !w-full items-center justify-center gap-2 !py-0 px-4 !text-xl !font-semibold !normal-case !leading-none">
@@ -132,7 +131,6 @@
                 
                 <div class="flex flex-col justify-center gap-1.5 min-w-0 overflow-hidden">
                     <p class="card-producto m-0 text-lg leading-6 text-slate-700 font-semibold line-clamp-2"><?php echo $producto->nombre;?></p>
-                    
                     <p class="precioVenta m-0 text-blue-600 text-xl font-bold">$<?php echo number_format($producto->precio_venta, '2', ',', '.'); ?></p>
                 </div>
                 <button id="precioadicional" title="Precio personalizado" class="grid h-11 w-11 place-items-center justify-self-end self-start rounded-lg text-indigo-600 bg-white border border-indigo-200 shadow-sm hover:text-white hover:bg-indigo-600 hover:border-indigo-600 transition-colors"><i class="fa-solid fa-pen-to-square text-2xl"></i></button>
@@ -266,7 +264,7 @@
                         id="totalunidades"
                         class="flex shrink-0 items-center justify-center min-w-9 h-9 whitespace-nowrap px-2 rounded-full bg-indigo-100 text-indigo-700 border border-indigo-200 text-2xl font-bold"
                     >
-                        0
+                      0
                     </span>
                 </div>
             </div>
@@ -286,12 +284,7 @@
                   </tr>
               </thead>
               <tbody>
-                  <!-- productos seleccionados a vender
-                  <td class="!px-0 !py-2 text-xl text-gray-500 leading-5">lupe lulu</td> 
-                  <td class="!px-0 !py-2"><div class="flex"><button><span class="menos material-symbols-outlined">remove</span></button><input type="text" class=" w-20 px-2 text-center" value="11" oninput="this.value = parseInt(this.value.replace(/[,.]/g, '')||1)"><button><span class="mas material-symbols-outlined">add</span></button></div></td>
-                  <td class="!p-2 text-xl text-gray-500 leading-5">56000</td>
-                  <td class="!p-2 text-xl text-gray-500 leading-5">56880</td>
-                  <td class="accionestd"><div class="acciones-btns"><button class="btn-md btn-red eliminarEmpleado"><i class="fa-solid fa-trash-can"></i></button></div></td>-->
+                <!-- productos agregados al carrito-->
               </tbody>
           </table>
           <div id="carritoVacio" class="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center text-slate-500 text-xl">
@@ -534,6 +527,7 @@
     const getParam = <?= json_encode($conflocal) ?>;
     const percentComisionUser = <?= json_encode($user['porcentajeganancia']); ?> //porcentaje de comision del usuario logueado
     const sucursal = <?= json_encode(negocionSucursal()) ?>;
+    //window.currencyConfig = <?php //json_encode($currencyData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
   </script>
 
 </div>

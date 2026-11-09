@@ -5,7 +5,7 @@ import type {ActiveOccupation, OccupationAccount} from './occupationApi';
 import type { CartTotals } from './cartTotals';
 
 // Cada resultado explica por qué podemos o no activar un carrito.
-export type AccountPanelResult =| {status: 'ready', account: OccupationAccount, totales: AccountTotals} | {status: 'empty'} | {status: 'selection-required'} | {status: 'closed'} | {status: 'error'} | {status: 'cancelled'};
+export type AccountPanelResult =| {status: 'ready', account: OccupationAccount, totales: AccountTotals, itemsregistrados:AccountConsumption[]} | {status: 'empty'} | {status: 'selection-required'} | {status: 'closed'} | {status: 'error'} | {status: 'cancelled'};
 
 let requestVersion = 0;
 let activeRequest: AbortController | null = null;
@@ -198,7 +198,7 @@ export async function showAccountPanel(occupation: ActiveOccupation, accounts: O
         if(summary.accountId !== account.id || summary.occupationId !== occupation.occupationId)
             throw new Error('El resumen recibido no corresponde a esta cuenta.');
         renderSummary(summary);
-        return {status: 'ready', account, 'totales': summary.totales}; //retornamos la primera cuenta "general".
+        return {status:'ready', account, 'totales':summary.totales, 'itemsregistrados':summary.consumos}; //retornamos la primera cuenta "general".
     }catch(error){
         if(currentRequest !== requestVersion || controller.signal.aborted)return {status: 'cancelled'};
         //setStatus(error instanceof Error ? error.message : 'No fue posible consultar la cuenta.');

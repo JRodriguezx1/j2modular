@@ -62,7 +62,7 @@ final class RegistrarCompraInventarioService{
             $stocks = $this->bloquearStocks($lineas, $sucursalId);
             $idCompra = $this->guardarCompraYDetalle($compra, $lineas['carrito']);
             $this->actualizarInventario($lineas, $stocks, $costosCompuestos, $sucursalId, $usuarioId, $nombreUsuario);
-
+            $this->actualizarCostosDelProveedor($lineas['carrito'], (int)$compra->idproveedor, $sucursalId);
             $cierre = $this->obtenerOCrearCierre($cajaOrigen, $sucursalId, $usuarioId, $nombreUsuario);
             $this->registrarGasto($compra, $idCompra, $cierre, $sucursalId, $usuarioId);
 
@@ -272,6 +272,21 @@ final class RegistrarCompraInventarioService{
     private function insertarVarios(ActiveRecord $modelo, array $registros, string $mensaje): void{
         $resultado = $modelo->crear_varios_reg_arrayobj($registros);
         if(empty($resultado[0]) || ActiveRecord::getDB()->affected_rows !== count($registros))throw new RuntimeException($mensaje);
+    }
+
+    /** Actualiza el último costo de cada artículo comprado al proveedor. */
+    private function actualizarCostosDelProveedor(array $carrito, int $proveedorId, int $sucursalId): void {
+        $servicio = new ActualizarCostoInventarioService();
+        foreach($carrito as $item){
+            $resultado = $servicio->guardarCostoProveedor([
+                'proveedor_id' => $proveedorId,
+                'idelemento' => (int)$item->iditem,
+                'tipoelemento' => (int)$item->tipo,
+                'costo' => (string)$item->precio_compra
+            ], $sucursalId, false); // La compra ya tiene una transacción abierta.
+
+            if(!empty($resultado['error']))throw new RuntimeException('No fue posible registrar el costo del proveedor para el artículo ' . $item->iditem . '.');
+        }
     }
 
 }

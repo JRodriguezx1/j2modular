@@ -212,7 +212,7 @@ class facturacionService
         $this->cargarDetalleOrdenPersistido();
 
         $this->mediosPago = $this->decodificarArray('mediosPago');
-        $this->valoresCredito = (object)['capital' => 0, 'abonoinicial' => 0];
+        $this->valoresCredito = (object)['capital' => 0, 'abonoinicial' => 0,];
         $this->datosAdquiriente = json_decode(json_encode(adquirientes::find('id', 1)));
         return true;
     }
@@ -657,7 +657,7 @@ class facturacionService
         $factura->idcierrecaja = $cierre->id;
         $factura->num_orden = facturas::calcularNumOrden($this->sucursalId);
 
-        $factura->entrega == 'Presencial' ? $factura->entregado=1 : $factura->entregado=0;
+        (($factura->entrega == 'Presencial' || $factura->entrega == 'Domicilio') && ($this->estado == 'Paga' && $factura->entregado == 1)) ? $factura->entregado=1 : $factura->entregado=0;
 
         if($this->parametros['valor_por_punto']->valor_final && ((int)$factura->idcliente ?? 0)>0){
             if($this->estado == "Paga"){
@@ -669,7 +669,7 @@ class facturacionService
         return $factura;
     }
 
-    /** Guarda una cotizacion o remision nueva y sus lineas, sin inventario. */
+    /** Guarda redimido. */
     private function guardarRedimido(facturas $factura, cierrescajas $cierre){
         $this->normalizarTipoOrden($factura);
         [$creada, $idFactura] = $factura->crear_guardar();
@@ -727,7 +727,7 @@ class facturacionService
         if(!$consecutivo->actualizar()) throw new RuntimeException('No fue posible actualizar el consecutivo.');
 
         $this->relacionarOrdenOrigen($factura, $cierre);
-        self::createInvoiceElectronic($this->carrito, $this->datosAdquiriente, $factura->idconsecutivo, $idFactura, $factura->num_consecutivo, $this->mediosPago,  $factura->descuento, $factura->valortarifa, $factura->observacion );
+        self::createInvoiceElectronic( $this->carrito, $this->datosAdquiriente, $factura->idconsecutivo, $idFactura, $factura->num_consecutivo, $this->mediosPago,  $factura->descuento, $factura->valortarifa, $factura->observacion );
         $idCuota = $this->registrarCredito($factura, (int)$idFactura);
         $this->actualizarPuntosCliente($factura, (int)$idFactura);
         $this->actualizarCierreYRelaciones( $factura, $cierre, (int)$idFactura, $idCuota );
@@ -828,7 +828,7 @@ class facturacionService
             $linea->dato2 = '';
             // Los productos libres llamados "Otros" se relacionan con el
             // producto y categoria reservados por el sistema.
-            if((int)($linea->idproducto ?? 0) < 0 && (int)($linea->idcategoria ?? 0) < 0){
+            if((int)($linea->idproducto ?? 0)<0 && (int)($linea->idcategoria ?? 0)<0){
                 $linea->idproducto = 1;
                 $linea->idcategoria = 1;
             }

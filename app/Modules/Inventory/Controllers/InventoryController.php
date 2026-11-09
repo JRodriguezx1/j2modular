@@ -15,6 +15,7 @@ use App\Models\inventario\stockproductossucursal;
 use App\Models\sucursales;
 use App\services\exportService;
 use App\services\inventario\CategoriasInventarioService;
+use App\services\inventario\CostosProveedorConsultaService;
 use App\services\inventario\InsumosInventarioService;
 use App\services\inventario\PanelInventarioService;
 use App\services\inventario\ProductosInventarioService;
@@ -289,7 +290,7 @@ class InventoryController{
     if(!tienePermiso('Habilitar modulo de inventario')&&userPerfil()>3)return;
     $productos = [];
     $productos = productos::all();
-    $router->render('admin/almacen/cambioPrecios', ['titulo'=>'Almacen', 'productos'=>$productos, 'sucursales'=>sucursales::all()]);
+    $router->render('admin/almacen/cambioPrecios', ['titulo'=>'Almacen', 'productos'=>$productos, 'sucursales'=>sucursales::all(), 'user'=>$_SESSION]);
   }
 
 
@@ -297,7 +298,7 @@ class InventoryController{
     isadmin();
     if(!tienePermiso('Habilitar modulo de inventario')&&userPerfil()>3)return;
     $alertas = [];
-    $router->render('admin/almacen/estadisticas', ['titulo'=>'Almacen', 'alertas'=>$alertas, 'sucursales'=>sucursales::all()]);
+    $router->render('admin/almacen/estadisticas', ['titulo'=>'Almacen', 'alertas'=>$alertas, 'sucursales'=>sucursales::all(), 'user'=>$_SESSION]);
   }
 
 
@@ -305,7 +306,7 @@ class InventoryController{
     isadmin();
     if(!tienePermiso('Habilitar modulo de inventario')&&userPerfil()>3)return;
     $productos = productos::all();
-    $router->render('admin/almacen/productosParaFormulas', ['titulo'=>'Almacen', 'productos'=>$productos, 'sucursales'=>sucursales::all()]);
+    $router->render('admin/almacen/productosParaFormulas', ['titulo'=>'Almacen', 'productos'=>$productos, 'sucursales'=>sucursales::all(), 'user'=>$_SESSION]);
   }
 
 
@@ -313,7 +314,15 @@ class InventoryController{
     isadmin();
     if(!tienePermiso('Habilitar modulo de inventario')&&userPerfil()>3)return;
     $subproductos = subproductos::all();
-    $router->render('admin/almacen/conversionUnidades', ['titulo'=>'Almacen', 'subproductos'=>$subproductos, 'sucursales'=>sucursales::all()]);
+    $router->render('admin/almacen/conversionUnidades', ['titulo'=>'Almacen', 'subproductos'=>$subproductos, 'sucursales'=>sucursales::all(), 'user'=>$_SESSION]);
+  }
+
+
+  public static function costosProductosPorProveedor(Router $router){
+    isadmin();
+    if(!tienePermiso('Habilitar modulo de inventario')&&userPerfil()>3)return;
+    
+    $router->render('admin/almacen/costosProductosPorProveedor', ['titulo'=>'Almacen',  'sucursales'=>sucursales::all(), 'user'=>$_SESSION]);
   }
 
 }

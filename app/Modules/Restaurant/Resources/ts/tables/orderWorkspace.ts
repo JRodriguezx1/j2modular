@@ -10,7 +10,8 @@ import { registeraddclienteEvents, renderCli } from './eventos/selectCliEvent';
 import { createCli } from './cli';
 import { registrarProcesarOrdenEvent } from './eventos/ProcesarOrdenEvent';
 import type { OrderSaveResult } from './eventos/ProcesarOrdenEvent';
-import { getAccountSummary, AccountTotals } from './accountApi';
+import { getAccountSummary } from './accountApi';
+import type { AccountTotals, AccountConsumption } from './accountApi';
 import { asignarClienteDianEvent } from './eventos/customerDianEvent';
 import { createCliDian } from './cliDian';
 import { registerProcesarPagoEvents } from './eventos/ProcesarPagoEvent';
@@ -51,7 +52,8 @@ let activeOrder: {
     cart: Cart;
     cli: Cli,
     cliDian: ReturnType<typeof createCliDian>,
-    totales: AccountTotals|null
+    totales: AccountTotals|null,
+    itemsregistrados: AccountConsumption[]
 } | null = null;
 
 
@@ -78,7 +80,7 @@ function setSavingOrder(saving: boolean): void{
 
 
 // Selecciona el carrito correspondiente al contexto confirmado.
-function activateOrder(resourceId: number, occupationId: number|null, accountId: number|null, client:Cliente|null, totales:AccountTotals|null = null): void{
+function activateOrder(resourceId: number, occupationId: number|null, accountId: number|null, client:Cliente|null, totales:AccountTotals|null = null, itemsregistrados:AccountConsumption[]=[]): void{
     let key: CartKey;
     if(accountId !== null){
         key = `account:${accountId}`;
@@ -110,7 +112,7 @@ function activateOrder(resourceId: number, occupationId: number|null, accountId:
         clientesDian.set(key, cliDian);
     }
 
-    activeOrder = {resourceId, occupationId, accountId, cartKey: key, cart, cli, cliDian, totales};
+    activeOrder = {resourceId, occupationId, accountId, cartKey: key, cart, cli, cliDian, totales, itemsregistrados};
     renderCartPanel(cart.getItems());  //Muestra el carrito recién creado. Así reaparecen los pendientes al abrir la mesa.
     renderCli(cli.getCli());
 }
@@ -176,6 +178,10 @@ async function refreshConfirmedOrderCart(): Promise<void>{
     // Confirmamos que el resumen corresponde al pedido actual.
     if(summary.accountId !== accountId || summary.occupationId !== occupationId)
         throw new Error('El resumen recibido no corresponde a esta cuenta.');
+
+    //Mantener la información en memoria actualizada después de guardar.
+    order.itemsregistrados = summary.consumos;
+    order.totales = summary.totales;
 
     // Primero actualizamos los importes registrados.
     renderConfirmedAccount(summary);
@@ -311,14 +317,14 @@ async function loadOrderWorkspace(resourceId: number, tableName: string): Promis
             throw new Error('Las cuentas recibidas no corresponden a una atención activa.');
 
         //Esperamos a que el panel consulte el resumen y nos devuelva la cuenta.
-        const result = await showAccountPanel(occupation, data.accounts); //llamada al panel izquierdo para detalle de cuenta y pasamos arreglo de cuentas.
+        const result = await showAccountPanel(occupation, data.accounts); //llamada al panel izquierdo para detalle de cuenta y pasamos arreglo de cuentas. tambien obtiene los productos registrados
         // Mientras esperábamos, el usuario pudo cerrar el panel o cambiar de mesa.
         if(currentRequest !== requestVersion)return;
 
        // Caso 2: existe una cuenta abierta y su resumen fue consultado.
         if(result.status === 'ready'){
-            console.log(occupation);
-            activateOrder(resourceId, occupation.occupationId, result.account.id, occupation.client, result.totales);
+            console.log(result.itemsregistrados);
+            activateOrder(resourceId, occupation.occupationId, result.account.id, occupation.client, result.totales, result.itemsregistrados);
             return;
         }
 
