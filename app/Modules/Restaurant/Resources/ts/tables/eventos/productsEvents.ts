@@ -10,6 +10,7 @@ const popover = document.querySelector<HTMLDivElement>("#cart-popover");
 const btnsdevolverinv = document.querySelectorAll<HTMLInputElement>('input[name="devolverinventario"]'); //radio buttom
 const miDialogoDescuento = document.querySelector('#miDialogoDescuento') as HTMLDialogElement;
 const miDialogoEliminarItem = document.querySelector('#miDialogoEliminarItem') as HTMLDialogElement;
+const sieliminar = document.querySelector('#sieliminar') as HTMLButtonElement;
 
 let activeItemId: string|number|null = null;
 let activePop: HTMLElement | null = null;
@@ -303,6 +304,10 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
         quantityInput.select();
     });
 
+
+    sieliminar.addEventListener('click', ()=>{
+
+    });
 
 }
 

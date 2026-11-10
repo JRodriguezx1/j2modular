@@ -172,5 +172,37 @@ export async function UpdateAccountCustomer(accountId: number, clientId:number|n
         throw new Error('La respuesta de actualización está incompleta o no corresponde.');
 
     return data;
+}
 
+
+// Actualiza únicamente el cliente de la ocupación y de su factura.
+export async function eliminarItem(accountId: number, lineId:number|null): Promise<CliUpOrderData>{
+    if(!Number.isSafeInteger(accountId) || accountId <= 0)
+        throw new Error('La cuenta no es válida.');
+
+    // Solo admitimos null para retirar o un ID positivo para asignar.
+    if(lineId !== null && (!Number.isSafeInteger(lineId) || lineId <= 0))
+        throw new Error('El producto ya no es válido.');
+
+    const form = new FormData();
+    form.set('accountId', String(accountId));
+    form.set('lineId', String(lineId));
+
+    const response = await fetch('/restaurant/api/accounts/lines/cancel', //llama controlador OccupationAccountController::UpdateAccountCustomer
+        {
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+            body: form
+        }
+    );
+
+    const result = await response.json();
+    if(!result || !response.ok || result.success !== true)
+        throw new Error(result?.message ?? 'No fue posible eliminar el item.' );
+
+    const data = result.data;
+    if(!data || data.accountId!==accountId || !Number.isSafeInteger(data.occupationId) || data.occupationId<=0 || !Number.isSafeInteger(data.orderId) ||  data.orderId<=0 || data.lineid!==lineId)
+        throw new Error('La respuesta de actualización está incompleta o no corresponde.');
+
+    return data;
 }
