@@ -3336,6 +3336,7 @@ DROP TABLE IF EXISTS `ventas`;
 CREATE TABLE `ventas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `idfactura` int NOT NULL,
+  `idventa_origen` int DEFAULT NULL,
   `idproducto` int DEFAULT NULL,
   `idusuarioanulada` int DEFAULT NULL,
   `tipoproducto` tinyint(1) DEFAULT NULL,
@@ -3365,6 +3366,7 @@ CREATE TABLE `ventas` (
   KEY `idproducto_idx` (`idproducto`),
   KEY `idfactura_idx` (`idfactura`),
   KEY `idusuarioanulada_idx` (`idusuarioanulada`),
+  KEY `idx_ventas_idventa_origen` (`idventa_origen`),
   CONSTRAINT `idfactura` FOREIGN KEY (`idfactura`) REFERENCES `facturas` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `idproducto` FOREIGN KEY (`idproducto`) REFERENCES `productos` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `idusuarioanulada` FOREIGN KEY (`idusuarioanulada`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
@@ -3393,4 +3395,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-11-08 17:41:15
+-- Dump completed on 2026-11-09 19:59:57

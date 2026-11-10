@@ -260,7 +260,6 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
 
     const btnModalEliminarItem = document.querySelector('#btnModalEliminarItem') as HTMLButtonElement;
     btnModalEliminarItem.addEventListener('click', ()=>{
-        console.log(rowId);
         const order = ActiveOrderE();
         //Evitar usar una selección que pertenecía a otro contexto.
         if(order === null || order.accountId === null || order !== rowOrder || rowId === null){
@@ -270,7 +269,7 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
         }
 
         const item = order.itemsregistrados.find(item => Number(item.id) === rowId);
-        if(!item){
+        if(!item){ //se puede anular la condicion
             closePopover();
             msjalertToast('warning', 'Verificar', 'El consumo ya no está disponible.');
             return;
@@ -282,29 +281,21 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
             return;
         }
 
-        const nameElement = miDialogoEliminarItem.querySelector<HTMLElement>('#productoNombreId');
+        const nameProduct = miDialogoEliminarItem.querySelector<HTMLElement>('#productoNombreId');
         const quantityInput = miDialogoEliminarItem.querySelector<HTMLInputElement>('#productoQtyId');
-        if(!nameElement || !quantityInput)return;
+        if(!nameProduct || !quantityInput)return;
         
-        // Mostrar datos del resumen, sin otra consulta al backend.
-        nameElement.textContent = item.nombreproducto;
+        nameProduct.textContent = item.nombreproducto;
         quantityInput.value = String(quantity);
         quantityInput.max = String(quantity);
-
         // Conservar los identificadores del producto mostrado en el modal.
         miDialogoEliminarItem.dataset.lineId = String(item.id);
         miDialogoEliminarItem.dataset.accountId = String(order.accountId);
-
         // Evitar conservar el motivo y la clave de una apertura anterior.
-        const motivo = miDialogoEliminarItem.querySelector<HTMLTextAreaElement>(
-            '#observacionEliminacion'
-        );
-        const clave = miDialogoEliminarItem.querySelector<HTMLInputElement>(
-            '#inputEliminarClave'
-        );
-
-        if (motivo) motivo.value = '';
-        if (clave) clave.value = '';
+        const motivo = miDialogoEliminarItem.querySelector<HTMLTextAreaElement>('#observacionEliminacion');
+        const clave = miDialogoEliminarItem.querySelector<HTMLInputElement>('#inputEliminarClave');
+        if(motivo)motivo.value = '';
+        if(clave)clave.value = '';
 
         closePopover();
         miDialogoEliminarItem.showModal();

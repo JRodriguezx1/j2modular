@@ -820,30 +820,141 @@ class ventasService {
     }
 
 
+
+    ///   METODOS NUEVOS PARA RESTAURANT   ///
+    
     /**
-    * Anula una línea completa.
+    * Anula toda la cantidad o solamente una parte.
     * Requiere una transacción abierta y la factura Abierta bloqueada.
-    * Retorna: true: la línea se anuló ahora.  false: la línea ya estaba anulada.
+    * true: se procesó la anulación. false: la fila original ya estaba anulada.
     */
-    public static function anularLineaOrdenAbierta(int $ordenId, int $lineaId, int $usuarioId, string $motivo): bool{
+    public static function anularLineaOrdenAbierta(int $ordenId, int $lineaId, int $usuarioId, string $motivo, string $cantidadAnular): bool{
         if($ordenId <= 0 || $lineaId <= 0 || $usuarioId <= 0)
             throw new \InvalidArgumentException('La factura, la línea o el usuario no es válido.');
 
         $motivo = trim($motivo);
+
         if($motivo === '')
             throw new \InvalidArgumentException('Debes indicar el motivo de la anulación.');
 
         if(mb_strlen($motivo, 'UTF-8') > 255)
             throw new \InvalidArgumentException('El motivo no puede superar los 255 caracteres.');
 
+        // Obtener los valores actuales y bloquear la línea.
         $linea = ventas::bloquearLineaOrden($ordenId, $lineaId);
         if($linea === null)
             throw new \InvalidArgumentException('La línea no pertenece a esta factura.');
-        // Un segundo intento no sobrescribe la auditoría original.
+        // Conservar la auditoría de una fila que ya estaba anulada.
         if((int)$linea['anulada'] === 1)return false;
 
-        ventas::marcarLineaAnulada($ordenId, $lineaId, $usuarioId, $motivo);
+        // Valida cantidades e importes y calcula ambas partes.
+        $division = self::dividirAnulacion($linea, $cantidadAnular);
+        if($division['completa']){
+            // Si se anula todo, basta con marcar la fila existente.
+            ventas::marcarLineaAnulada($ordenId, $lineaId, $usuarioId, $motivo);
+            return true;
+        }
+        // El flujo actual de órdenes Abiertas guarda productos simples.
+        // Los compuestos necesitan además distribuir sus insumos asociados.
+        if((int)$linea['tipoproducto'] !== 0)
+            throw new \InvalidArgumentException('La anulación parcial está disponible para productos simples.');
+        // La fila original conserva las unidades y los importes restantes.
+        ventas::actualizarRestanteLineaOrden($ordenId, $lineaId, $division['restante']);
+        // Registrar la parte anulada con su origen y auditoría.
+        ventas::insertarParteAnuladaOrden($ordenId, $lineaId, $division['anulada'], $usuarioId, $motivo);
         return true;
     }
+
+
+
+    private static function proporcional(string $importe, string $cantidad, string $cantidadAnular, int $escala = 2): string{
+        // Calcular con precisión adicional.
+        $producto = bcmul($importe, $cantidadAnular, $escala + 6);
+        $valor = bcdiv($producto, $cantidad, $escala + 4);
+        // Redondear a la precisión deseada.
+        $mitad = '0.' . str_repeat('0', $escala) . '5';
+        return bcadd($valor, $mitad, $escala);
+    }
+
+
+    // Comprobar los importes guardados antes de dividir una línea.
+    private static function validarImportesAnulacion(array $linea): void{
+        // Precisión utilizada al guardar cada importe.
+        $escalas = ['subtotal' => 2, 'descuento' => 2, 'total' => 2, 'valorcomision' => 2, 'base' => 3, 'valorimp' => 3];
+        foreach($escalas as $campo => $decimales){
+            $valor = $linea[$campo] ?? null;
+            // MySQL devuelve los DECIMAL como texto.
+            // También admitimos enteros, incluido cero.
+            if(!is_string($valor) && !is_int($valor))
+                throw new \RuntimeException('Importe guardado no válido: ' . $campo);
+
+            // Admitir números no negativos con la precisión correspondiente.
+            $patron = '/\A\d+(?:\.\d{1,' . $decimales . '})?\z/';
+            if(!preg_match($patron, (string) $valor))
+                throw new \RuntimeException('Importe guardado no válido: ' . $campo);
+        }
+
+        // Comprobar: subtotal - descuento = total.
+        $totalCalculado = bcsub((string) $linea['subtotal'], (string) $linea['descuento'], 2);
+
+        if(bccomp($totalCalculado, (string) $linea['total'], 2) !== 0)
+            throw new \RuntimeException('El subtotal menos el descuento no coincide con el total.');
+        // Comprobar: base + impuesto = total.
+        $totalConImpuesto = bcadd((string) $linea['base'], (string) $linea['valorimp'], 3);
+        if(bccomp($totalConImpuesto, (string) $linea['total'], 3) !== 0)
+            throw new \RuntimeException('La base más el impuesto no coincide con el total.');
+    }
+
+
+    private static function dividirAnulacion(array $linea, string $cantidadAnular): array{
+        $cantidad = (string)$linea['cantidad'];
+        $patron = '/\A(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?\z/';
+        // Validar formato antes de llamar a BCMath.
+        foreach([$cantidad, $cantidadAnular] as $valor){
+            if(!preg_match($patron, $valor) || bccomp($valor, '0', 2) <= 0)
+                throw new \InvalidArgumentException('Cantidad inválida.');
+        }
+
+        if(bccomp($cantidadAnular, $cantidad, 2) > 0)
+            throw new \InvalidArgumentException('La cantidad supera las unidades disponibles.');
+
+        // Detener la operación si los importes originales son inconsistentes.
+        self::validarImportesAnulacion($linea);
+        $anulada = ['cantidad' => bcadd($cantidadAnular, '0', 2)];
+        $restante = ['cantidad' => bcsub($cantidad, $cantidadAnular, 2)];
+
+        foreach(['subtotal', 'descuento', 'valorcomision'] as $campo){
+            $original = (string) $linea[$campo];
+            $anulada[$campo] = self::proporcional($original, $cantidad, $cantidadAnular);
+            // Conservar el importe original entre ambas porciones.
+            $restante[$campo] = bcsub($original, $anulada[$campo], 2);
+        }
+
+        // Total = subtotal - descuento
+        $anulada['total'] = bcsub($anulada['subtotal'], $anulada['descuento'], 2);
+        $restante['total'] = bcsub((string)$linea['total'], $anulada['total'], 2);
+        // Repartir impuesto con 3 decimales.
+        $impuestoOriginal = (string)$linea['valorimp'];
+        $impuesto = self::proporcional($impuestoOriginal, $cantidad, $cantidadAnular, 3);
+        // Limitar el impuesto para evitar bases negativas.
+        $minimo = bcsub($impuestoOriginal, $restante['total'], 3);
+        if(bccomp($minimo, '0', 3) < 0)$minimo = '0.000';
+        $maximo = bcadd($anulada['total'], '0', 3);
+        if(bccomp($impuesto, $minimo, 3) < 0)$impuesto = $minimo;
+        if(bccomp($impuesto, $maximo, 3) > 0)$impuesto = $maximo;
+        $anulada['valorimp'] = $impuesto;
+        $restante['valorimp'] = bcsub($impuestoOriginal, $impuesto, 3);
+
+        // Base = total - impuesto
+        $anulada['base'] = bcsub($anulada['total'], $anulada['valorimp'], 3);
+        $restante['base'] = bcsub($restante['total'], $restante['valorimp'], 3);
+
+        return [
+            'completa' => bccomp($cantidadAnular, $cantidad, 2) === 0,
+            'anulada' => $anulada,
+            'restante' => $restante,
+        ];
+    }
+
 
 }

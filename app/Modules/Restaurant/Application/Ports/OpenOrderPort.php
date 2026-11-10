@@ -14,7 +14,6 @@ interface OpenOrderPort{
     public function getSummary(int $orderId, int $branchId): array;
     /**
     * Agrega un lote dentro de la transacción del llamador.
-    *
     * @param array<int, array{productId: int, quantity: string}> $items
     * @return array{lineIds: array<int, int>, totales: array}
     */
@@ -22,7 +21,6 @@ interface OpenOrderPort{
     /**
     * Crea una factura Abierta con su primer lote.
     * Requiere una transacción abierta por el llamador.
-    *
     * @param array<int, array{productId: int, quantity: string}> $items
     * @return array{idfactura: int, lineIds: array, totales: array}
     */
@@ -30,5 +28,12 @@ interface OpenOrderPort{
 
     // Requiere una transacción abierta por el caso de uso.
     public function updateCustomer(int $orderId, int $branchId, ?int $customerId): void;
+
+    /**
+     * Anula una cantidad y recalcula la factura dentro de la transacción del llamador.
+     * alreadyCancelled indica que la fila original ya estaba anulada.
+     * @return array{lineId: int, alreadyCancelled: bool, totales: array}
+     */
+    public function cancelLine(int $orderId, int $lineId, int $branchId, int $userId, string $reason, string $quantity): array;
 
 }

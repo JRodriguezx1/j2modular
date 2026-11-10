@@ -151,7 +151,7 @@ class OpenInvoiceService{
     *
     * @return array{lineId: int, alreadyCancelled: bool, totales: array}
     */
-    public function cancelLine(int $invoiceId, int $lineId, int $branchId, int $userId, string $reason): array{
+    public function cancelLine(int $invoiceId, int $lineId, int $branchId, int $userId, string $reason, string $quantity): array{
         if($invoiceId <= 0 || $lineId <= 0 || $branchId <= 0 || $userId <= 0)
             throw new InvalidArgumentException('Los datos de la anulación no son válidos.');
 
@@ -160,7 +160,7 @@ class OpenInvoiceService{
         if($order === null)
             throw new InvalidArgumentException('La factura no está disponible como Abierta en esta sucursal.');
 
-        $cancelled = ventasService::anularLineaOrdenAbierta($invoiceId, $lineId, $userId, $reason);
+        $cancelled = ventasService::anularLineaOrdenAbierta($invoiceId, $lineId, $userId, $reason, $quantity);
         //El recálculo ya excluye las líneas anuladas. Si no queda ninguna vigente, deja los totales en cero.
         $totals = facturas::recalcularTotalesOrdenAbierta($invoiceId, $branchId);
         return ['lineId' => $lineId, 'alreadyCancelled' => !$cancelled, 'totales' => $totals];

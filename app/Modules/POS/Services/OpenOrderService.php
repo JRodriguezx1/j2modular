@@ -34,6 +34,11 @@ class OpenOrderService{
         (new OpenInvoiceService())->updateCustomer($orderId, $branchId, $customerId);
     }
 
+    // La transacción la controla Restaurant; POS realiza la anulación y el recálculo.
+    public function cancelLine(int $orderId, int $lineId, int $branchId, int $userId, string $reason, string $quantity): array{
+        return (new OpenInvoiceService())->cancelLine($orderId, $lineId, $branchId, $userId, $reason, $quantity);
+    }
+
     //Este método reúne la cabecera y sus productos sin modificar datos. Una orden abierta sin productos devolverá consumos: [] y los totales iniciales de su cabecera.
     public function getSummary(int $orderId, int $branchId): array{
         if ($orderId <= 0 || $branchId <= 0)

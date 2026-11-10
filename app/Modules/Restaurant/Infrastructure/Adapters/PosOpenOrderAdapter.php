@@ -32,5 +32,10 @@ class PosOpenOrderAdapter implements OpenOrderPort{
     public function updateCustomer(int $orderId, int $branchId, ?int $customerId): void {
         $this->openOrderService->updateCustomer($orderId, $branchId, $customerId);
     }
+
+    // Llamado por CancelAccountLine; conserva la transacción del caso de uso.
+    public function cancelLine(int $orderId, int $lineId, int $branchId, int $userId, string $reason, string $quantity): array{
+        return $this->openOrderService->cancelLine($orderId, $lineId, $branchId, $userId, $reason, $quantity);
+    }
     
 }

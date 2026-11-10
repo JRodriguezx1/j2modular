@@ -19,5 +19,6 @@ $router->get('/restaurant/api/occupations/active', [RestaurantController::class,
 $router->get('/restaurant/api/occupations/accounts', [OccupationAccountController::class, 'index']);  //llamada desdes occupationApi.ts, consultar las cuentas asociadas a la ocupacion
 $router->post('/restaurant/api/tables/crearOrdenComanda', [OccupationAccountController::class, 'crearOrdenComanda']); //primer pedido de una mesa libre
 $router->post('/restaurant/api/accounts/products/addProducts', [OccupationAccountController::class, 'addProducts']); // Agregar un lote de productos a una cuenta existente.
+$router->post('/restaurant/api/accounts/lines/cancel', [OccupationAccountController::class, 'cancelLine']); // Anular toda la cantidad de una línea o solamente una parte.
 $router->post('/restaurant/api/accounts/customer/UpdateAccountCustomer', [OccupationAccountController::class, 'UpdateAccountCustomer']); // Actualizar cliente
 $router->get('/restaurant/api/accounts/summary', [OccupationAccountController::class, 'summary']);  //llamada desdes getAccountSummary - accountApi.ts

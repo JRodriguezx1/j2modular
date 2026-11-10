@@ -10,6 +10,7 @@ use App\Modules\Restaurant\Application\UseCases\GetAccountSummary;
 use App\Modules\Restaurant\Application\UseCases\SaveFirstTableOrder;
 use App\Modules\Restaurant\Application\UseCases\AddProductsToAccount;
 use App\Modules\Restaurant\Application\UseCases\UpdateAccountCustomer;
+use App\Modules\Restaurant\Application\UseCases\CancelAccountLine;
 
 class OccupationAccountController{
 
@@ -18,7 +19,8 @@ class OccupationAccountController{
         private GetAccountSummary $getAccountSummary,
         private SaveFirstTableOrder $saveFirstTableOrder,
         private AddProductsToAccount $addProductsToAccount,
-        private UpdateAccountCustomer $updateAccountCustomer
+        private UpdateAccountCustomer $updateAccountCustomer,
+        private CancelAccountLine $cancelAccountLine
     ){}
 
     //llamada desdes occupationApi.ts, consultar las cuentas asociadas a la ocupacion
@@ -152,6 +154,56 @@ class OccupationAccountController{
             error_log('AddProductsToAccount: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'No fue posible guardar los productos.'], JSON_UNESCAPED_UNICODE);
+        }
+    }
+
+
+    // Anula una cantidad de una línea registrada en la cuenta.
+    public function cancelLine(): void{
+        header('Content-Type: application/json; charset=utf-8');
+        // El router actual también consulta las rutas POST para otros métodos.
+        if(($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST'){
+            header('Allow: POST');
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Utiliza POST para anular un consumo.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        if(($_SESSION['login'] ?? false) !== true){
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Debes iniciar sesión.'], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        try {
+            $positiveId = ['options' => ['min_range' => 1]];
+            $accountId = filter_var($_POST['accountId'] ?? null, FILTER_VALIDATE_INT, $positiveId);
+            // lineId corresponde a ventas.id, no al ID del producto.
+            $lineId = filter_var($_POST['lineId'] ?? null, FILTER_VALIDATE_INT, $positiveId);
+            // La sucursal y el usuario responsable siempre vienen de la sesión.
+            $branchId = filter_var($_SESSION['idsucursal'] ?? null, FILTER_VALIDATE_INT, $positiveId);
+            $userId = filter_var($_SESSION['id'] ?? null, FILTER_VALIDATE_INT, $positiveId);
+
+            if($accountId === false || $lineId === false || $branchId === false || $userId === false)
+                throw new InvalidArgumentException('La cuenta, la línea, la sucursal o el usuario no es válido.');
+
+            // FormData envía estos campos como texto. No convertir la cantidad a float.
+            $quantity = $_POST['quantity'] ?? null;
+            $reason = $_POST['reason'] ?? null;
+            if(!is_string($quantity) || !is_string($reason))
+                throw new InvalidArgumentException('Debes enviar la cantidad y el motivo de la anulación.');
+
+            // El caso de uso valida los valores y controla toda la transacción.
+            $result = $this->cancelAccountLine->execute($accountId, $lineId, $quantity, $reason, $branchId, $userId);
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $result], JSON_UNESCAPED_UNICODE);
+        }catch(InvalidArgumentException $e){
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        }catch(Throwable $e){
+            error_log('CancelAccountLine: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible anular el consumo.'], JSON_UNESCAPED_UNICODE);
         }
     }
 

@@ -3,12 +3,13 @@ namespace App\Models\ventas;
 
 class ventas extends \App\Models\ActiveRecord {
     protected static $tabla = 'ventas';
-    protected static $columnasDB = ['id', 'idfactura', 'idproducto', 'idusuarioanulada', 'tipoproducto', 'tipoproduccion', 'anulada', 'fecha_anulacion', 'motivo_anulacion', 'rendimientoestandar', 'nombreproducto', 'foto', 'anotacion', 'costo', 'valorunidad', 'cantidad', 'promediostock', 'percentcomision', 'valorcomision', 'subtotal', 'base', 'impuesto', 'valorimp', 'descuento', 'total', 'dato1', 'dato2'];
+    protected static $columnasDB = ['id', 'idfactura', 'idventa_origen', 'idproducto', 'idusuarioanulada', 'tipoproducto', 'tipoproduccion', 'anulada', 'fecha_anulacion', 'motivo_anulacion', 'rendimientoestandar', 'nombreproducto', 'foto', 'anotacion', 'costo', 'valorunidad', 'cantidad', 'promediostock', 'percentcomision', 'valorcomision', 'subtotal', 'base', 'impuesto', 'valorimp', 'descuento', 'total', 'dato1', 'dato2'];
     
     public function __construct($args = [])
     {
         $this->id = $args['id'] ?? null;
         $this->idfactura = $args['idfactura'] ?? '';
+        $this->idventa_origen = $args['idventa_origen'] ?? 'NULL';
         $this->idproducto = $args['idproducto'] ?? '';
         $this->idusuarioanulada = $args['idusuarioanulada'] ?? 'NULL';
         $this->tipoproducto = $args['tipoproducto'] ?? '';
@@ -51,7 +52,7 @@ class ventas extends \App\Models\ActiveRecord {
     public static function bloquearLineaOrden(int $ordenId, int $lineaId): ?array{
         $db = self::getDB();
         // Consultamos también las anuladas para reconocer un segundo intento.
-        $sql = "SELECT id, idfactura, anulada FROM ventas WHERE id = ? AND idfactura = ? LIMIT 1 FOR UPDATE";
+        $sql = "SELECT * FROM ventas WHERE id = ? AND idfactura = ? LIMIT 1 FOR UPDATE";
         $stmt = $db->prepare($sql);
 
         if(!$stmt)
@@ -134,6 +135,64 @@ class ventas extends \App\Models\ActiveRecord {
             // Aquí sí esperamos una modificación: la línea debe pasar de vigente a anulada.
             if($stmt->affected_rows !== 1)
                 throw new \RuntimeException('La línea ya no está disponible para anular.');
+        } finally {
+            $stmt->close();
+        }
+    }
+
+
+    // Requiere una transacción abierta y la línea bloqueada previamente.
+    public static function actualizarRestanteLineaOrden(int $ordenId, int $lineaId, array $restante): void {
+        $db = self::getDB();
+        $sql = "UPDATE ventas SET cantidad = ?, subtotal = ?, descuento = ?, total = ?, base = ?, valorimp = ?, valorcomision = ?
+                WHERE id = ? AND idfactura = ? AND (anulada IS NULL OR anulada = 0)";
+        $stmt = $db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('No fue posible preparar la actualización de la línea.');
+
+        try {
+            // Mantener los decimales como texto, sin convertirlos a float.
+            $guardado = $stmt->execute([$restante['cantidad'], $restante['subtotal'], $restante['descuento'], $restante['total'], $restante['base'], $restante['valorimp'], $restante['valorcomision'], $lineaId, $ordenId]);
+            // En una anulación parcial la cantidad siempre cambia.
+            if(!$guardado || $stmt->affected_rows!==1) 
+                throw new \RuntimeException('No fue posible actualizar la cantidad restante.');
+        } finally {
+            $stmt->close();
+        }
+    }
+
+
+    // Copia los datos originales y guarda los importes de la parte anulada.
+    // Requiere la misma transacción y el bloqueo de la línea original.
+    public static function insertarParteAnuladaOrden(int $ordenId, int $lineaId, array $anulada, int $usuarioId, string $motivo): int{
+        $db = self::getDB();
+
+        $sql = "INSERT INTO ventas (
+                    idfactura, idventa_origen, idproducto,
+                    idusuarioanulada, tipoproducto, tipoproduccion,
+                    anulada, fecha_anulacion, motivo_anulacion,
+                    rendimientoestandar, nombreproducto, foto, anotacion,
+                    costo, valorunidad, cantidad, promediostock,
+                    percentcomision, valorcomision, subtotal, base,
+                    impuesto, valorimp, descuento, total, dato1, dato2
+                )
+                SELECT idfactura, id, idproducto, ?, tipoproducto, tipoproduccion, 1, NOW(), ?,
+                    rendimientoestandar, nombreproducto, foto, anotacion,
+                    costo, valorunidad, ?, promediostock,
+                    percentcomision, ?, ?, ?, impuesto, ?, ?, ?, dato1, dato2
+                FROM ventas
+                WHERE id = ? AND idfactura = ? AND (anulada IS NULL OR anulada = 0)";
+        $stmt = $db->prepare($sql);
+
+        if(!$stmt)
+            throw new \RuntimeException('No fue posible preparar el registro de la parte anulada.');
+
+        try {
+            $guardado = $stmt->execute([$usuarioId, $motivo, $anulada['cantidad'], $anulada['valorcomision'], $anulada['subtotal'], $anulada['base'], $anulada['valorimp'], $anulada['descuento'], $anulada['total'], $lineaId, $ordenId]);
+
+            if(!$guardado || $stmt->affected_rows !== 1)
+                throw new \RuntimeException('No fue posible guardar la parte anulada.');
+            return (int)$db->insert_id;
         } finally {
             $stmt->close();
         }

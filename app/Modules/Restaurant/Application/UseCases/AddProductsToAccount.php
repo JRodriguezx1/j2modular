@@ -9,8 +9,8 @@ use App\Modules\Restaurant\Domain\Repositories\OccupationRepository;
 use InvalidArgumentException;
 use Throwable;
 
-class AddProductsToAccount
-{
+class AddProductsToAccount{
+    
     public function __construct(
         private AccountRepository $accountRepository,
         private OccupationRepository $occupationRepository,
