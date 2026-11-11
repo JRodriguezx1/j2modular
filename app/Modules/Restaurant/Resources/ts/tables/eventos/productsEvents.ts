@@ -4,13 +4,14 @@ import { SimpleProduct } from "../catalogoApi";
 import { calculateCartTotals } from '../cartTotals';
 import { renderCartTotals } from '../cartPanel';
 import type { AccountConsumption } from '../accountApi';
+import { eliminarItem } from "../orderApi";
 
 const productsRegistrados = document.getElementById('accountPanelConsumptions');
 const popover = document.querySelector<HTMLDivElement>("#cart-popover");
 const btnsdevolverinv = document.querySelectorAll<HTMLInputElement>('input[name="devolverinventario"]'); //radio buttom
 const miDialogoDescuento = document.querySelector('#miDialogoDescuento') as HTMLDialogElement;
 const miDialogoEliminarItem = document.querySelector('#miDialogoEliminarItem') as HTMLDialogElement;
-const sieliminar = document.querySelector('#sieliminar') as HTMLButtonElement;
+const sieliminar = document.querySelector('.sieliminar') as HTMLButtonElement;
 
 let activeItemId: string|number|null = null;
 let activePop: HTMLElement | null = null;
@@ -37,10 +38,12 @@ interface itemsEventsDependencies {
     catalogProducts: Map<number, SimpleProduct>,
     ActiveOrderE: () => ActiveOrder|null,  //propiedad que contiene una funcion sin parametro, devuelve ActiveOrder | null
     renderCartPanelE: (items: ReturnType<Cart['getItems']>) => void,
+    setSavingOrder: (saving: boolean) => void;
+    refreshConfirmedOrderCart: () => Promise<void>;
 }
 
 //evento de los productos del catalogo
-export function registerProductEvents({otrosProducts, productosGrid, cartContainer, catalogProducts, ActiveOrderE, renderCartPanelE}: itemsEventsDependencies): void{
+export function registerProductEvents({otrosProducts, productosGrid, cartContainer, catalogProducts, ActiveOrderE, renderCartPanelE, setSavingOrder, refreshConfirmedOrderCart}: itemsEventsDependencies): void{
     //evento de los productos del catalogo
     productosGrid?.addEventListener('click', event => {
         const target = event.target;
@@ -259,6 +262,7 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
         miDialogoDescuento.showModal();
     });
 
+
     const btnModalEliminarItem = document.querySelector('#btnModalEliminarItem') as HTMLButtonElement;
     btnModalEliminarItem.addEventListener('click', ()=>{
         const order = ActiveOrderE();
@@ -305,7 +309,67 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
     });
 
 
-    sieliminar.addEventListener('click', ()=>{
+    sieliminar?.addEventListener('click', async ()=>{
+        if(sieliminar.disabled || !miDialogoEliminarItem.open)return;
+
+        const order = ActiveOrderE();
+        const accountId = Number(miDialogoEliminarItem.dataset.accountId);
+        const lineId = Number(miDialogoEliminarItem.dataset.lineId);
+
+        if(!order || order.accountId !== accountId){
+            miDialogoEliminarItem.close();
+            msjalertToast('warning', 'Verificar', 'Selecciona nuevamente la cuenta.');
+            return;
+        }
+
+        const item = order.itemsregistrados.find(item => Number(item.id) === lineId);
+        if(!item){
+            miDialogoEliminarItem.close();
+            msjalertToast('warning', 'Verificar', 'Actualiza los consumos de la cuenta.');
+            return;
+        }
+
+        const quantityInput = miDialogoEliminarItem.querySelector<HTMLInputElement>('#productoQtyId');
+        const reasonInput = miDialogoEliminarItem.querySelector<HTMLTextAreaElement>('#observacionEliminacion');
+        if(!quantityInput || !reasonInput)return;
+        
+        const quantity = quantityInput.value;
+        const reason = reasonInput.value.trim();
+
+        // Validar contra la cantidad registrada y conservar el texto para el envío.
+        const quantityOk = /^(?:0|[1-9]\d{0,7})(?:\.\d{1,2})?$/.test(quantity) && Number(quantity) > 0 && Number(quantity) <= Number(item.cantidad);
+
+        quantityInput.setCustomValidity(quantityOk ? '' : `Ingresa una cantidad mayor que cero y hasta ${item.cantidad}, con máximo dos decimales.`);
+        if(!quantityInput.reportValidity()) return;
+        
+        reasonInput.setCustomValidity(reason.length > 0 && Array.from(reason).length <= 255 ? '' : 'Escribe un motivo de entre 1 y 255 caracteres.');
+        if(!reasonInput.reportValidity())return;
+
+        // Bloquear antes del primer await para evitar un segundo clic.
+        sieliminar.disabled = true;
+        setSavingOrder(true);
+
+        let confirmada = false;
+        try{
+            const result = await eliminarItem(accountId, lineId, quantity, reason);
+            confirmada = true;
+            miDialogoEliminarItem.close();
+            // Una sola consulta trae las cantidades vigentes y los totales.
+            await refreshConfirmedOrderCart();
+            const mensaje = result.alreadyCancelled ? 'La línea ya estaba anulada.' : 'La anulación quedó registrada.';
+            msjalertToast('success', 'Cuenta actualizada', mensaje);
+        }catch(error){
+            miDialogoEliminarItem.close();
+            if(confirmada){
+                msjalertToast('warning', 'Anulación registrada', 'Vuelve a abrir la mesa para actualizar los consumos.');
+            }else{
+                const detalle = error instanceof Error ? error.message : 'No se recibió confirmación.';
+                msjalertToast('warning', 'Revisar cuenta', `${detalle} Revisa la cuenta antes de volver a confirmar.`);
+            }
+        }finally{
+            setSavingOrder(false);
+            sieliminar.disabled = false;
+        }
 
     });
 

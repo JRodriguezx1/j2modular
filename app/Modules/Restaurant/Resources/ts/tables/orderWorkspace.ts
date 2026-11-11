@@ -4,7 +4,7 @@ import { I_Categorias, getAllCategorias, listSimpleProducts } from './catalogoAp
 import {fetchActiveOccupation, getOccupationAccounts} from './occupationApi';
 import type { ProductPage, SimpleProduct } from './catalogoApi';
 import {resetAccountPanel, showAccountPanel, showAccountPanelError, showTemporaryAccountPanel, renderConfirmedAccount } from './accountPanel';
-import {renderCartPanel} from './cartPanel';
+import {renderCartPanel, renderCartTotals} from './cartPanel';
 import { closePopover, registerProductEvents } from './eventos/productsEvents';
 import { registeraddclienteEvents, renderCli } from './eventos/selectCliEvent';
 import { createCli } from './cli';
@@ -185,6 +185,8 @@ async function refreshConfirmedOrderCart(): Promise<void>{
 
     // Primero actualizamos los importes registrados.
     renderConfirmedAccount(summary);
+    // Sumar los pendientes actuales a los nuevos totales registrados.
+    renderCartTotals(order.cart.getItems());
 }
 
 
@@ -414,7 +416,7 @@ export function initOrderWorkspace(): void{
     };
     
     if(productosGrid && cartContainer)
-        registerProductEvents({otrosProducts, productosGrid, cartContainer, catalogProducts, ActiveOrderE:getEditableOrder, renderCartPanelE:renderCartPanel}); //evento a los productos del catalago, productos del carrito, otros productos, 
+        registerProductEvents({otrosProducts, productosGrid, cartContainer, catalogProducts, ActiveOrderE:getEditableOrder, renderCartPanelE:renderCartPanel, setSavingOrder, refreshConfirmedOrderCart}); //evento a los productos del catalago, productos del carrito, otros productos, 
 
     const getActiveClient = () => getEditableOrder()?.cli ?? null;
     const getActiveClientDian = () => getEditableOrder()?.cliDian ?? null;

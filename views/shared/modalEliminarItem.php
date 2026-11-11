@@ -10,7 +10,7 @@
 
             <div class="min-w-0 text-left">
                 <p class="mb-1 text-base font-black uppercase tracking-[.24em] text-white/80">Accion irreversible</p>
-                <h2 class="m-0 text-3xl font-black leading-tight sm:text-4xl">Eliminar Items</h2>
+                <h2 class="m-0 text-3xl font-black leading-tight sm:text-4xl">Anular consumo</h2>
                 <p class="m-0 mt-2 text-lg font-medium leading-7 text-white/85">
                     Esta accion no se puede deshacer. Confirma cada dato.
                 </p>
@@ -136,7 +136,7 @@
                 type="button"
                 class="sieliminar inline-flex h-12 items-center justify-center rounded-xl bg-red-600 px-6 text-xl font-black text-white shadow-lg shadow-red-600/20 transition hover:bg-red-700 sm:w-[15rem]">
                 <i class="fa-solid fa-trash mr-2"></i>
-                Eliminar
+                Confirmar
             </button>
         </div>
     </div>

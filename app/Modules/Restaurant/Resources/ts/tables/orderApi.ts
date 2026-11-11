@@ -42,6 +42,15 @@ interface CliUpOrderResponse {
     message?: string,
 }
 
+interface CancelLineData {
+    accountId: number;
+    occupationId: number;
+    orderId: number;
+    lineId: number;
+    alreadyCancelled: boolean;
+    totales: AccountTotals;
+}
+
 
 export async function saveFirstTableOrder(resourceId: number, customerId: number|null, cartItems: CartItem[]): Promise<FirstOrderData>{
     if(!Number.isSafeInteger(resourceId) || resourceId <= 0)
@@ -175,18 +184,21 @@ export async function UpdateAccountCustomer(accountId: number, clientId:number|n
 }
 
 
-// Actualiza únicamente el cliente de la ocupación y de su factura.
-export async function eliminarItem(accountId: number, lineId:number|null): Promise<CliUpOrderData>{
+// eliminar item de una linea o item registrado.
+export async function eliminarItem(accountId: number, lineId:number, quantity: string, reason: string): Promise<CancelLineData>{
     if(!Number.isSafeInteger(accountId) || accountId <= 0)
         throw new Error('La cuenta no es válida.');
 
     // Solo admitimos null para retirar o un ID positivo para asignar.
-    if(lineId !== null && (!Number.isSafeInteger(lineId) || lineId <= 0))
-        throw new Error('El producto ya no es válido.');
+    if(!Number.isSafeInteger(lineId) || lineId <= 0)
+        throw new Error('La linea seleccionada no es valida.');
+
 
     const form = new FormData();
     form.set('accountId', String(accountId));
     form.set('lineId', String(lineId));
+    form.set('quantity', quantity); // Conservar el decimal escrito en el modal.
+    form.set('reason', reason.trim());
 
     const response = await fetch('/restaurant/api/accounts/lines/cancel', //llama controlador OccupationAccountController::UpdateAccountCustomer
         {
@@ -196,12 +208,13 @@ export async function eliminarItem(accountId: number, lineId:number|null): Promi
         }
     );
 
-    const result = await response.json();
-    if(!result || !response.ok || result.success !== true)
+    const result = await response.json() as {success:boolean, message?:string, data?:CancelLineData};
+
+    if(!response.ok || result?.success !== true)
         throw new Error(result?.message ?? 'No fue posible eliminar el item.' );
 
     const data = result.data;
-    if(!data || data.accountId!==accountId || !Number.isSafeInteger(data.occupationId) || data.occupationId<=0 || !Number.isSafeInteger(data.orderId) ||  data.orderId<=0 || data.lineid!==lineId)
+    if(!data || data.accountId!==accountId || !Number.isSafeInteger(data.occupationId) || data.occupationId<=0 || !Number.isSafeInteger(data.orderId) ||  data.orderId<=0 || data.lineId!==lineId)
         throw new Error('La respuesta de actualización está incompleta o no corresponde.');
 
     return data;
