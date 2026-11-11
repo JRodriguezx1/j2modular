@@ -13,11 +13,17 @@ const miDialogoDescuento = document.querySelector('#miDialogoDescuento') as HTML
 const miDialogoEliminarItem = document.querySelector('#miDialogoEliminarItem') as HTMLDialogElement;
 const sieliminar = document.querySelector('.sieliminar') as HTMLButtonElement;
 
+const inputDescuento = document.querySelector('#inputDescuento') as HTMLInputElement;
+const inputDescuentoClave = document.querySelector('#inputDescuentoClave') as HTMLInputElement;
+const btnModalDescuento = document.querySelector('#btnModalDescuento') as HTMLButtonElement;
+let valorMax = 0;
+
 let activeItemId: string|number|null = null;
 let activePop: HTMLElement | null = null;
 let rowId:number|null = null;
 // Permite comprobar que seguimos trabajando con el mismo pedido.
 let rowOrder: ActiveOrder | null = null;
+let itemReg: AccountConsumption;
 
 type Cart = ReturnType<typeof createCart>;
 type CartKey = | `account:${number}` | `occupation:${number}` | `table:${number}`;
@@ -256,13 +262,53 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
     });
 
 
-    const btnModalDescuento = document.querySelector('#btnModalDescuento') as HTMLButtonElement;
+    // EVENTO AL BOTON PARA ABRIR MODAL DE DESCUENTO
     btnModalDescuento.addEventListener('click', ()=>{
-        console.log(rowId);
+        const order = ActiveOrderE();
+        //Evitar usar una selección que pertenecía a otro contexto.
+        if(order === null || order.accountId === null || order !== rowOrder || rowId === null){
+            closePopover();
+            msjalertToast('warning', 'Verificar', 'Selecciona nuevamente el producto de la cuenta.');
+            return;
+        }
+        const item = order.itemsregistrados.find(item => Number(item.id) === rowId);
+        if(!item){ //se puede anular la condicion
+            closePopover();
+            msjalertToast('warning', 'Verificar', 'El consumo ya no está disponible.');
+            return;
+        }
+        itemReg = item;
+        miDialogoDescuento.dataset.lineId = String(item.id);
+        miDialogoDescuento.dataset.accountId = String(order.accountId);
+        closePopover();
+        inputDescuento.focus;
+        inputDescuento.select;
         miDialogoDescuento.showModal();
     });
 
+    /////////////////////  logica del descuento  //////////////////////////
+    const tipoDescts = document.querySelectorAll<HTMLInputElement>('input[name="tipodescuento"]'); //radio buttom
+    tipoDescts.forEach(desc=>{ //evento a los radiobutton
+      desc.addEventListener('change', (e:Event)=>{
+        if((e.target as HTMLInputElement).value === "porcentaje"){
+          valorMax = 100;
+          inputDescuento.value = '';
+        }
+        if((e.target as HTMLInputElement).value === "valor"){
+          valorMax = Number(itemReg.total);
+          inputDescuento.value = '';
+        }
+      });
+    });
 
+    /////////////////////   EVENTO AL BOTON APLICAR DESCUENTO   /////////////////////
+    document.querySelector('#formDescuento')?.addEventListener('submit', e=>{
+        e.preventDefault();
+        
+    });
+
+
+    // EVENTO AL BOTON PARA ABRIR MODAL DE ANULAR LINEAS O ITEMS
     const btnModalEliminarItem = document.querySelector('#btnModalEliminarItem') as HTMLButtonElement;
     btnModalEliminarItem.addEventListener('click', ()=>{
         const order = ActiveOrderE();
@@ -374,6 +420,7 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
     });
 
 }
+
 
 
 export const closePopover = (): void => {
