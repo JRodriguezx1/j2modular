@@ -36,4 +36,10 @@ interface OpenOrderPort{
      */
     public function cancelLine(int $orderId, int $lineId, int $branchId, int $userId, string $reason, string $quantity): array;
 
+    /** @return array{lineId: int, totales: array} */
+public function applyLineDiscount(
+    int $orderId, int $lineId, int $branchId,
+    string $type, string $value, string $password
+): array;
+
 }

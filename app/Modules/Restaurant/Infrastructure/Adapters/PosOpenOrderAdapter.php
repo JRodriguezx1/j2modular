@@ -37,5 +37,14 @@ class PosOpenOrderAdapter implements OpenOrderPort{
     public function cancelLine(int $orderId, int $lineId, int $branchId, int $userId, string $reason, string $quantity): array{
         return $this->openOrderService->cancelLine($orderId, $lineId, $branchId, $userId, $reason, $quantity);
     }
+
+    public function applyLineDiscount(
+    int $orderId, int $lineId, int $branchId,
+    string $type, string $value, string $password
+): array {
+    return $this->openOrderService->applyLineDiscount(
+        $orderId, $lineId, $branchId, $type, $value, $password
+    );
+}
     
 }

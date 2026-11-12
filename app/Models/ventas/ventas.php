@@ -198,4 +198,37 @@ class ventas extends \App\Models\ActiveRecord {
         }
     }
 
+
+    // La factura y la línea ya deben estar bloqueadas en la misma transacción.
+public static function actualizarDescuentoLineaOrden(
+    int $ordenId,
+    int $lineaId,
+    string $descuento,
+    string $total,
+    string $base,
+    string $valorImpuesto
+): void {
+    $sql = "UPDATE ventas
+            SET descuento = ?, total = ?, base = ?, valorimp = ?
+            WHERE id = ? AND idfactura = ?
+              AND (anulada IS NULL OR anulada = 0)";
+
+    $stmt = self::getDB()->prepare($sql);
+
+    if (!$stmt) {
+        throw new \RuntimeException('No fue posible preparar el descuento.');
+    }
+
+    try {
+        $guardado = $stmt->execute([
+            $descuento, $total, $base, $valorImpuesto, $lineaId, $ordenId
+        ]);
+
+        if (!$guardado || $stmt->affected_rows !== 1) {
+            throw new \RuntimeException('No fue posible actualizar el descuento de la línea.');
+        }
+    } finally {
+        $stmt->close();
+    }
+}
 }

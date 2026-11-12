@@ -219,3 +219,41 @@ export async function eliminarItem(accountId: number, lineId:number, quantity: s
 
     return data;
 }
+
+
+export async function aplicarDescuentoLinea(
+    accountId: number,
+    lineId: number,
+    type: 'valor' | 'porcentaje',
+    value: string,
+    password: string
+): Promise<void> {
+    const form = new FormData();
+    form.set('accountId', String(accountId));
+    form.set('lineId', String(lineId));
+    form.set('type', type);
+    form.set('value', value); // Enviar el decimal tal como se escribió.
+    form.set('password', password);
+
+    const response = await fetch('/restaurant/api/accounts/lines/discount', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: form,
+    });
+
+    const result = await response.json() as {
+        success: boolean;
+        message?: string;
+        data?: { accountId: number; orderId: number; lineId: number; totales: AccountTotals };
+    };
+
+    if (!response.ok || result?.success !== true) {
+        throw new Error(result?.message ?? 'No se pudo confirmar el descuento.');
+    }
+
+    const data = result.data;
+    if (!data || data.accountId !== accountId || data.lineId !== lineId ||
+        !Number.isSafeInteger(data.orderId) || data.orderId <= 0 || !data.totales) {
+        throw new Error('La respuesta del descuento no corresponde a esta cuenta.');
+    }
+}

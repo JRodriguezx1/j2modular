@@ -4,7 +4,7 @@ import { SimpleProduct } from "../catalogoApi";
 import { calculateCartTotals } from '../cartTotals';
 import { renderCartTotals } from '../cartPanel';
 import type { AccountConsumption } from '../accountApi';
-import { eliminarItem } from "../orderApi";
+import { eliminarItem, aplicarDescuentoLinea } from "../orderApi";
 
 const productsRegistrados = document.getElementById('accountPanelConsumptions');
 const popover = document.querySelector<HTMLDivElement>("#cart-popover");
@@ -16,7 +16,6 @@ const sieliminar = document.querySelector('.sieliminar') as HTMLButtonElement;
 const inputDescuento = document.querySelector('#inputDescuento') as HTMLInputElement;
 const inputDescuentoClave = document.querySelector('#inputDescuentoClave') as HTMLInputElement;
 const btnModalDescuento = document.querySelector('#btnModalDescuento') as HTMLButtonElement;
-let valorMax = 0;
 
 let activeItemId: string|number|null = null;
 let activePop: HTMLElement | null = null;
@@ -263,6 +262,8 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
 
 
     // EVENTO AL BOTON PARA ABRIR MODAL DE DESCUENTO
+    const formDescuento = miDialogoDescuento.querySelector<HTMLFormElement>('#formDescuento');
+    const detalleDescuento = miDialogoDescuento.querySelector<HTMLElement>('#descuentoLineaDetalle');
     btnModalDescuento.addEventListener('click', ()=>{
         const order = ActiveOrderE();
         //Evitar usar una selección que pertenecía a otro contexto.
@@ -277,34 +278,88 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
             msjalertToast('warning', 'Verificar', 'El consumo ya no está disponible.');
             return;
         }
+        if(!formDescuento || !detalleDescuento)return;
+        // Cada apertura vuelve al modo Valor y limpia los datos de la línea anterior.
+        formDescuento.reset();
+        const mensaje = formDescuento.querySelector<HTMLElement>('#divmsjalertaClaveDcto');
+        if(mensaje)mensaje.textContent = '';
+        
         itemReg = item;
         miDialogoDescuento.dataset.lineId = String(item.id);
         miDialogoDescuento.dataset.accountId = String(order.accountId);
+        const subtotal = Number(item.subtotal);
+        detalleDescuento.textContent = `${item.nombreproducto} · Cantidad: ${item.cantidad} · Subtotal: $${subtotal.toLocaleString('es-CO')}`;
+        // El descuento vigente se puede reemplazar hasta el subtotal de esta línea.
+        inputDescuento.value = String(item.descuento);
+        inputDescuento.max = String(item.subtotal);
         closePopover();
-        inputDescuento.focus;
-        inputDescuento.select;
         miDialogoDescuento.showModal();
+        inputDescuento.focus();
+        inputDescuento.select();
     });
 
     /////////////////////  logica del descuento  //////////////////////////
-    const tipoDescts = document.querySelectorAll<HTMLInputElement>('input[name="tipodescuento"]'); //radio buttom
-    tipoDescts.forEach(desc=>{ //evento a los radiobutton
-      desc.addEventListener('change', (e:Event)=>{
-        if((e.target as HTMLInputElement).value === "porcentaje"){
-          valorMax = 100;
-          inputDescuento.value = '';
-        }
-        if((e.target as HTMLInputElement).value === "valor"){
-          valorMax = Number(itemReg.total);
-          inputDescuento.value = '';
-        }
-      });
+    const tiposDescuento = miDialogoDescuento.querySelectorAll<HTMLInputElement>('input[name="tipodescuento"]');
+    tiposDescuento.forEach(radio => {
+        radio.addEventListener('change', () => {
+            // Porcentaje admite hasta 100; Valor admite hasta el subtotal registrado.
+            inputDescuento.max = radio.value === 'porcentaje' ? '100' : String(itemReg.subtotal);
+            inputDescuento.value = '';
+            inputDescuento.focus();
+        });
     });
 
     /////////////////////   EVENTO AL BOTON APLICAR DESCUENTO   /////////////////////
-    document.querySelector('#formDescuento')?.addEventListener('submit', e=>{
-        e.preventDefault();
-        
+    formDescuento?.addEventListener('submit', async event=>{
+        event.preventDefault();
+        // Buscar el botón también cuando el formulario se envía con Enter.
+        const boton = formDescuento.querySelector<HTMLButtonElement>('#btnAplicarDcto');
+        if(!boton || boton.disabled || !miDialogoDescuento.open) return;
+        const order = ActiveOrderE();
+        const accountId = Number(miDialogoDescuento.dataset.accountId);
+        const lineId = Number(miDialogoDescuento.dataset.lineId);
+
+        if(!order || order.accountId !== accountId || !order.itemsregistrados.some(item => Number(item.id) === lineId)){
+            miDialogoDescuento.close();
+            msjalertToast('warning', 'Verificar', 'Selecciona nuevamente el consumo.');
+            return;
+        }
+
+        if(!formDescuento.reportValidity())return;
+
+        const type = new FormData(formDescuento).get('tipodescuento');
+        if(type !== 'valor' && type !== 'porcentaje')return;
+
+        const mensaje = formDescuento.querySelector<HTMLElement>('#divmsjalertaClaveDcto');
+        if(mensaje) mensaje.textContent = '';
+        boton.disabled = true;
+        setSavingOrder(true);
+
+        let guardado = false;
+        try {
+        await aplicarDescuentoLinea(
+            accountId, lineId, type, inputDescuento.value, inputDescuentoClave.value
+        );
+
+        guardado = true;
+        inputDescuentoClave.value = '';
+        miDialogoDescuento.close();
+
+        // Actualiza consumos, descuento y totales, incluidos los pendientes del carrito.
+        await refreshConfirmedOrderCart();
+        msjalertToast('success', 'Cuenta actualizada', 'El descuento quedó guardado.');
+    } catch (error) {
+        if (guardado) {
+            msjalertToast('warning', 'Descuento guardado',
+                'Vuelve a abrir la mesa para actualizar el resumen.');
+        } else {
+            const detalle = error instanceof Error ? error.message : 'Revisa la cuenta antes de reintentar.';
+            if (mensaje) mensaje.textContent = detalle;
+        }
+    } finally {
+        boton.disabled = false;
+        setSavingOrder(false);
+    }
     });
 
 

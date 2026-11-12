@@ -7,7 +7,7 @@
         </div>
 
         <h4 class="text-4xl font-bold leading-tight text-slate-900">Aplicar descuento</h4>
-        <p class="mx-auto mt-2 max-w-md text-lg leading-relaxed text-slate-500">Aplica un descuento al subtotal del pedido.</p>
+        <p id="descuentoLineaDetalle" class="mx-auto mt-2 max-w-md text-lg leading-relaxed text-slate-500"></p>
         </div>
 
         <form id="formDescuento" class="text-center">
@@ -39,6 +39,7 @@
                 id="inputDescuento"
                 type="number"
                 min="0"
+                step="0.01"
                 name="descuento"
                 data-descuento=""
                 class="miles block h-14 w-full rounded-xl border border-slate-300 bg-white px-4 text-xl text-slate-900 focus:border-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-100"
@@ -60,7 +61,7 @@
 
         <div class="mt-6 grid grid-cols-2 gap-3">
             <button type="button" class="btn-md btn-turquoise salir w-full !px-6 !py-5 !text-2xl">Salir</button>
-            <button id="btnCrearAddDir" type="submit" class="btn-md btn-indigo crearAddDir w-full !px-6 !py-5 !text-2xl">Aplicar</button>
+            <button id="btnAplicarDcto" type="submit" class="btn-md btn-indigo aplicarDcto w-full !px-6 !py-5 !text-2xl">Aplicar</button>
         </div>
         </form>
     </div>

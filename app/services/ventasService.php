@@ -957,4 +957,77 @@ class ventasService {
     }
 
 
+    public static function aplicarDescuentoLineaOrdenAbierta(
+    int $ordenId,
+    int $lineaId,
+    string $tipo,
+    string $valor
+): void {
+    if (!in_array($tipo, ['valor', 'porcentaje'], true)) {
+        throw new \InvalidArgumentException('El tipo de descuento no es válido.');
+    }
+
+    // Importe positivo o cero, con punto y máximo dos decimales.
+    if (!preg_match('/\A\d{1,11}(?:\.\d{1,2})?\z/', $valor)) {
+        throw new \InvalidArgumentException('El descuento debe tener máximo dos decimales.');
+    }
+
+    $linea = ventas::bloquearLineaOrden($ordenId, $lineaId);
+
+    if ($linea === null || (int)$linea['anulada'] === 1) {
+        throw new \InvalidArgumentException('La línea no está vigente en esta factura.');
+    }
+
+    // Este método ya comprueba los importes y las dos igualdades de la línea.
+    self::validarImportesAnulacion($linea);
+    $subtotal = (string)$linea['subtotal'];
+
+    if ($tipo === 'porcentaje') {
+        if (bccomp($valor, '100', 2) > 0) {
+            throw new \InvalidArgumentException('El porcentaje no puede superar 100.');
+        }
+
+        // Ejemplo: subtotal 119.00 × 10 / 100 = descuento 11.90.
+        $descuento = self::proporcional($subtotal, '100', $valor, 2);
+    } else {
+        $descuento = bcadd($valor, '0', 2);
+    }
+
+    if (bccomp($descuento, $subtotal, 2) > 0) {
+        throw new \InvalidArgumentException('El descuento supera el subtotal de la línea.');
+    }
+
+    // ventas.descuento es DECIMAL(12,2).
+    if (bccomp($descuento, '9999999999.99', 2) > 0) {
+        throw new \InvalidArgumentException('El descuento supera el importe permitido.');
+    }
+
+    // Reaplicar el mismo descuento conserva incluso los redondeos de una división previa.
+    if (bccomp($descuento, (string)$linea['descuento'], 2) === 0) {
+        return;
+    }
+
+    $total = bcsub($subtotal, $descuento, 2);
+
+    // Usar el impuesto histórico de la línea. Puede ser null, "excluido", "0" o una tarifa.
+    $impuesto = $linea['impuesto'];
+    $tarifa = 0;
+
+    if ($impuesto !== null && $impuesto !== 'excluido') {
+        $tarifa = filter_var($impuesto, FILTER_VALIDATE_INT);
+
+        if ($tarifa === false || $tarifa < 0 || $tarifa > 100) {
+            throw new \RuntimeException('La tarifa de impuesto guardada no es válida.');
+        }
+    }
+
+    // El total incluye impuesto: IVA = total × tarifa / (100 + tarifa).
+    $valorImpuesto = self::proporcional($total, (string)(100 + $tarifa), (string)$tarifa, 3);
+    $base = bcsub($total, $valorImpuesto, 3);
+
+    ventas::actualizarDescuentoLineaOrden(
+        $ordenId, $lineaId, $descuento, $total, $base, $valorImpuesto
+    );
+}
+
 }

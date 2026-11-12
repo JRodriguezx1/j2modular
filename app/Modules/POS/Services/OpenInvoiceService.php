@@ -175,4 +175,41 @@ class OpenInvoiceService{
         if($order === null)throw new InvalidArgumentException('La factura no está abierta en esta sucursal.');
         facturas::actualizarClienteOrdenAbierta($invoiceId, $branchId, $customerId);
     }
+
+
+    // Participa en la transacción abierta por Restaurant.
+public function applyLineDiscount(
+    int $orderId,
+    int $lineId,
+    int $branchId,
+    string $type,
+    string $value,
+    string $password
+): array {
+    $config = config_local::getParamGlobal($branchId);
+    $parametro = $config['clave_para_agregar_descuento'] ?? null;
+
+    if ($parametro === null) {
+        throw new RuntimeException('No se encontró la configuración de autorización de descuentos.');
+    }
+
+    // Si la sucursal tiene una clave configurada, debe coincidir exactamente.
+    $claveConfigurada = $parametro->valor_final;
+    if ($claveConfigurada !== null && $claveConfigurada !== '' &&
+        !hash_equals((string)$claveConfigurada, $password)) {
+        throw new InvalidArgumentException('La clave de autorización no es correcta.');
+    }
+
+    $factura = facturas::bloquearOrdenAbierta($orderId, $branchId);
+    if ($factura === null) {
+        throw new InvalidArgumentException('La factura no está abierta en esta sucursal.');
+    }
+
+    ventasService::aplicarDescuentoLineaOrdenAbierta($orderId, $lineId, $type, $value);
+
+    return [
+        'lineId' => $lineId,
+        'totales' => facturas::recalcularTotalesOrdenAbierta($orderId, $branchId),
+    ];
+}
 }
