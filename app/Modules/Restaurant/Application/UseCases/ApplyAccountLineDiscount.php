@@ -19,51 +19,29 @@ class ApplyAccountLineDiscount{
     ){}
 
     
-    public function execute(
-        int $accountId,
-        int $lineId,
-        string $type,
-        string $value,
-        string $password,
-        int $branchId
-    ): array {
-        if ($accountId <= 0 || $lineId <= 0 || $branchId <= 0) {
+    public function execute(int $accountId, int $lineId, string $type, string $value, string $password, int $branchId): array {
+        if($accountId <= 0 || $lineId <= 0 || $branchId <= 0)
             throw new InvalidArgumentException('La cuenta, la línea o la sucursal no es válida.');
-        }
 
         $this->transactionManager->begin();
-
-        try {
+        try{
             $account = $this->accountRepository->findByIdForUpdate($accountId);
-            if ($account === null || $account->getStatus() !== 'abierta') {
+            if($account === null || $account->getStatus() !== 'abierta')
                 throw new InvalidArgumentException('La cuenta no está abierta.');
-            }
 
             $occupation = $this->occupationRepository->findByIdForUpdate($account->getOccupationId());
-            if ($occupation === null || $occupation->getStatus() !== 'en_uso' ||
-                $occupation->getSucursalId() !== $branchId) {
+            if($occupation === null || $occupation->getStatus() !== 'en_uso' || $occupation->getSucursalId() !== $branchId)
                 throw new InvalidArgumentException('La cuenta no está en uso en esta sucursal.');
-            }
 
             // La factura se obtiene de la cuenta bloqueada.
             $orderId = $account->getInvoiceId();
-            if ($orderId === null || $orderId <= 0) {
+            if($orderId === null || $orderId <= 0)
                 throw new InvalidArgumentException('La cuenta todavía no tiene una factura.');
-            }
 
-            $result = $this->openOrderPort->applyLineDiscount(
-                $orderId, $lineId, $branchId, $type, $value, $password
-            );
-
+            $result = $this->openOrderPort->applyLineDiscount($orderId, $lineId, $branchId, $type, $value, $password);
             $this->transactionManager->commit();
-
-            return [
-                'accountId' => $accountId,
-                'orderId' => $orderId,
-                'lineId' => $result['lineId'],
-                'totales' => $result['totales'],
-            ];
-        } catch (Throwable $e) {
+            return ['accountId' => $accountId, 'orderId' => $orderId, 'lineId' => $result['lineId'], 'totales' => $result['totales']];
+        }catch (Throwable $e){
             $this->transactionManager->rollback();
             throw $e;
         }
