@@ -82,6 +82,8 @@ final class CajaDocumentosService
         $items = $this->mapearProductos($datos['productos']);
         $cliente = $datos['cliente'];
         $sucursal = $datos['sucursal'];
+        $existe_archivo = !empty($sucursal->logo)&&file_exists($_SERVER['DOCUMENT_ROOT']."/build/img/$sucursal->logo");
+        if(!$existe_archivo)$sucursal->logo = "Logoj2negro.png";
 
         $resultado = [
             'host'=>$sucursal->host,

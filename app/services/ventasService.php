@@ -922,8 +922,10 @@ class ventasService {
         self::validarImportesAnulacion($linea);
         $anulada = ['cantidad' => bcadd($cantidadAnular, '0', 2)];
         $restante = ['cantidad' => bcsub($cantidad, $cantidadAnular, 2)];
+        // Las líneas normales antiguas pueden traer NULL en este campo.
+        $linea['descuento_antes_cortesia'] ??= '0.00';
 
-        foreach(['subtotal', 'descuento', 'valorcomision'] as $campo){
+        foreach(['subtotal', 'descuento', 'valorcomision', 'descuento_antes_cortesia'] as $campo){
             $original = (string) $linea[$campo];
             $anulada[$campo] = self::proporcional($original, $cantidad, $cantidadAnular);
             // Conservar el importe original entre ambas porciones.
@@ -957,77 +959,99 @@ class ventasService {
     }
 
 
-    public static function aplicarDescuentoLineaOrdenAbierta(
-    int $ordenId,
-    int $lineaId,
-    string $tipo,
-    string $valor
-): void {
-    if (!in_array($tipo, ['valor', 'porcentaje'], true)) {
-        throw new \InvalidArgumentException('El tipo de descuento no es válido.');
-    }
+    public static function aplicarDescuentoLineaOrdenAbierta(int $ordenId, int $lineaId, string $tipo, string $valor): void{
+        if(!in_array($tipo, ['valor', 'porcentaje'], true))
+            throw new \InvalidArgumentException('El tipo de descuento no es válido.');
 
-    // Importe positivo o cero, con punto y máximo dos decimales.
-    if (!preg_match('/\A\d{1,11}(?:\.\d{1,2})?\z/', $valor)) {
-        throw new \InvalidArgumentException('El descuento debe tener máximo dos decimales.');
-    }
+        // Importe positivo o cero, con punto y máximo dos decimales.
+        if(!preg_match('/\A\d{1,11}(?:\.\d{1,2})?\z/', $valor))
+            throw new \InvalidArgumentException('El descuento debe tener máximo dos decimales.');
 
-    $linea = ventas::bloquearLineaOrden($ordenId, $lineaId);
+        $linea = ventas::bloquearLineaOrden($ordenId, $lineaId);
+        if($linea === null || (int)$linea['anulada'] === 1)
+            throw new \InvalidArgumentException('La línea no está vigente en esta factura.');
 
-    if ($linea === null || (int)$linea['anulada'] === 1) {
-        throw new \InvalidArgumentException('La línea no está vigente en esta factura.');
-    }
+        // Este método ya comprueba los importes y las dos igualdades de la línea.
+        self::validarImportesAnulacion($linea);
+        $subtotal = (string)$linea['subtotal'];
 
-    // Este método ya comprueba los importes y las dos igualdades de la línea.
-    self::validarImportesAnulacion($linea);
-    $subtotal = (string)$linea['subtotal'];
-
-    if ($tipo === 'porcentaje') {
-        if (bccomp($valor, '100', 2) > 0) {
-            throw new \InvalidArgumentException('El porcentaje no puede superar 100.');
+        if($tipo === 'porcentaje'){
+            if(bccomp($valor, '100', 2) > 0)
+                throw new \InvalidArgumentException('El porcentaje no puede superar 100.');
+            // Ejemplo: subtotal 119.00 × 10 / 100 = descuento 11.90.
+            $descuento = self::proporcional($subtotal, '100', $valor, 2);
+        }else{
+            $descuento = bcadd($valor, '0', 2);
         }
 
-        // Ejemplo: subtotal 119.00 × 10 / 100 = descuento 11.90.
-        $descuento = self::proporcional($subtotal, '100', $valor, 2);
-    } else {
-        $descuento = bcadd($valor, '0', 2);
+        if(bccomp($descuento, $subtotal, 2) > 0)
+            throw new \InvalidArgumentException('El descuento supera el subtotal de la línea.');
+
+        // ventas.descuento es DECIMAL(12,2).
+        if(bccomp($descuento, '9999999999.99', 2) > 0)
+            throw new \InvalidArgumentException('El descuento supera el importe permitido.');
+
+        // Reaplicar el mismo descuento conserva incluso los redondeos de una división previa.
+        if(bccomp($descuento, (string)$linea['descuento'], 2) === 0)
+            return;
+
+        if((int)$linea['es_cortesia'] === 1) 
+            throw new \InvalidArgumentException('Retira la cortesía antes de modificar el descuento.');
+
+        $importes = self::importesConDescuento($linea, $descuento);
+        ventas::actualizarDescuentoLineaOrden($ordenId, $lineaId, $descuento, $importes['total'], $importes['base'], $importes['valorimp']);
     }
 
-    if (bccomp($descuento, $subtotal, 2) > 0) {
-        throw new \InvalidArgumentException('El descuento supera el subtotal de la línea.');
-    }
 
-    // ventas.descuento es DECIMAL(12,2).
-    if (bccomp($descuento, '9999999999.99', 2) > 0) {
-        throw new \InvalidArgumentException('El descuento supera el importe permitido.');
-    }
+    public static function establecerCortesiaLineaOrdenAbierta(int $ordenId, int $lineaId, bool $activar): void{
+        $linea = ventas::bloquearLineaOrden($ordenId, $lineaId);
 
-    // Reaplicar el mismo descuento conserva incluso los redondeos de una división previa.
-    if (bccomp($descuento, (string)$linea['descuento'], 2) === 0) {
-        return;
-    }
+        if($linea === null || (int)$linea['anulada'] === 1)
+            throw new \InvalidArgumentException('La línea no está vigente en esta factura.');
 
-    $total = bcsub($subtotal, $descuento, 2);
+        $tieneCortesia = (int)$linea['es_cortesia'] === 1;
 
-    // Usar el impuesto histórico de la línea. Puede ser null, "excluido", "0" o una tarifa.
-    $impuesto = $linea['impuesto'];
-    $tarifa = 0;
+        // Si ya tiene el estado solicitado, conservar el descuento de respaldo.
+        if($tieneCortesia === $activar)return;
 
-    if ($impuesto !== null && $impuesto !== 'excluido') {
-        $tarifa = filter_var($impuesto, FILTER_VALIDATE_INT);
+        self::validarImportesAnulacion($linea);
+        $subtotal = (string)$linea['subtotal'];
 
-        if ($tarifa === false || $tarifa < 0 || $tarifa > 100) {
-            throw new \RuntimeException('La tarifa de impuesto guardada no es válida.');
+        if($activar){
+            // Guardar el descuento que tiene ahora, incluso si es 0.00.
+            $descuentoAnterior = (string)$linea['descuento'];
+            $descuento = $subtotal;
+            // ventas.descuento es DECIMAL(12,2).
+            if (bccomp($descuento, '9999999999.99', 2) > 0)
+                throw new \InvalidArgumentException('El subtotal supera el descuento permitido.');
+        }else{
+            // Recuperar el importe que pertenece a las unidades vigentes.
+            $descuento = (string)$linea['descuento_antes_cortesia'];
+            if(!preg_match('/\A\d+(?:\.\d{1,2})?\z/', $descuento) ||  bccomp($descuento, $subtotal, 2) > 0)
+                throw new \RuntimeException('El descuento anterior guardado no es válido.');
+
+            $descuentoAnterior = '0.00';
         }
+
+        $importes = self::importesConDescuento($linea, $descuento);
+        ventas::actualizarCortesiaLineaOrden($ordenId, $lineaId, $activar, $descuentoAnterior, $descuento, $importes['total'], $importes['base'], $importes['valorimp']);
     }
 
-    // El total incluye impuesto: IVA = total × tarifa / (100 + tarifa).
-    $valorImpuesto = self::proporcional($total, (string)(100 + $tarifa), (string)$tarifa, 3);
-    $base = bcsub($total, $valorImpuesto, 3);
 
-    ventas::actualizarDescuentoLineaOrden(
-        $ordenId, $lineaId, $descuento, $total, $base, $valorImpuesto
-    );
-}
+    // El precio guardado incluye impuesto. Usamos la tarifa histórica de la línea.
+    private static function importesConDescuento(array $linea, string $descuento): array{
+        $total = bcsub((string)$linea['subtotal'], $descuento, 2);
+        $impuesto = $linea['impuesto'];
+        $tarifa = 0;
+
+        if($impuesto !== null && $impuesto !== 'excluido'){
+            $tarifa = filter_var($impuesto, FILTER_VALIDATE_INT);
+            if($tarifa === false || $tarifa < 0 || $tarifa > 100)
+                throw new \RuntimeException('La tarifa de impuesto guardada no es válida.');
+        }
+
+        $valorImpuesto = self::proporcional($total, (string)(100 + $tarifa), (string)$tarifa, 3);
+        return ['total' => $total,'base' => bcsub($total, $valorImpuesto, 3), 'valorimp' => $valorImpuesto,];
+    }
 
 }

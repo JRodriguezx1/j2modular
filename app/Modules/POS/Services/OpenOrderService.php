@@ -50,8 +50,8 @@ class OpenOrderService{
         return ['orden' => $order, 'consumos' => ventas::listarConsumosOrden($orderId, $branchId)];
     }
 
-
     public function applyLineDiscount(int $orderId, int $lineId, int $branchId, string $type, string $value, string $password): array{
         return (new OpenInvoiceService())->applyLineDiscount($orderId, $lineId, $branchId, $type, $value, $password);
     }
+    
 }

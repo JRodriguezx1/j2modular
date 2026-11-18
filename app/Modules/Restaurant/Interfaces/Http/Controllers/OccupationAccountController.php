@@ -281,17 +281,16 @@ class OccupationAccountController{
     }
 
 
-    public function applyLineDiscount(): void {
+    public function applyLineDiscount(): void{
         header('Content-Type: application/json; charset=utf-8');
-
-        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+        if(($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST'){
             header('Allow: POST');
             http_response_code(405);
             echo json_encode(['success' => false, 'message' => 'Utiliza POST para aplicar el descuento.']);
             return;
         }
 
-        if (($_SESSION['login'] ?? false) !== true) {
+        if(($_SESSION['login'] ?? false) !== true){
             http_response_code(401);
             echo json_encode(['success' => false, 'message' => 'Debes iniciar sesión.']);
             return;
@@ -304,22 +303,17 @@ class OccupationAccountController{
             $branchId = filter_var($_SESSION['idsucursal'] ?? null, FILTER_VALIDATE_INT, $positiveId);
             $userId = filter_var($_SESSION['id'] ?? null, FILTER_VALIDATE_INT, $positiveId);
 
-            if ($accountId === false || $lineId === false || $branchId === false || $userId === false) {
+            if($accountId === false || $lineId === false || $branchId === false || $userId === false)
                 throw new InvalidArgumentException('La cuenta, la línea o los datos de sesión no son válidos.');
-            }
 
             $type = $_POST['type'] ?? null;
             $value = $_POST['value'] ?? null;
             $password = $_POST['password'] ?? '';
 
-            if (!is_string($type) || !is_string($value) || !is_string($password)) {
+            if(!is_string($type) || !is_string($value) || !is_string($password))
                 throw new InvalidArgumentException('Los datos del descuento no son válidos.');
-            }
 
-            $result = $this->applyAccountLineDiscount->execute(
-                $accountId, $lineId, $type, $value, $password, $branchId
-            );
-
+            $result = $this->applyAccountLineDiscount->execute($accountId, $lineId, $type, $value, $password, $branchId);
             http_response_code(200);
             echo json_encode(['success' => true, 'data' => $result], JSON_UNESCAPED_UNICODE);
         } catch (InvalidArgumentException $e) {

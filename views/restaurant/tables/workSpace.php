@@ -420,9 +420,11 @@
 <?php include __DIR__. "/../../admin/ventas/modalprocesarpago.php"; ?>
 <!-- MODAL DATOS DEL ADQUIRIENTE -->
 <?php include __DIR__. "/../../admin/ventas/modaladquiriente.php"; ?>
-  <!-- MODAL OTROS PRODUCTOS -->
+<!-- MODAL OTROS PRODUCTOS -->
 <?php include __DIR__. "/../../admin/ventas/modalotrosproductos.php"; ?>
-  <!-- MODAL DESCUENTO -->
+<!-- MODAL DESCUENTO -->
 <?php include __DIR__. "/../../shared/modalDescuento.php"; ?>
-  <!-- MODAL ELMINAR ITEM -->
+<!-- MODAL ELMINAR ITEM -->
 <?php include __DIR__. "/../../shared/modalEliminarItem.php"; ?>
+<!-- MODAL ELMINAR ITEM -->
+<?php include __DIR__. "/../../shared/modalConfirmar.php"; ?>

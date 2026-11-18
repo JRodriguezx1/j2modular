@@ -221,13 +221,7 @@ export async function eliminarItem(accountId: number, lineId:number, quantity: s
 }
 
 
-export async function aplicarDescuentoLinea(
-    accountId: number,
-    lineId: number,
-    type: 'valor' | 'porcentaje',
-    value: string,
-    password: string
-): Promise<void> {
+export async function aplicarDescuentoLinea(accountId: number, lineId: number, type: 'valor' | 'porcentaje', value: string, password: string): Promise<void>{
     const form = new FormData();
     form.set('accountId', String(accountId));
     form.set('lineId', String(lineId));
@@ -247,13 +241,10 @@ export async function aplicarDescuentoLinea(
         data?: { accountId: number; orderId: number; lineId: number; totales: AccountTotals };
     };
 
-    if (!response.ok || result?.success !== true) {
+    if(!response.ok || result?.success !== true)
         throw new Error(result?.message ?? 'No se pudo confirmar el descuento.');
-    }
 
     const data = result.data;
-    if (!data || data.accountId !== accountId || data.lineId !== lineId ||
-        !Number.isSafeInteger(data.orderId) || data.orderId <= 0 || !data.totales) {
+    if(!data || data.accountId!==accountId || data.lineId!==lineId || !Number.isSafeInteger(data.orderId) || data.orderId<=0 || !data.totales)
         throw new Error('La respuesta del descuento no corresponde a esta cuenta.');
-    }
 }

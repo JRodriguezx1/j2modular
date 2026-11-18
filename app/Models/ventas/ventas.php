@@ -3,7 +3,7 @@ namespace App\Models\ventas;
 
 class ventas extends \App\Models\ActiveRecord {
     protected static $tabla = 'ventas';
-    protected static $columnasDB = ['id', 'idfactura', 'idventa_origen', 'idproducto', 'idusuarioanulada', 'tipoproducto', 'tipoproduccion', 'anulada', 'fecha_anulacion', 'motivo_anulacion', 'rendimientoestandar', 'nombreproducto', 'foto', 'anotacion', 'costo', 'valorunidad', 'cantidad', 'promediostock', 'percentcomision', 'valorcomision', 'subtotal', 'base', 'impuesto', 'valorimp', 'descuento', 'total', 'dato1', 'dato2'];
+    protected static $columnasDB = ['id', 'idfactura', 'idventa_origen', 'idproducto', 'idusuarioanulada', 'tipoproducto', 'tipoproduccion', 'anulada', 'fecha_anulacion', 'motivo_anulacion', 'rendimientoestandar', 'nombreproducto', 'foto', 'anotacion', 'costo', 'valorunidad', 'cantidad', 'promediostock', 'percentcomision', 'valorcomision', 'subtotal', 'base', 'impuesto', 'valorimp', 'descuento', 'es_cortesia', 'descuento_antes_cortesia', 'total', 'dato1', 'dato2'];
     
     public function __construct($args = [])
     {
@@ -32,6 +32,8 @@ class ventas extends \App\Models\ActiveRecord {
         $this->impuesto = $args['impuesto'] ?? '0';
         $this->valorimp = $args['valorimp'] ?? '0';
         $this->descuento = $args['descuento'] ?? '';
+        $this->es_cortesia = $args['es_cortesia'] ?? 0;
+        $this->descuento_antes_cortesia = $args['descuento_antes_cortesia'] ?? 0;
         $this->total = $args['total'] ?? '';
         $this->dato1 = $args['dato1 '] ?? '';
         $this->dato2 = $args['dato2'] ?? '';
@@ -102,7 +104,7 @@ class ventas extends \App\Models\ActiveRecord {
 
         $sql = "SELECT v.id, v.idfactura, v.idproducto, v.nombreproducto,
                     v.cantidad, v.valorunidad, v.subtotal, v.base,
-                    v.impuesto, v.valorimp, v.descuento, v.total, v.anotacion
+                    v.impuesto, v.valorimp, v.descuento, v.es_cortesia, v.total, v.anotacion
                 FROM ventas AS v
                 INNER JOIN facturas AS f ON f.id = v.idfactura
                 WHERE v.idfactura = ? AND f.id_sucursal = ? AND f.estado = 'Abierta' AND (v.anulada IS NULL OR v.anulada = 0)
@@ -144,7 +146,7 @@ class ventas extends \App\Models\ActiveRecord {
     // Requiere una transacción abierta y la línea bloqueada previamente.
     public static function actualizarRestanteLineaOrden(int $ordenId, int $lineaId, array $restante): void {
         $db = self::getDB();
-        $sql = "UPDATE ventas SET cantidad = ?, subtotal = ?, descuento = ?, total = ?, base = ?, valorimp = ?, valorcomision = ?
+        $sql = "UPDATE ventas SET cantidad = ?, subtotal = ?, descuento = ?, total = ?, base = ?, valorimp = ?, valorcomision = ?, descuento_antes_cortesia = ?
                 WHERE id = ? AND idfactura = ? AND (anulada IS NULL OR anulada = 0)";
         $stmt = $db->prepare($sql);
         if(!$stmt)
@@ -152,7 +154,7 @@ class ventas extends \App\Models\ActiveRecord {
 
         try {
             // Mantener los decimales como texto, sin convertirlos a float.
-            $guardado = $stmt->execute([$restante['cantidad'], $restante['subtotal'], $restante['descuento'], $restante['total'], $restante['base'], $restante['valorimp'], $restante['valorcomision'], $lineaId, $ordenId]);
+            $guardado = $stmt->execute([$restante['cantidad'], $restante['subtotal'], $restante['descuento'], $restante['total'], $restante['base'], $restante['valorimp'], $restante['valorcomision'], $restante['descuento_antes_cortesia'], $lineaId, $ordenId]);
             // En una anulación parcial la cantidad siempre cambia.
             if(!$guardado || $stmt->affected_rows!==1) 
                 throw new \RuntimeException('No fue posible actualizar la cantidad restante.');
@@ -168,13 +170,10 @@ class ventas extends \App\Models\ActiveRecord {
         $db = self::getDB();
 
         $sql = "INSERT INTO ventas (
-                    idfactura, idventa_origen, idproducto,
-                    idusuarioanulada, tipoproducto, tipoproduccion,
-                    anulada, fecha_anulacion, motivo_anulacion,
-                    rendimientoestandar, nombreproducto, foto, anotacion,
-                    costo, valorunidad, cantidad, promediostock,
-                    percentcomision, valorcomision, subtotal, base,
-                    impuesto, valorimp, descuento, total, dato1, dato2
+                    idfactura, idventa_origen, idproducto, idusuarioanulada, tipoproducto, tipoproduccion, anulada, 
+                    fecha_anulacion, motivo_anulacion,  rendimientoestandar, nombreproducto, foto, anotacion, 
+                    costo, valorunidad, cantidad, promediostock, percentcomision, valorcomision, subtotal, base, 
+                    impuesto, valorimp, descuento, total, dato1, dato2, es_cortesia, descuento_antes_cortesia
                 )
                 SELECT idfactura, id, idproducto, ?, tipoproducto, tipoproduccion, 1, NOW(), ?,
                     rendimientoestandar, nombreproducto, foto, anotacion,
@@ -200,35 +199,40 @@ class ventas extends \App\Models\ActiveRecord {
 
 
     // La factura y la línea ya deben estar bloqueadas en la misma transacción.
-public static function actualizarDescuentoLineaOrden(
-    int $ordenId,
-    int $lineaId,
-    string $descuento,
-    string $total,
-    string $base,
-    string $valorImpuesto
-): void {
-    $sql = "UPDATE ventas
-            SET descuento = ?, total = ?, base = ?, valorimp = ?
-            WHERE id = ? AND idfactura = ?
-              AND (anulada IS NULL OR anulada = 0)";
+    public static function actualizarDescuentoLineaOrden(int $ordenId, int $lineaId, string $descuento, string $total, string $base, string $valorImpuesto): void{
+        $sql = "UPDATE ventas SET descuento = ?, total = ?, base = ?, valorimp = ?
+                WHERE id = ? AND idfactura = ? AND (anulada IS NULL OR anulada = 0)";
 
-    $stmt = self::getDB()->prepare($sql);
+        $stmt = self::getDB()->prepare($sql);
 
-    if (!$stmt) {
-        throw new \RuntimeException('No fue posible preparar el descuento.');
-    }
+        if(!$stmt)
+            throw new \RuntimeException('No fue posible preparar el descuento.');
 
-    try {
-        $guardado = $stmt->execute([
-            $descuento, $total, $base, $valorImpuesto, $lineaId, $ordenId
-        ]);
-
-        if (!$guardado || $stmt->affected_rows !== 1) {
-            throw new \RuntimeException('No fue posible actualizar el descuento de la línea.');
+        try{
+            $guardado = $stmt->execute([$descuento, $total, $base, $valorImpuesto, $lineaId, $ordenId]);
+            if(!$guardado || $stmt->affected_rows !== 1)
+                throw new \RuntimeException('No fue posible actualizar el descuento de la línea.');
+        }finally{
+            $stmt->close();
         }
-    } finally {
-        $stmt->close();
     }
-}
+
+
+    public static function actualizarCortesiaLineaOrden(int $ordenId, int $lineaId, bool $activar, string $descuentoAnterior, string $descuento, string $total, string $base, string $valorImpuesto): void{
+        $sql = "UPDATE ventas SET es_cortesia = ?, descuento_antes_cortesia = ?, descuento = ?, total = ?, base = ?, valorimp = ?
+                WHERE id = ? AND idfactura = ? AND (anulada IS NULL OR anulada = 0)";
+
+        $stmt = self::getDB()->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('No fue posible preparar la cortesía.');
+        try {
+            $guardado = $stmt->execute([(int)$activar, $descuentoAnterior, $descuento, $total, $base, $valorImpuesto, $lineaId, $ordenId]);
+            // Solo llamamos a este método cuando cambia es_cortesia.
+            if (!$guardado || $stmt->affected_rows !== 1)
+                throw new \RuntimeException('No fue posible actualizar la cortesía.');
+        }finally{
+            $stmt->close();
+        }
+    }
+
 }

@@ -19,7 +19,7 @@ class ApplyAccountLineDiscount{
     ){}
 
     
-    public function execute(int $accountId, int $lineId, string $type, string $value, string $password, int $branchId): array {
+    public function execute(int $accountId, int $lineId, string $type, string $value, string $password, int $branchId): array{
         if($accountId <= 0 || $lineId <= 0 || $branchId <= 0)
             throw new InvalidArgumentException('La cuenta, la línea o la sucursal no es válida.');
 

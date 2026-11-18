@@ -195,7 +195,6 @@ class OpenInvoiceService{
             throw new InvalidArgumentException('La factura no está abierta en esta sucursal.');
 
         ventasService::aplicarDescuentoLineaOrdenAbierta($orderId, $lineId, $type, $value);
-
         return ['lineId' => $lineId, 'totales' => facturas::recalcularTotalesOrdenAbierta($orderId, $branchId),];
     }
     

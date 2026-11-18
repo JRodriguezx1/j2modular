@@ -20,7 +20,7 @@ use App\Models\ventas\facturas;
 use App\Models\ventas\ventas;
 use App\Rules\FacturaElectronicaRules;
 use App\services\facturaElectronicaService;
-
+use MVC\Router;  //namespace\clase
 use stdClass;
 
 class apidiancontrolador{
@@ -225,18 +225,14 @@ class apidiancontrolador{
 
 
   public static function filterAdquirientes(){
-    //session_start();
     isadmin();
-    $alertas = [];
     $adquirientes = adquirientes::all();
     echo json_encode($adquirientes);
   }
 
   
   public static function guardarAdquiriente(){
-    //session_start();
     isadmin();
-    $alertas = [];
     if($_SERVER['REQUEST_METHOD'] !== 'POST'){
       http_response_code(405); // Método no permitido
       echo json_encode(['error' => 'Método no permitido']);
@@ -550,6 +546,13 @@ class apidiancontrolador{
     if($facturaDian){
       $resAdq = facturaElectronicaService::createUpDateAdquiriente($datosadquiriente);
       $facturaDian->id_adquiriente = $resAdq['id'];
+      
+      $datosadquiriente['name'] = $datosadquiriente['business_name'];
+      unset($datosadquiriente['business_name'], $datosadquiriente['idfe'], $datosadquiriente['idfactura'], $datosadquiriente['department_id']);
+      
+      $json_envio = json_decode($facturaDian->json_envio);
+      $json_envio->customer = $datosadquiriente;
+      $facturaDian->json_envio = json_encode($json_envio, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
       $r = $facturaDian->actualizar();
       if($r){
         $alertas['exito'][] = 'Adquiriente asignado correctamente';

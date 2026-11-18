@@ -10,12 +10,16 @@ const productsRegistrados = document.getElementById('accountPanelConsumptions');
 const popover = document.querySelector<HTMLDivElement>("#cart-popover");
 const btnsdevolverinv = document.querySelectorAll<HTMLInputElement>('input[name="devolverinventario"]'); //radio buttom
 const miDialogoDescuento = document.querySelector('#miDialogoDescuento') as HTMLDialogElement;
+const miDialogoConfirmar = document.querySelector('#miDialogoConfirmar') as HTMLDialogElement;
+const miDialogoCortesia = document.querySelector('#miDialogoCortesia') as HTMLDialogElement;
 const miDialogoEliminarItem = document.querySelector('#miDialogoEliminarItem') as HTMLDialogElement;
 const sieliminar = document.querySelector('.sieliminar') as HTMLButtonElement;
 
 const inputDescuento = document.querySelector('#inputDescuento') as HTMLInputElement;
 const inputDescuentoClave = document.querySelector('#inputDescuentoClave') as HTMLInputElement;
 const btnModalDescuento = document.querySelector('#btnModalDescuento') as HTMLButtonElement;
+const btnModalCortesia = document.querySelector('#btnModalCortesia') as HTMLButtonElement;
+const btnModalEliminarItem = document.querySelector('#btnModalEliminarItem') as HTMLButtonElement;
 
 let activeItemId: string|number|null = null;
 let activePop: HTMLElement | null = null;
@@ -314,7 +318,7 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
         event.preventDefault();
         // Buscar el botón también cuando el formulario se envía con Enter.
         const boton = formDescuento.querySelector<HTMLButtonElement>('#btnAplicarDcto');
-        if(!boton || boton.disabled || !miDialogoDescuento.open) return;
+        if(!boton || boton.disabled || !miDialogoDescuento.open)return;
         const order = ActiveOrderE();
         const accountId = Number(miDialogoDescuento.dataset.accountId);
         const lineId = Number(miDialogoDescuento.dataset.lineId);
@@ -331,40 +335,42 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
         if(type !== 'valor' && type !== 'porcentaje')return;
 
         const mensaje = formDescuento.querySelector<HTMLElement>('#divmsjalertaClaveDcto');
-        if(mensaje) mensaje.textContent = '';
+        if(mensaje)mensaje.textContent = '';
         boton.disabled = true;
         setSavingOrder(true);
-
         let guardado = false;
-        try {
-        await aplicarDescuentoLinea(
-            accountId, lineId, type, inputDescuento.value, inputDescuentoClave.value
-        );
-
+        try{
+        await aplicarDescuentoLinea(accountId, lineId, type, inputDescuento.value, inputDescuentoClave.value);
         guardado = true;
         inputDescuentoClave.value = '';
         miDialogoDescuento.close();
-
         // Actualiza consumos, descuento y totales, incluidos los pendientes del carrito.
         await refreshConfirmedOrderCart();
         msjalertToast('success', 'Cuenta actualizada', 'El descuento quedó guardado.');
-    } catch (error) {
-        if (guardado) {
-            msjalertToast('warning', 'Descuento guardado',
-                'Vuelve a abrir la mesa para actualizar el resumen.');
-        } else {
-            const detalle = error instanceof Error ? error.message : 'Revisa la cuenta antes de reintentar.';
-            if (mensaje) mensaje.textContent = detalle;
+        }catch(error){
+            if(guardado){
+                msjalertToast('warning', 'Descuento guardado', 'Vuelve a abrir la mesa para actualizar el resumen.');
+            }else{
+                const detalle = error instanceof Error ? error.message : 'Revisa la cuenta antes de reintentar.';
+                if(mensaje)mensaje.textContent = detalle;
+            }
+        }finally{
+            boton.disabled = false;
+            setSavingOrder(false);
         }
-    } finally {
-        boton.disabled = false;
-        setSavingOrder(false);
-    }
+    });
+
+
+    // EVENTO AL BOTON PARA ABRIR MODAL DE CORTESIA
+    btnModalCortesia.addEventListener('click', ()=>{
+        const order = ActiveOrderE();
+        closePopover();
+        miDialogoConfirmar.showModal();
+        
     });
 
 
     // EVENTO AL BOTON PARA ABRIR MODAL DE ANULAR LINEAS O ITEMS
-    const btnModalEliminarItem = document.querySelector('#btnModalEliminarItem') as HTMLButtonElement;
     btnModalEliminarItem.addEventListener('click', ()=>{
         const order = ActiveOrderE();
         //Evitar usar una selección que pertenecía a otro contexto.

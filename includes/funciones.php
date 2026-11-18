@@ -40,14 +40,17 @@ function nombreSucursal():string{
 
 function id_sucursal():int{
     if(isset($_SESSION['idsucursal'])){
-        return (int)$_SESSION['idsucursal'];
+        return $_SESSION['idsucursal'];
     }else{
         return 1;
     }
 }
 
 function negocionSucursal():object{
-    return $_SESSION['sucursal'];
+    $sucursal = $_SESSION['sucursal'];
+    $existe_archivo = !empty($sucursal->logo)&&file_exists($_SERVER['DOCUMENT_ROOT']."/build/img/$sucursal->logo");
+    if(!$existe_archivo)$sucursal->logo = "Logoj2negro.png";
+    return $sucursal;
     //$lineasencabezado = explode("\n", $sucursal->datosencabezados??'');
 }
 
