@@ -8,10 +8,12 @@ require __DIR__ . '/../vendor/autoload.php';
 use App\Core\Container\Container;
 use App\Core\Routing\Router;
 use App\Modules\Restaurant\Application\UseCases\AddProductsToAccount;
+use App\Modules\Restaurant\Application\UseCases\ApplyAccountLineDiscount;
 use App\Modules\Restaurant\Application\UseCases\CancelAccountLine;
 use App\Modules\Restaurant\Application\UseCases\GetAccountSummary;
 use App\Modules\Restaurant\Application\UseCases\GetOccupationAccounts;
 use App\Modules\Restaurant\Application\UseCases\SaveFirstTableOrder;
+use App\Modules\Restaurant\Application\UseCases\SetAccountLineCourtesy;
 use App\Modules\Restaurant\Application\UseCases\UpdateAccountCustomer;
 use App\Modules\Restaurant\Interfaces\Http\Controllers\OccupationAccountController;
 
@@ -38,7 +40,15 @@ function checkCancelController(bool $condition, string $message): void {
 $useCase = new CancelControllerUseCase();
 $container = new Container();
 // Las otras acciones del controlador no se ejecutan en esta prueba.
-foreach ([GetOccupationAccounts::class, GetAccountSummary::class, SaveFirstTableOrder::class, AddProductsToAccount::class, UpdateAccountCustomer::class] as $class) {
+foreach ([
+    GetOccupationAccounts::class,
+    GetAccountSummary::class,
+    SaveFirstTableOrder::class,
+    AddProductsToAccount::class,
+    UpdateAccountCustomer::class,
+    ApplyAccountLineDiscount::class,
+    SetAccountLineCourtesy::class,
+] as $class) {
     $container->instance($class, (new ReflectionClass($class))->newInstanceWithoutConstructor());
 }
 $container->instance(CancelAccountLine::class, $useCase);

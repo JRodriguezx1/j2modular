@@ -8,7 +8,7 @@
   aria-modal="true"
   aria-labelledby="orderWorkspaceTitle"
   aria-hidden="true"
-  class="fixed right-0 top-0 z-30 flex h-full w-full translate-x-full flex-col bg-slate-50 shadow-2xl transition-transform duration-300 tlg:max-w-screen-md xlg:max-w-screen-tlg 2xlg:max-w-screen-lg 3xlg:max-w-screen-xl">
+  class="fixed right-0 top-0 z-40 flex h-full w-full translate-x-full flex-col bg-slate-50 shadow-2xl transition-transform duration-300 tlg:max-w-screen-md xlg:max-w-screen-tlg 2xlg:max-w-screen-lg 3xlg:max-w-screen-xl">
 
   <!-- ENCABEZADO -->
   <header class="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
@@ -255,7 +255,10 @@
                     <div class="min-w-0 flex-1">
                       <p data-consumption-name class="m-0 text-base font-semibold text-slate-900"></p>
                       <p data-consumption-unit-price class="mt-0.5 mb-0 text-sm text-slate-500"></p>
-                      <span class="mt-1 inline-block text-lg font-medium text-emerald-600">Registrado</span>
+                      <div class="flex gap-4">
+                        <span class="mt-1 inline-block text-lg font-medium text-emerald-600">Registrado</span>
+                        <span data-cortesia class="mt-1 inline-block text-lg font-medium text-indigo-600"></span>
+                      </div>
                     </div>
                     <span data-consumption-total class="text-lg font-semibold text-slate-900"></span>
                   </div>

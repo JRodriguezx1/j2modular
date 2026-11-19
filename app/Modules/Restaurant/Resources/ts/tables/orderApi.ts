@@ -248,3 +248,32 @@ export async function aplicarDescuentoLinea(accountId: number, lineId: number, t
     if(!data || data.accountId!==accountId || data.lineId!==lineId || !Number.isSafeInteger(data.orderId) || data.orderId<=0 || !data.totales)
         throw new Error('La respuesta del descuento no corresponde a esta cuenta.');
 }
+
+
+//////// cortesia  /////////
+export async function aplicarCortesiaLinea(accountId: number, lineId: number, courtesy: '0'|'1', password: string): Promise<void>{
+    const form = new FormData();
+    form.set('accountId', String(accountId));
+    form.set('lineId', String(lineId));
+    form.set('courtesy', courtesy);
+    form.set('password', password);
+
+    const response = await fetch('/restaurant/api/accounts/lines/courtesy', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: form,
+    });
+
+    const result = await response.json() as {
+        success: boolean;
+        message?: string;
+        data?: { accountId: number, orderId: number, lineId: number, es_cortesia: boolean, totales: AccountTotals };
+    };
+
+    if(!response.ok || result?.success !== true)
+        throw new Error(result?.message ?? 'No se pudo confirmar la cortesia.');
+
+    const data = result.data;
+    if(!data || data.accountId!==accountId || data.lineId!==lineId || !Number.isSafeInteger(data.orderId) || data.orderId<=0 || !data.totales || data.es_cortesia!==(courtesy === '1'))
+        throw new Error('La respuesta de la cortesia no corresponde a esta cuenta.');
+}

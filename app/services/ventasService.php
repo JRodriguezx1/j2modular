@@ -975,6 +975,9 @@ class ventasService {
         self::validarImportesAnulacion($linea);
         $subtotal = (string)$linea['subtotal'];
 
+        if((int)$linea['es_cortesia'] === 1) 
+            throw new \InvalidArgumentException('Retira la cortesía antes de modificar el descuento.');
+
         if($tipo === 'porcentaje'){
             if(bccomp($valor, '100', 2) > 0)
                 throw new \InvalidArgumentException('El porcentaje no puede superar 100.');
@@ -994,9 +997,6 @@ class ventasService {
         // Reaplicar el mismo descuento conserva incluso los redondeos de una división previa.
         if(bccomp($descuento, (string)$linea['descuento'], 2) === 0)
             return;
-
-        if((int)$linea['es_cortesia'] === 1) 
-            throw new \InvalidArgumentException('Retira la cortesía antes de modificar el descuento.');
 
         $importes = self::importesConDescuento($linea, $descuento);
         ventas::actualizarDescuentoLineaOrden($ordenId, $lineaId, $descuento, $importes['total'], $importes['base'], $importes['valorimp']);

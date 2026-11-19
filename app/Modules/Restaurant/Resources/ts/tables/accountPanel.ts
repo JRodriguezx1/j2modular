@@ -68,13 +68,15 @@ function renderConsumptions(consumptions: AccountConsumption[]): void{
         const quantity = row.querySelector<HTMLElement>('[data-consumption-quantity]');
         const name = row.querySelector<HTMLElement>('[data-consumption-name]');
         const unitPrice = row.querySelector<HTMLElement>('[data-consumption-unit-price]');
+        const cortesia = row.querySelector<HTMLElement>('[data-cortesia]');
         const total = row.querySelector<HTMLElement>('[data-consumption-total]');
-        if(!quantity || !name || !unitPrice || !total)
+        if(!quantity || !name || !unitPrice || !total || !cortesia)
             throw new Error('La vista de productos registrados está incompleta.');
 
         quantity.textContent = formatQuantity(consumption.cantidad);
         name.textContent = consumption.nombreproducto;
         unitPrice.textContent = `${formatCurrency(consumption.valorunidad)} c/u`;
+        cortesia.textContent = consumption.es_cortesia === 1?'Cortesia':'';
         total.textContent = formatCurrency(consumption.total);
         fragment.append(row);
     }

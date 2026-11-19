@@ -23,3 +23,4 @@ $router->post('/restaurant/api/accounts/lines/cancel', [OccupationAccountControl
 $router->post('/restaurant/api/accounts/lines/discount', [OccupationAccountController::class, 'applyLineDiscount']);
 $router->post('/restaurant/api/accounts/customer/UpdateAccountCustomer', [OccupationAccountController::class, 'UpdateAccountCustomer']); // Actualizar cliente
 $router->get('/restaurant/api/accounts/summary', [OccupationAccountController::class, 'summary']);  //llamada desdes getAccountSummary - accountApi.ts
+$router->post('/restaurant/api/accounts/lines/courtesy', [OccupationAccountController::class, 'setLineCourtesy']);

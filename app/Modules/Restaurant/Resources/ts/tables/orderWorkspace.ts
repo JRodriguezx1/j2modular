@@ -53,7 +53,8 @@ let activeOrder: {
     cli: Cli,
     cliDian: ReturnType<typeof createCliDian>,
     totales: AccountTotals|null,
-    itemsregistrados: AccountConsumption[]
+    itemsregistrados: AccountConsumption[],
+    summaryPending: boolean,
 } | null = null;
 
 
@@ -112,7 +113,7 @@ function activateOrder(resourceId: number, occupationId: number|null, accountId:
         clientesDian.set(key, cliDian);
     }
 
-    activeOrder = {resourceId, occupationId, accountId, cartKey: key, cart, cli, cliDian, totales, itemsregistrados};
+    activeOrder = {resourceId, occupationId, accountId, cartKey: key, cart, cli, cliDian, totales, itemsregistrados, summaryPending: totales === null};
     renderCartPanel(cart.getItems());  //Muestra el carrito recién creado. Así reaparecen los pendientes al abrir la mesa.
     renderCli(cli.getCli());
 }
@@ -162,6 +163,8 @@ async function refreshConfirmedOrderCart(): Promise<void>{
     if(order === null || order.accountId === null || order.occupationId === null)
         throw new Error('No hay una cuenta confirmada para actualizar.');
 
+     // Si la consulta o el renderizado fallan, permanece pendiente.
+    order.summaryPending = true;
     // Capturamos los identificadores antes de esperar la respuesta.
     const accountId = order.accountId;
     const occupationId = order.occupationId;
@@ -187,6 +190,8 @@ async function refreshConfirmedOrderCart(): Promise<void>{
     renderConfirmedAccount(summary);
     // Sumar los pendientes actuales a los nuevos totales registrados.
     renderCartTotals(order.cart.getItems());
+    // Solo habilitar el cobro después de completar la actualización.
+    order.summaryPending = false;
 }
 
 
@@ -424,7 +429,7 @@ export function initOrderWorkspace(): void{
     registeraddclienteEvents(getActiveClient, () => requestVersion);  //para abrir modal de clientes y seleccionar.
     asignarClienteDianEvent(getActiveClientDian, () => requestVersion);
     orderEvents = registrarProcesarOrdenEvent(getActiveOrder, () => requestVersion, isSavingOrder, setSavingOrder, confirmFirstOrder, refreshConfirmedOrderCart);
-    registerProcesarPagoEvents(getActiveOrder, () => requestVersion);
+    registerProcesarPagoEvents(getEditableOrder, () => requestVersion);
     
 
     void precargarProductos(); //carga de productos

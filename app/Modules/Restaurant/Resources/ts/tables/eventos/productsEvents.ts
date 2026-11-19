@@ -4,21 +4,21 @@ import { SimpleProduct } from "../catalogoApi";
 import { calculateCartTotals } from '../cartTotals';
 import { renderCartTotals } from '../cartPanel';
 import type { AccountConsumption } from '../accountApi';
-import { eliminarItem, aplicarDescuentoLinea } from "../orderApi";
+import { eliminarItem, aplicarDescuentoLinea, aplicarCortesiaLinea } from "../orderApi";
 
 const productsRegistrados = document.getElementById('accountPanelConsumptions');
 const popover = document.querySelector<HTMLDivElement>("#cart-popover");
 const btnsdevolverinv = document.querySelectorAll<HTMLInputElement>('input[name="devolverinventario"]'); //radio buttom
 const miDialogoDescuento = document.querySelector('#miDialogoDescuento') as HTMLDialogElement;
 const miDialogoConfirmar = document.querySelector('#miDialogoConfirmar') as HTMLDialogElement;
-const miDialogoCortesia = document.querySelector('#miDialogoCortesia') as HTMLDialogElement;
 const miDialogoEliminarItem = document.querySelector('#miDialogoEliminarItem') as HTMLDialogElement;
 const sieliminar = document.querySelector('.sieliminar') as HTMLButtonElement;
-
+const confirmar = document.querySelector('.confirmar') as HTMLButtonElement;
 const inputDescuento = document.querySelector('#inputDescuento') as HTMLInputElement;
 const inputDescuentoClave = document.querySelector('#inputDescuentoClave') as HTMLInputElement;
 const btnModalDescuento = document.querySelector('#btnModalDescuento') as HTMLButtonElement;
 const btnModalCortesia = document.querySelector('#btnModalCortesia') as HTMLButtonElement;
+const inputConfirmarClave = document.querySelector('#inputConfirmarClave') as HTMLInputElement;
 const btnModalEliminarItem = document.querySelector('#btnModalEliminarItem') as HTMLButtonElement;
 
 let activeItemId: string|number|null = null;
@@ -37,7 +37,8 @@ interface ActiveOrder {
     accountId: number|null,
     cartKey: CartKey,
     cart: Cart,
-    itemsregistrados: AccountConsumption[]
+    itemsregistrados: AccountConsumption[],
+    summaryPending: boolean
 }
 
 interface itemsEventsDependencies {
@@ -340,13 +341,15 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
         setSavingOrder(true);
         let guardado = false;
         try{
-        await aplicarDescuentoLinea(accountId, lineId, type, inputDescuento.value, inputDescuentoClave.value);
-        guardado = true;
-        inputDescuentoClave.value = '';
-        miDialogoDescuento.close();
-        // Actualiza consumos, descuento y totales, incluidos los pendientes del carrito.
-        await refreshConfirmedOrderCart();
-        msjalertToast('success', 'Cuenta actualizada', 'El descuento quedó guardado.');
+            // Los importes anteriores necesitan confirmarse nuevamente.
+            order.summaryPending = true;
+            await aplicarDescuentoLinea(accountId, lineId, type, inputDescuento.value, inputDescuentoClave.value);
+            guardado = true;
+            inputDescuentoClave.value = '';
+            miDialogoDescuento.close();
+            // Actualiza consumos, descuento y totales, incluidos los pendientes del carrito.
+            await refreshConfirmedOrderCart();
+            msjalertToast('success', 'Cuenta actualizada', 'El descuento quedó guardado.');
         }catch(error){
             if(guardado){
                 msjalertToast('warning', 'Descuento guardado', 'Vuelve a abrir la mesa para actualizar el resumen.');
@@ -361,13 +364,91 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
     });
 
 
-    // EVENTO AL BOTON PARA ABRIR MODAL DE CORTESIA
+    ///////////   EVENTO AL BOTON PARA ABRIR MODAL DE CORTESIA    ////////////
     btnModalCortesia.addEventListener('click', ()=>{
         const order = ActiveOrderE();
+        //Evitar usar una selección que pertenecía a otro contexto.
+        if(order === null || order.accountId === null || order !== rowOrder || rowId === null){
+            closePopover();
+            msjalertToast('warning', 'Verificar', 'Selecciona nuevamente el producto de la cuenta.');
+            return;
+        }
+
+        const item = order.itemsregistrados.find(item => Number(item.id) === rowId);
+        if(!item){ //se puede anular la condicion
+            closePopover();
+            msjalertToast('warning', 'Verificar', 'El consumo ya no está disponible.');
+            return;
+        }
+
+        const textConfirmacion = miDialogoConfirmar.querySelector<HTMLElement>('#textConfirmacion');
+        const textDescripcion = miDialogoConfirmar.querySelector<HTMLElement>('#textDescripcion');
+        if(!textConfirmacion || !textDescripcion)return;
+        textConfirmacion.textContent = `${item.nombreproducto} · ${item.es_cortesia===0?'Aplicar cortesia':'Retirar cortesía'}`;
+        textDescripcion.textContent = item.es_cortesia===0?'El importe a cobrar por esta línea quedará en cero.':'Se recuperará el descuento anterior de esta línea.';
+        // Limpiar los datos de una apertura anterior.
+        inputConfirmarClave.value = ''
+        // Guardar la línea y la operación que el usuario va a confirmar.
+        miDialogoConfirmar.dataset.accountId = String(order.accountId);
+        miDialogoConfirmar.dataset.lineId = String(item.id);
+        miDialogoConfirmar.dataset.courtesy = Number(item.es_cortesia)===1?'0':'1';
         closePopover();
         miDialogoConfirmar.showModal();
         
     });
+
+    confirmar?.addEventListener('click', async ()=>{
+        if(confirmar.disabled || !miDialogoConfirmar.open)return;
+        const order = ActiveOrderE();
+        const accountId = Number(miDialogoConfirmar.dataset.accountId);
+        const lineId = Number(miDialogoConfirmar.dataset.lineId);
+
+        if(!order || order.accountId !== accountId){
+            miDialogoConfirmar.close();
+            msjalertToast('warning', 'Verificar', 'Selecciona nuevamente la cuenta.');
+            return;
+        }
+
+        const item = order.itemsregistrados.find(item => Number(item.id) === lineId);
+        if(!item){
+            miDialogoConfirmar.close();
+            msjalertToast('warning', 'Verificar', 'Actualiza los consumos de la cuenta.');
+            return;
+        }
+
+        // Usar la operación que el usuario vio al abrir el modal.
+        const courtesy = miDialogoConfirmar.dataset.courtesy;
+        if(courtesy !== '0' && courtesy !== '1'){
+            msjalertToast('warning', 'Verificar', 'Selecciona nuevamente el consumo.');
+            return;
+        }
+
+        // Bloquear antes del primer await para evitar un segundo clic.
+        confirmar.disabled = true;
+        setSavingOrder(true);
+        let confirmada = false;
+        try{
+            order.summaryPending = true;
+            await aplicarCortesiaLinea(accountId, lineId, courtesy, inputConfirmarClave.value);
+            confirmada = true;
+            miDialogoConfirmar.close();
+            inputConfirmarClave.value = '';
+            await refreshConfirmedOrderCart();
+            msjalertToast('success', 'Cuenta actualizada', courtesy==='1'?'La cortesía quedó aplicada.':'La cortesía se retiró y se recuperó el descuento anterior.');
+        }catch(error){
+            miDialogoConfirmar.close();
+            if(confirmada){
+                msjalertToast('warning', 'Cortesia actualizada', 'Vuelve a abrir la mesa para actualizar los consumos.');
+            }else{
+                const detalle = error instanceof Error ? error.message : 'No se recibió confirmación.';
+                msjalertToast('warning', 'Revisar cuenta', `${detalle} Revisa la cuenta antes de volver a confirmar.`);
+            }
+        }finally{
+            setSavingOrder(false);
+            confirmar.disabled = false;
+        }
+    });
+
 
 
     // EVENTO AL BOTON PARA ABRIR MODAL DE ANULAR LINEAS O ITEMS
@@ -458,6 +539,7 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
 
         let confirmada = false;
         try{
+            order.summaryPending = true;
             const result = await eliminarItem(accountId, lineId, quantity, reason);
             confirmada = true;
             miDialogoEliminarItem.close();

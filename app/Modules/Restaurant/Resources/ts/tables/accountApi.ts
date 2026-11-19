@@ -1,28 +1,29 @@
 export type AccountAmount = string|number;
 
 export interface AccountConsumption{
-    id: number;
-    idfactura: number;
-    idproducto: number;
-    nombreproducto: string;
-    cantidad: AccountAmount;
-    valorunidad: AccountAmount;
-    subtotal: AccountAmount;
-    base: AccountAmount;
-    impuesto: AccountAmount;
-    valorimp: AccountAmount;
-    descuento: AccountAmount;
-    total: AccountAmount;
-    anotacion: string|null;
+    id: number,
+    idfactura: number,
+    idproducto: number,
+    nombreproducto: string,
+    cantidad: AccountAmount,
+    valorunidad: AccountAmount,
+    subtotal: AccountAmount,
+    base: AccountAmount,
+    impuesto: AccountAmount,
+    valorimp: AccountAmount,
+    descuento: AccountAmount,
+    es_cortesia: number,
+    total: AccountAmount,
+    anotacion: string|null
 }
 
 export interface AccountTotals{
-    totalunidades: AccountAmount;
-    subtotal: AccountAmount;
-    base: AccountAmount;
-    valorimpuestototal: AccountAmount;
-    descuento: AccountAmount;
-    total: AccountAmount;
+    totalunidades: AccountAmount,
+    subtotal: AccountAmount,
+    base: AccountAmount,
+    valorimpuestototal: AccountAmount,
+    descuento: AccountAmount,
+    total: AccountAmount
 }
 
 export interface AccountSummary{

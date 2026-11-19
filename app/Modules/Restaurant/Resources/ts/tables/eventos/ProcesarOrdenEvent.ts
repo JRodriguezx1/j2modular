@@ -27,7 +27,8 @@ interface ActiveOrder {
     cli: Cli,
     cliDian: ReturnType<typeof createCliDian>,
     totales: AccountTotals|null,
-    itemsregistrados: AccountConsumption[]
+    itemsregistrados: AccountConsumption[],
+    summaryPending: boolean
 }
 
 
@@ -94,6 +95,8 @@ export function registrarProcesarOrdenEvent(
         try{
             // Capturar y validar el cliente que se enviará.
             const customerId = order.cli.getClientId();
+            // El resumen quedará pendiente hasta consultar la cuenta creada.
+            order.summaryPending = true;
             const result = await saveFirstTableOrder(order.resourceId, customerId, items);
             saved = true;
             // La factura se creó con este cliente, incluso si es null.
@@ -141,6 +144,7 @@ export function registrarProcesarOrdenEvent(
                 return;
             }
 
+            order.summaryPending = true;
             await saveProductsToAccount(accountId, clientChange, items);
             saved = true;
             // Actualizar la referencia solo si enviamos un cambio de cliente.

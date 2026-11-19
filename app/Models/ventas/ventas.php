@@ -178,7 +178,7 @@ class ventas extends \App\Models\ActiveRecord {
                 SELECT idfactura, id, idproducto, ?, tipoproducto, tipoproduccion, 1, NOW(), ?,
                     rendimientoestandar, nombreproducto, foto, anotacion,
                     costo, valorunidad, ?, promediostock,
-                    percentcomision, ?, ?, ?, impuesto, ?, ?, ?, dato1, dato2
+                    percentcomision, ?, ?, ?, impuesto, ?, ?, ?, dato1, dato2, es_cortesia, ?
                 FROM ventas
                 WHERE id = ? AND idfactura = ? AND (anulada IS NULL OR anulada = 0)";
         $stmt = $db->prepare($sql);
@@ -187,7 +187,7 @@ class ventas extends \App\Models\ActiveRecord {
             throw new \RuntimeException('No fue posible preparar el registro de la parte anulada.');
 
         try {
-            $guardado = $stmt->execute([$usuarioId, $motivo, $anulada['cantidad'], $anulada['valorcomision'], $anulada['subtotal'], $anulada['base'], $anulada['valorimp'], $anulada['descuento'], $anulada['total'], $lineaId, $ordenId]);
+            $guardado = $stmt->execute([$usuarioId, $motivo, $anulada['cantidad'], $anulada['valorcomision'], $anulada['subtotal'], $anulada['base'], $anulada['valorimp'], $anulada['descuento'], $anulada['total'], $anulada['descuento_antes_cortesia'], $lineaId, $ordenId]);
 
             if(!$guardado || $stmt->affected_rows !== 1)
                 throw new \RuntimeException('No fue posible guardar la parte anulada.');

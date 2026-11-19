@@ -12,6 +12,7 @@ use App\Modules\Restaurant\Application\UseCases\AddProductsToAccount;
 use App\Modules\Restaurant\Application\UseCases\UpdateAccountCustomer;
 use App\Modules\Restaurant\Application\UseCases\CancelAccountLine;
 use App\Modules\Restaurant\Application\UseCases\ApplyAccountLineDiscount;
+use App\Modules\Restaurant\Application\UseCases\SetAccountLineCourtesy;
 
 class OccupationAccountController{
 
@@ -22,7 +23,8 @@ class OccupationAccountController{
         private AddProductsToAccount $addProductsToAccount,
         private UpdateAccountCustomer $updateAccountCustomer,
         private CancelAccountLine $cancelAccountLine,
-        private ApplyAccountLineDiscount $applyAccountLineDiscount
+        private ApplyAccountLineDiscount $applyAccountLineDiscount,
+        private SetAccountLineCourtesy $setAccountLineCourtesy
     ){}
 
     //llamada desdes occupationApi.ts, consultar las cuentas asociadas a la ocupacion
@@ -323,6 +325,53 @@ class OccupationAccountController{
             error_log('ApplyAccountLineDiscount: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'No fue posible guardar el descuento.']);
+        }
+    }
+
+
+    public function setLineCourtesy(): void{
+        header('Content-Type: application/json; charset=utf-8');
+        if(($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST'){
+            header('Allow: POST');
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Utiliza POST para aplicar cortesia.']);
+            return;
+        }
+
+        if(($_SESSION['login'] ?? false) !== true){
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Debes iniciar sesión.']);
+            return;
+        }
+
+        try {
+            $positiveId = ['options' => ['min_range' => 1]];
+            $accountId = filter_var($_POST['accountId'] ?? null, FILTER_VALIDATE_INT, $positiveId);
+            $lineId = filter_var($_POST['lineId'] ?? null, FILTER_VALIDATE_INT, $positiveId);
+            $branchId = filter_var($_SESSION['idsucursal'] ?? null, FILTER_VALIDATE_INT, $positiveId);
+            $userId = filter_var($_SESSION['id'] ?? null, FILTER_VALIDATE_INT, $positiveId);
+
+            if($accountId === false || $lineId === false || $branchId === false || $userId === false)
+                throw new InvalidArgumentException('La cuenta, la línea o los datos de sesión no son válidos.');
+
+            // FormData enviará "1" para aplicar o "0" para retirar.
+            // Un campo ausente se rechaza para evitar retirar una cortesía por accidente.
+            $courtesy = $_POST['courtesy'] ?? null;
+            $password = $_POST['password'] ?? '';
+
+            if(!in_array($courtesy, ['0', '1'], true) || !is_string($password))
+                throw new InvalidArgumentException('Indica si deseas aplicar o retirar la cortesía.');
+
+            $result = $this->setAccountLineCourtesy->execute($accountId, $lineId, $courtesy === '1', $password, $branchId);
+            http_response_code(200);
+            echo json_encode(['success' => true, 'data' => $result], JSON_UNESCAPED_UNICODE);
+        } catch (InvalidArgumentException $e) {
+            http_response_code(422);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+        } catch (Throwable $e) {
+            error_log('SetAccountLineCourtesy: ' . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'No fue posible aplicar la cortesia.']);
         }
     }
     

@@ -39,4 +39,6 @@ interface OpenOrderPort{
     /** @return array{lineId: int, totales: array} */
     public function applyLineDiscount(int $orderId, int $lineId, int $branchId, string $type, string $value, string $password): array;
 
+    public function setLineCourtesy(int $orderId, int $lineId, int $branchId, bool $active, string $password): array;
+
 }

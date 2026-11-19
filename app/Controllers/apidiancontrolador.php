@@ -553,6 +553,8 @@ class apidiancontrolador{
       $json_envio = json_decode($facturaDian->json_envio);
       $json_envio->customer = $datosadquiriente;
       $facturaDian->json_envio = json_encode($json_envio, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+      $facturaDian->identificacion = $datosadquiriente['identification_number'];
+      $facturaDian->nombre = $datosadquiriente['name'];
       $r = $facturaDian->actualizar();
       if($r){
         $alertas['exito'][] = 'Adquiriente asignado correctamente';
