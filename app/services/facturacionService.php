@@ -13,6 +13,7 @@ use App\Models\felectronicas\adquirientes;
 use App\Models\parametrizacion\config_local;
 use App\Models\ventas\facturas;
 use App\Models\ventas\ventas;
+use App\Models\configuraciones\mediospago;
 use App\Models\sucursales;
 use App\Models\configuraciones\emisores;
 use InvalidArgumentException;
@@ -636,6 +637,47 @@ class facturacionService
         return $cierre;
     }
 
+
+    private function obtenerOAbrirCierreCaja(?int $usuarioId = null): cierrescajas{
+        $idCaja = (int)($this->datos['idcaja'] ?? 0);
+        if($idCaja <= 0)
+            throw new InvalidArgumentException('Selecciona una caja válida.');
+        // Bloquear la caja antes de buscar o crear su cierre.
+        $cajaSeleccionada = caja::findForUpdate('id', $idCaja);
+        if(!$cajaSeleccionada || (int)$cajaSeleccionada->idsucursalid !== $this->sucursalId || (int)$cajaSeleccionada->estado !== 1)
+            throw new InvalidArgumentException('La caja no está activa en esta sucursal.');
+        // Lectura bloqueada: obtener los acumulados actuales del cierre.
+        $cierres = cierrescajas::consultar_sql("SELECT * FROM cierrescajas WHERE idcaja = {$idCaja} AND idsucursal_id = {$this->sucursalId} AND estado = 0 ORDER BY id FOR UPDATE");
+        if(count($cierres) > 1)
+            throw new RuntimeException('La caja tiene varios cierres abiertos. Revisa su configuración.');
+
+        if($cierres !== [])return $cierres[0];
+        // Conservar el comportamiento del POS: abrir un cierre si no existe.
+        $datosCierre = [
+            'idcaja' => $idCaja,
+            'nombrecaja' => $cajaSeleccionada->nombre,
+            'estado' => 0,
+            'idsucursal_id' => $this->sucursalId
+        ];
+
+        if($usuarioId !== null){
+            $usuario = $usuarioId > 0 ? usuarios::find('id', $usuarioId) : null;
+            if(!$usuario)
+                throw new InvalidArgumentException('El usuario que abre la caja no es válido.');
+
+            $datosCierre['id_usuario'] = $usuarioId;
+            $datosCierre['nombreusuario'] = trim($usuario->nombre . ' ' . $usuario->apellido);
+        }
+
+        $cierre = new cierrescajas($datosCierre);
+        [$creado, $idCierre] = $cierre->crear_guardar();
+        if(!$creado)
+            throw new RuntimeException('No fue posible abrir el cierre de caja.');
+
+        $cierre->id = $idCierre;
+        return $cierre;
+    }
+
     /**
      * Construye la entidad que se persistira. Al pagar una orden crea una copia
      * nueva y conserva el numero de la orden original como referencia.
@@ -916,204 +958,322 @@ class facturacionService
 
 
     ///////////////   Restaurant   ////////////////
+
     /**
- * Valida un importe positivo o cero, con máximo dos decimales.
- */
-private function validarImporteCobro(mixed $valor): string {
-    if (
-        !is_string($valor) ||
-        preg_match('/\A\d{1,10}(?:\.\d{1,2})?\z/', $valor) !== 1
-    ) {
-        throw new InvalidArgumentException(
-            'El importe debe ser un texto numérico con máximo dos decimales.'
-        );
+     * Valida un importe positivo o cero, con máximo dos decimales.
+     */
+    private function validarImporteCobro(mixed $valor): string {
+        if(!is_string($valor) || preg_match('/\A\d{1,10}(?:\.\d{1,2})?\z/', $valor) !== 1)
+            throw new InvalidArgumentException('El importe debe ser un texto numérico con máximo dos decimales.');
+        // Devolver siempre dos decimales: "25000" pasa a "25000.00".
+        return bcadd($valor, '0', 2);
     }
 
-    // Devolver siempre dos decimales: "25000" pasa a "25000.00".
-    return bcadd($valor, '0', 2);
-}
 
+    /**
+     * Requiere una transacción abierta por el caso de uso de Restaurant.
+     * Bloquea la factura, recalcula sus totales y carga el detalle vigente.
+     */
+    private function cargarOrdenAbiertaParaCobro(int $idFactura, int $sucursalId): facturas {
+        if($idFactura <= 0 || $sucursalId <= 0)
+            throw new InvalidArgumentException('La factura o la sucursal no es válida.');
+        // El bloqueo se conserva hasta el commit o rollback del llamador.
+        $factura = facturas::findForUpdate('id', $idFactura);
 
-/**
- * Requiere una transacción abierta por el caso de uso de Restaurant.
- *
- * Bloquea la factura, recalcula sus totales y carga el detalle vigente.
- */
-private function cargarOrdenAbiertaParaCobro(
-    int $idFactura,
-    int $sucursalId
-): facturas {
-    if ($idFactura <= 0 || $sucursalId <= 0) {
-        throw new InvalidArgumentException(
-            'La factura o la sucursal no es válida.'
-        );
+        if(!$factura || (int)$factura->id_sucursal !== $sucursalId || $factura->estado !== 'Abierta')
+            throw new InvalidArgumentException('La factura no está abierta en esta sucursal.');
+        // Los importes se obtienen del detalle guardado, no del navegador.
+        facturas::recalcularTotalesOrdenAbierta($idFactura, $sucursalId);
+        // Recargar también los campos de comisión recalculados.  La factura continúa bloqueada por la lectura anterior.
+        $factura = facturas::find('id', $idFactura);
+
+        if(!$factura)
+            throw new RuntimeException('No fue posible consultar la factura.');
+        // idFactura es un entero positivo validado arriba. Excluir el historial de anulaciones completas y parciales.
+        $lineas = ventas::consultar_sql("SELECT * FROM ventas WHERE idfactura = {$idFactura} AND (anulada IS NULL OR anulada = 0) ORDER BY id FOR UPDATE");
+
+        if(empty($lineas))
+            throw new InvalidArgumentException('La cuenta no tiene consumos vigentes para facturar.');
+        // Conservar el detalle histórico de insumos cuando exista.
+        $this->carrito = ventasService::adjuntarInsumos($lineas);
+        // Las cortesías vigentes también representan consumo. Por eso no filtramos por total > 0.
+        $this->inventarioVenta = ventasService::prepararInventarioPersistido($this->carrito, $sucursalId);
+        return $factura;
     }
 
-    // El bloqueo se conserva hasta el commit o rollback del llamador.
-    $factura = facturas::findForUpdate('id', $idFactura);
 
-    if (
-        !$factura ||
-        (int)$factura->id_sucursal !== $sucursalId ||
-        $factura->estado !== 'Abierta'
-    ) {
-        throw new InvalidArgumentException(
-            'La factura no está abierta en esta sucursal.'
-        );
-    }
+    /**
+     * Valida los pagos y devuelve objetos compatibles con el motor POS.
+     *
+     * Requiere una transacción abierta.
+     */
+    private function prepararPagosOrdenAbierta(mixed $pagos, string $total): array {
+        if(!is_array($pagos) || !array_is_list($pagos))
+            throw new InvalidArgumentException('Los medios de pago deben ser una lista.');
 
-    // Los importes se obtienen del detalle guardado, no del navegador.
-    facturas::recalcularTotalesOrdenAbierta(
-        $idFactura,
-        $sucursalId
-    );
+        $resultado = [];
+        $ids = [];
+        $suma = '0.00';
 
-    // Recargar también los campos de comisión recalculados.
-    // La factura continúa bloqueada por la lectura anterior.
-    $factura = facturas::find('id', $idFactura);
+        foreach($pagos as $pago){
+            if(!is_array($pago))
+                throw new InvalidArgumentException('Hay un medio de pago con formato inválido.');
 
-    if (!$factura) {
-        throw new RuntimeException('No fue posible consultar la factura.');
-    }
+            $id = filter_var($pago['idmediopago'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if($id === false)
+                throw new InvalidArgumentException('El identificador del medio de pago no es válido.');
+            
+            if(isset($ids[$id]))
+                throw new InvalidArgumentException('No se puede repetir un medio de pago.');
 
-    // idFactura es un entero positivo validado arriba.
-    // Excluir el historial de anulaciones completas y parciales.
-    $lineas = ventas::consultar_sql(
-        "SELECT *
-         FROM ventas
-         WHERE idfactura = {$idFactura}
-           AND (anulada IS NULL OR anulada = 0)
-         ORDER BY id
-         FOR UPDATE"
-    );
+            $valor = $this->validarImporteCobro($pago['valor'] ?? null);
+            // El frontend omite los medios con importe cero.
+            if(bccomp($valor, '0', 2) <= 0)
+                throw new InvalidArgumentException('Cada medio de pago enviado debe tener un importe mayor que cero.');
 
-    if (empty($lineas)) {
-        throw new InvalidArgumentException(
-            'La cuenta no tiene consumos vigentes para facturar.'
-        );
-    }
-
-    // Conservar el detalle histórico de insumos cuando exista.
-    $this->carrito = ventasService::adjuntarInsumos($lineas);
-
-    // Las cortesías vigentes también representan consumo.
-    // Por eso no filtramos por total > 0.
-    $this->inventarioVenta = ventasService::prepararInventarioPersistido(
-        $this->carrito,
-        $sucursalId
-    );
-
-    return $factura;
-}
-
-
-/**
- * Valida los pagos y devuelve objetos compatibles con el motor POS.
- *
- * Requiere una transacción abierta.
- */
-private function prepararPagosOrdenAbierta(
-    mixed $pagos,
-    string $total
-): array {
-    if (!is_array($pagos) || !array_is_list($pagos)) {
-        throw new InvalidArgumentException(
-            'Los medios de pago deben ser una lista.'
-        );
-    }
-
-    $resultado = [];
-    $ids = [];
-    $suma = '0.00';
-
-    foreach ($pagos as $pago) {
-        if (!is_array($pago)) {
-            throw new InvalidArgumentException(
-                'Hay un medio de pago con formato inválido.'
-            );
+            $ids[$id] = true;
+            $suma = bcadd($suma, $valor, 2);
+            // Crear solamente los campos permitidos. El motor asignará después factura, cierre y cuota.
+            $resultado[] = (object)['idmediopago' => $id, 'valor' => $valor];
         }
 
-        $id = filter_var(
-            $pago['idmediopago'] ?? null,
-            FILTER_VALIDATE_INT,
-            ['options' => ['min_range' => 1]]
-        );
+        if(bccomp($suma, $total, 2) !== 0)
+            throw new InvalidArgumentException('La suma de los medios de pago no coincide con el total de la cuenta.');
+        // Bloquear en orden de ID para mantener un orden consistente.
+        $medios = mediospago::findManyForUpdate(array_keys($ids));
+        if(count($medios) !== count($ids))
+            throw new InvalidArgumentException('Uno de los medios de pago no existe.');
 
-        if ($id === false) {
+        foreach($medios as $medio)
+            if((int)$medio->estado !== 1)
+                throw new InvalidArgumentException('Uno de los medios de pago está desactivado.');
+
+        // Si el total es cero, una lista vacía es válida.
+        return $resultado;
+    }
+
+
+    /**
+     * Comprueba que el usuario esté confirmando el total vigente.
+     */
+    private function validarTotalEsperadoOrdenAbierta(mixed $expectedTotal, facturas $factura): void{
+        $esperado = $this->validarImporteCobro($expectedTotal);
+        $actual = $this->validarImporteCobro((string)$factura->total);
+        if(bccomp($esperado, $actual, 2) !== 0)
+            throw new InvalidArgumentException('El total de la cuenta cambió. Actualiza el resumen antes de cobrar.');
+    }
+
+
+    private function prepararImpuestosOrdenAbierta(): array {
+        // Correspondencia que actualmente utiliza el POS.
+        $idsImpuestos = ['0'=>1, '5'=>2, '16'=>3, '19'=>4, 'excluido'=>5, '8'=>6];
+        $impuestos = [];
+        foreach($this->carrito as $linea){
+            $porcentaje = $linea->impuesto === null ? 'excluido' : (string)$linea->impuesto;
+            if(!isset($idsImpuestos[$porcentaje]))
+                throw new RuntimeException("El impuesto {$porcentaje} no tiene correspondencia en el POS.");
+
+            if(!isset($impuestos[$porcentaje]))
+                $impuestos[$porcentaje] = (object)['id_impuesto'=>$idsImpuestos[$porcentaje], 'basegravable' => '0.000', 'valorimpuesto' => '0.000'];
+            // Los importes ya contemplan descuentos y cortesías.
+            $impuestos[$porcentaje]->basegravable = bcadd($impuestos[$porcentaje]->basegravable, (string)$linea->base, 3);
+            $impuestos[$porcentaje]->valorimpuesto = bcadd($impuestos[$porcentaje]->valorimpuesto, (string)$linea->valorimp, 3);
+        }
+        // El motor asignará facturaid antes de insertar el lote.
+        return array_values($impuestos);
+    }
+
+
+    /**
+     * Cobra una factura Abierta conservando su ID y sus líneas.
+     *
+     * Requiere una transacción abierta por Restaurant.
+     * Primera versión: contado con facturador POS.
+     */
+    public function facturarOrdenAbierta(int $idFactura, int $sucursalId, int $usuarioId, array $datos): array{
+        date_default_timezone_set('America/Bogota');
+
+        if($idFactura <= 0 || $sucursalId <= 0 || $usuarioId <= 0){
             throw new InvalidArgumentException(
-                'El identificador del medio de pago no es válido.'
-            );
+                'La factura, la sucursal o el usuario no es válido.');
         }
 
-        if (isset($ids[$id])) {
-            throw new InvalidArgumentException(
-                'No se puede repetir un medio de pago.'
+        // Validar los identificadores recibidos desde el formulario.
+        foreach (['idcaja', 'idconsecutivo'] as $campo) {
+            $id = filter_var(
+                $datos[$campo] ?? null,
+                FILTER_VALIDATE_INT,
+                ['options' => ['min_range' => 1]]
             );
+
+            if ($id === false) {
+                throw new InvalidArgumentException(
+                    "El campo {$campo} no es válido."
+                );
+            }
+
+            $datos[$campo] = $id;
         }
 
-        $valor = $this->validarImporteCobro($pago['valor'] ?? null);
+        // Preparar el estado del servicio para esta operación.
+        $this->sucursalId = $sucursalId;
+        $this->estado = 'Paga';
+        $this->tipoVenta = 'Contado';
 
-        // El frontend omite los medios con importe cero.
-        if (bccomp($valor, '0', 2) <= 0) {
-            throw new InvalidArgumentException(
-                'Cada medio de pago enviado debe tener un importe mayor que cero.'
-            );
-        }
-
-        $ids[$id] = true;
-        $suma = bcadd($suma, $valor, 2);
-
-        // Crear solamente los campos permitidos.
-        // El motor asignará después factura, cierre y cuota.
-        $resultado[] = (object)[
-            'idmediopago' => $id,
-            'valor' => $valor
+        $this->datos = [
+            'idcaja' => $datos['idcaja'],
+            'idconsecutivo' => $datos['idconsecutivo']
         ];
-    }
 
-    if (bccomp($suma, $total, 2) !== 0) {
-        throw new InvalidArgumentException(
-            'La suma de los medios de pago no coincide con el total de la cuenta.'
+        $this->ordenOrigen = null;
+        $this->carrito = [];
+        $this->mediosPago = [];
+        $this->impuestos = [];
+        $this->inventarioVenta = [];
+        $this->itemsStockMinimo = [];
+        $this->lineasActualizar = [];
+        $this->lineasInsertar = [];
+        $this->puntos = 0;
+
+        $this->parametros = config_local::getParamGlobal($sucursalId);
+
+        // Los métodos comunes necesitan estos datos aunque sea contado.
+        $this->valoresCredito = (object)[
+            'capital' => 0,
+            'abonoinicial' => 0
+        ];
+
+        // El impresor utiliza sus valores predeterminados de consumidor final.
+        // La selección del adquiriente electrónico se integrará después.
+        $this->datosAdquiriente = new stdClass();
+
+        // Bloquear factura, recalcular y cargar únicamente consumos vigentes.
+        $factura = $this->cargarOrdenAbiertaParaCobro(
+            $idFactura,
+            $sucursalId
         );
-    }
 
-    // Bloquear en orden de ID para mantener un orden consistente.
-    $medios = mediospago::findManyForUpdate(array_keys($ids));
-
-    if (count($medios) !== count($ids)) {
-        throw new InvalidArgumentException(
-            'Uno de los medios de pago no existe.'
+        $this->validarTotalEsperadoOrdenAbierta(
+            $datos['expectedTotal'] ?? null,
+            $factura
         );
-    }
 
-    foreach ($medios as $medio) {
-        if ((int)$medio->estado !== 1) {
+        $this->mediosPago = $this->prepararPagosOrdenAbierta(
+            $datos['mediosPago'] ?? null,
+            (string)$factura->total
+        );
+
+        $this->impuestos = $this->prepararImpuestosOrdenAbierta();
+
+        // Caja y cierre participan en la misma transacción.
+        $cierre = $this->obtenerOAbrirCierreCaja($usuarioId);
+
+        // Reutilizar el bloqueo y la comprobación de sucursal existentes.
+        $consecutivo = $this->obtenerConsecutivoBloqueado();
+
+        if ((int)$consecutivo->estado !== 1) {
             throw new InvalidArgumentException(
-                'Uno de los medios de pago está desactivado.'
+                'El facturador está desactivado.'
             );
         }
-    }
 
-    // Si el total es cero, una lista vacía es válida.
-    return $resultado;
-}
+        // El proyecto identifica el facturador POS con el tipo 2.
+        if ((int)$consecutivo->idtipofacturador !== 2) {
+            throw new InvalidArgumentException(
+                'Esta primera versión permite cobrar únicamente con facturador POS.'
+            );
+        }
 
+        $numero = (int)$consecutivo->siguientevalor;
 
-/**
- * Comprueba que el usuario esté confirmando el total vigente.
- */
-private function validarTotalEsperadoOrdenAbierta(
-    mixed $expectedTotal,
-    facturas $factura
-): void {
-    $esperado = $this->validarImporteCobro($expectedTotal);
-    $actual = $this->validarImporteCobro((string)$factura->total);
+        if (
+            $numero <= 0 ||
+            $numero < (int)$consecutivo->rangoinicial ||
+            (
+                (int)$consecutivo->rangofinal > 0 &&
+                $numero > (int)$consecutivo->rangofinal
+            )
+        ) {
+            throw new InvalidArgumentException(
+                'El consecutivo está fuera del rango configurado.'
+            );
+        }
 
-    if (bccomp($esperado, $actual, 2) !== 0) {
-        throw new InvalidArgumentException(
-            'El total de la cuenta cambió. Actualiza el resumen antes de cobrar.'
+        // Actualmente los pedidos Abierta se crean sin descontar inventario.
+        // Si ya existiera una entrega registrada, no descontarlo otra vez.
+        $descontarInventario = (int)$factura->entregado !== 1;
+
+        if (
+            $descontarInventario &&
+            ($this->parametros['permitir_venta_de_productos_sin_stock']->valor_final ?? 0) == 0
+        ) {
+            $errores = ventasService::validarDisponibilidadInventario(
+                $this->inventarioVenta,
+                $sucursalId
+            );
+
+            if ($errores !== []) {
+                throw new RuntimeException(implode(' ', $errores));
+            }
+        }
+
+        // Completar el encabezado existente.
+        $factura->idcaja = $datos['idcaja'];
+        $factura->idcierrecaja = $cierre->id;
+        $factura->idconsecutivo = $datos['idconsecutivo'];
+        $factura->caja = $cierre->nombrecaja;
+        $factura->tipofacturador = $consecutivo->nombre;
+        $factura->tipoventa = 'Contado';
+        $factura->entrega = 'Presencial';
+        $factura->entregado = 1;
+        $factura->cambioaventa = 0;
+
+        // Las órdenes abiertas pueden tener estos campos sin completar.
+        $factura->valortarifa = $factura->valortarifa ?? 0;
+        $factura->observacion = (string)($factura->observacion ?? '');
+        $factura->puntos_descontados = $factura->puntos_descontados ?? 0;
+
+        if ((int)$factura->num_orden <= 0) {
+            $factura->num_orden = facturas::calcularNumOrden($sucursalId);
+        }
+
+        // Conservar la generación de puntos del motor existente.
+        $valorPorPunto = (float)(
+            $this->parametros['valor_por_punto']->valor_final ?? 0
+        );
+
+        if ($valorPorPunto > 0 && (int)$factura->idcliente > 0) {
+            $this->puntos = (float)$factura->total / $valorPorPunto;
+        }
+
+        $factura->puntos_generados = $this->puntos;
+
+        $this->asignarDatosFiscales($factura);
+        $this->normalizarFacturaPagada($factura, $consecutivo);
+
+        // UPDATE: conservar el mismo registro de facturas.
+        if (!$factura->actualizar()) {
+            throw new RuntimeException(
+                'No fue posible actualizar la factura a Paga.'
+            );
+        }
+
+        $consecutivo->siguientevalor += 1;
+
+        if (!$consecutivo->actualizar()) {
+            throw new RuntimeException(
+                'No fue posible actualizar el consecutivo.'
+            );
+        }
+
+        return $this->finalizarFacturaPagada(
+            $factura,
+            $cierre,
+            $consecutivo,
+            $idFactura,
+            false, // Las líneas ya están guardadas.
+            $descontarInventario
         );
     }
-}
-
+    
 }
