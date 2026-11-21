@@ -13,6 +13,7 @@ use App\Modules\Restaurant\Application\UseCases\UpdateAccountCustomer;
 use App\Modules\Restaurant\Application\UseCases\CancelAccountLine;
 use App\Modules\Restaurant\Application\UseCases\ApplyAccountLineDiscount;
 use App\Modules\Restaurant\Application\UseCases\SetAccountLineCourtesy;
+use App\Modules\Restaurant\Application\UseCases\PayAccount;
 
 class OccupationAccountController{
 
@@ -24,7 +25,8 @@ class OccupationAccountController{
         private UpdateAccountCustomer $updateAccountCustomer,
         private CancelAccountLine $cancelAccountLine,
         private ApplyAccountLineDiscount $applyAccountLineDiscount,
-        private SetAccountLineCourtesy $setAccountLineCourtesy
+        private SetAccountLineCourtesy $setAccountLineCourtesy,
+        private PayAccount $payAccount
     ){}
 
     //llamada desdes occupationApi.ts, consultar las cuentas asociadas a la ocupacion
@@ -375,4 +377,131 @@ class OccupationAccountController{
         }
     }
     
+
+    public function pay(): void{
+        header('Content-Type: application/json; charset=utf-8');
+
+        // Aceptar únicamente POST para realizar el cobro.
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            header('Allow: POST');
+            http_response_code(405);
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Utiliza POST para cobrar la cuenta.'
+            ], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        if (($_SESSION['login'] ?? false) !== true) {
+            http_response_code(401);
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'Debes iniciar sesión.'
+            ], JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        try {
+            $positiveId = ['options' => ['min_range' => 1]];
+
+            $accountId = filter_var(
+                $_POST['accountId'] ?? null,
+                FILTER_VALIDATE_INT,
+                $positiveId
+            );
+
+            // La sucursal y el usuario siempre vienen de la sesión.
+            $branchId = filter_var(
+                $_SESSION['idsucursal'] ?? null,
+                FILTER_VALIDATE_INT,
+                $positiveId
+            );
+
+            $userId = filter_var(
+                $_SESSION['id'] ?? null,
+                FILTER_VALIDATE_INT,
+                $positiveId
+            );
+
+            if ($accountId === false || $branchId === false || $userId === false) {
+                throw new InvalidArgumentException(
+                    'La cuenta o los datos de la sesión no son válidos.'
+                );
+            }
+
+            // FormData enviará mediosPago mediante JSON.stringify().
+            $paymentsJson = $_POST['mediosPago'] ?? null;
+
+            if (!is_string($paymentsJson) || trim($paymentsJson) === '') {
+                throw new InvalidArgumentException(
+                    'Debes enviar los medios de pago.'
+                );
+            }
+
+            $payments = json_decode(
+                $paymentsJson,
+                true,
+                512,
+                JSON_THROW_ON_ERROR
+            );
+
+            if (!is_array($payments) || !array_is_list($payments)) {
+                throw new InvalidArgumentException(
+                    'Los medios de pago deben ser una lista.'
+                );
+            }
+
+            // Conservar los importes como texto, sin convertirlos a float.
+            // POS valida los valores y comprueba que los pagos sumen el total.
+            $data = [
+                'idcaja' => $_POST['idcaja'] ?? null,
+                'idconsecutivo' => $_POST['idconsecutivo'] ?? null,
+                'expectedTotal' => $_POST['expectedTotal'] ?? null,
+                'mediosPago' => $payments,
+            ];
+
+            // PayAccount controla la transacción completa.
+            // También obtiene idfactura desde la cuenta bloqueada.
+            $result = $this->payAccount->execute(
+                $accountId,
+                $branchId,
+                $userId,
+                $data
+            );
+
+            http_response_code(200);
+
+            echo json_encode([
+                'success' => true,
+                'data' => $result
+            ], JSON_UNESCAPED_UNICODE);
+
+        } catch (\JsonException $e) {
+            http_response_code(422);
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'El formato de los medios de pago no es válido.'
+            ], JSON_UNESCAPED_UNICODE);
+
+        } catch (InvalidArgumentException $e) {
+            http_response_code(422);
+
+            echo json_encode([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], JSON_UNESCAPED_UNICODE);
+
+        } catch (Throwable $e) {
+            error_log('PayAccount: ' . $e->getMessage());
+            http_response_code(500);
+
+            echo json_encode([
+                'success' => false,
+                'message' => 'No fue posible completar el cobro. Consulta el estado de la cuenta antes de reintentar.'
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
 }

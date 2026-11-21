@@ -14,9 +14,8 @@ class MySqlAccountRepository implements AccountRepository{
     {}
 
     public function findByOccupationId(int $occupationId): array{
-        $sql = "
-            SELECT id, ocupacion_id, idfactura, nombre, estado
-            FROM cuentas WHERE ocupacion_id = ? ORDER BY id ASC";
+        $sql = "SELECT id, ocupacion_id, idfactura, nombre, estado
+                FROM cuentas WHERE ocupacion_id = ? ORDER BY id ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param('i', $occupationId);
 
@@ -34,9 +33,8 @@ class MySqlAccountRepository implements AccountRepository{
     }
 
     public function findById(int $accountId): ?Account{
-        $sql = "
-            SELECT id, ocupacion_id, idfactura, nombre, estado
-            FROM cuentas WHERE id = ? LIMIT 1";
+        $sql = "SELECT id, ocupacion_id, idfactura, nombre, estado
+                FROM cuentas WHERE id = ? LIMIT 1";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param('i', $accountId);
 
@@ -51,9 +49,8 @@ class MySqlAccountRepository implements AccountRepository{
     }
 
     public function findByIdForUpdate(int $accountId): ?Account{
-        $sql = "
-            SELECT id, ocupacion_id, idfactura, nombre, estado
-            FROM cuentas WHERE id = ? LIMIT 1 FOR UPDATE";
+        $sql = "SELECT id, ocupacion_id, idfactura, nombre, estado
+                FROM cuentas WHERE id = ? LIMIT 1 FOR UPDATE";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param('i', $accountId);
 
@@ -120,25 +117,31 @@ class MySqlAccountRepository implements AccountRepository{
     }
 
 
-    public function findMainByOccupationId(int $occupationId): ?Account {
-
-        $sql = "SELECT
-                id, ocupacion_id, idfactura,
-                nombre, estado
-            FROM cuentas
-            WHERE ocupacion_id = ?
-            AND es_principal = 1
-            LIMIT 1";
-
+    public function findMainByOccupationId(int $occupationId): ?Account{
+        $sql = "SELECT id, ocupacion_id, idfactura, nombre, estado
+                FROM cuentas WHERE ocupacion_id = ? AND es_principal = 1 LIMIT 1";
         $stmt = $this->db->prepare($sql);
-
         try{
             $stmt->bind_param('i', $occupationId);
             $stmt->execute();
-
             $row = $stmt->get_result()->fetch_assoc();
-
             return $row ? $this->mapToEntity($row) : null;
+        }finally{
+            $stmt->close();
+        }
+    }
+
+
+    public function close(int $accountId): void{
+        // Conservamos idfactura y todo el historial de la cuenta.
+        $sql = "UPDATE cuentas SET estado = 'cerrada' WHERE id = ? AND estado = 'abierta'";
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)
+            throw new RuntimeException('No fue posible preparar el cierre de la cuenta.');
+        try{
+            $stmt->bind_param('i', $accountId);
+            if(!$stmt->execute() || $stmt->affected_rows !== 1)
+                throw new RuntimeException('No fue posible cerrar la cuenta.');
         }finally{
             $stmt->close();
         }

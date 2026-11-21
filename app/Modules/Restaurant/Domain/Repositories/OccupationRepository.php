@@ -6,8 +6,7 @@ use App\Modules\Restaurant\Domain\Entities\Occupation;
 
 interface OccupationRepository{
     /**
-     * Retorna la ocupacion actualmente en uso
-     * para un recurso.
+     * Retorna la ocupacion actualmente en uso para un recurso.
      */
     public function findCurrentByResourceId(int $resourceId): ?Occupation;
     public function findCurrentByResourceIds(array $resourceIds): array;
@@ -17,4 +16,6 @@ interface OccupationRepository{
     // Consultar y bloquear la ocupación dentro de una transacción.
     public function findByIdForUpdate(int $id): ?Occupation;
     public function updateCustomer(int $occupationId, ?int $clientId): void;
+    // Finaliza la ocupación cuando ya no tiene cuentas abiertas.
+    public function finish(int $occupationId, string $finishedAt): void;
 }

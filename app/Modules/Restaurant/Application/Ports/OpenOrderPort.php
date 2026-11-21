@@ -41,4 +41,7 @@ interface OpenOrderPort{
 
     public function setLineCourtesy(int $orderId, int $lineId, int $branchId, bool $active, string $password): array;
 
+    // Cobra la factura existente dentro de la transacción de Restaurant. Si falla, debe lanzar una excepción.
+    public function pay(int $orderId, int $branchId, int $userId, array $data): array;
+
 }

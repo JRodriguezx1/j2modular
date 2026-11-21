@@ -288,4 +288,21 @@ class MySqlOccupationRepository implements OccupationRepository{
         }
     }
 
+
+    public function finish(int $occupationId, string $finishedAt): void{
+        // Primero debe haberse cerrado la cuenta. Si queda otra abierta, rechazamos la finalización para que el caso de uso revierta el cobro.
+        $sql = "UPDATE ocupaciones SET estado = 'finalizada', fecha_fin_real = ?
+                WHERE id = ? AND estado = 'en_uso' AND NOT EXISTS (SELECT 1 FROM cuentas WHERE ocupacion_id = ocupaciones.id AND estado = 'abierta')";
+        $stmt = $this->db->prepare($sql);
+        if(!$stmt)
+            throw new \RuntimeException('No fue posible preparar la finalización de la atención.');
+        try{
+            $stmt->bind_param('si', $finishedAt, $occupationId);
+            if(!$stmt->execute() || $stmt->affected_rows !== 1)
+                throw new \RuntimeException('No fue posible finalizar la atención. Verifica su estado y sus cuentas abiertas.');
+        }finally{
+            $stmt->close();
+        }
+    }
+
 }

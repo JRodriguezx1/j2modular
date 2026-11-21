@@ -32,7 +32,7 @@ class movimientos_caja
     $this->fk_tipo_documento        = $datos['fk_tipo_documento'] ?? '';
     $this->id_documento             = $datos['id_documento'] ?? '';
     $this->fk_tipo_tercero          = $datos['fk_tipo_tercero'] ?? '';
-    $this->id_tercero               = $datos['id_tercero'] ?? '';
+    $this->id_tercero               = isset($datos['id_tercero']) ? (int)$datos['id_tercero'] : null;
     $this->fk_caja                  = $datos['fk_caja'] ?? '';
     $this->fk_usuario               = $datos['fk_usuario'] ?? '';
     $this->naturaleza               = $datos['naturaleza'] ?? 'I';

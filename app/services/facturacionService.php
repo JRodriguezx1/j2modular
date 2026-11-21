@@ -14,6 +14,7 @@ use App\Models\parametrizacion\config_local;
 use App\Models\ventas\facturas;
 use App\Models\ventas\ventas;
 use App\Models\configuraciones\mediospago;
+use App\Models\configuraciones\usuarios;
 use App\Models\sucursales;
 use App\Models\configuraciones\emisores;
 use InvalidArgumentException;
@@ -619,7 +620,7 @@ class facturacionService
 
 
     /** Obtiene el cierre abierto de la caja o crea uno, como lo hacía ventas. */
-    private function obtenerOAbrirCierreCaja():cierrescajas{
+    /*private function obtenerOAbrirCierreCaja():cierrescajas{
         $idCaja = (int)($this->datos['idcaja'] ?? 0);
         if($idCaja <= 0)throw new RuntimeException('Caja no valida.');
 
@@ -635,7 +636,7 @@ class facturacionService
             $cierre->id = $idCierre;
         }
         return $cierre;
-    }
+    }*/
 
 
     private function obtenerOAbrirCierreCaja(?int $usuarioId = null): cierrescajas{
@@ -785,7 +786,8 @@ class facturacionService
      */
     private function finalizarFacturaPagada(facturas $factura, cierrescajas $cierre, consecutivos $consecutivo, int $idFactura, bool $guardarLineas, bool $descontarInventario): array{
         // Conservar la preparación electrónica del flujo actual.
-        self::createInvoiceElectronic($this->carrito, $this->datosAdquiriente, $factura->idconsecutivo, $idFactura, $factura->num_consecutivo, $this->mediosPago, $factura->descuento, $factura->valortarifa, $factura->observacion);
+        if((int)$consecutivo->idtipofacturador === 1)
+            self::createInvoiceElectronic($this->carrito, $this->datosAdquiriente, $factura->idconsecutivo, $idFactura, $factura->num_consecutivo, $this->mediosPago, $factura->descuento, $factura->valortarifa, $factura->observacion);
         $idCuota = $this->registrarCredito($factura, $idFactura);
         $this->actualizarPuntosCliente($factura, $idFactura);
         // Actualizar el cierre y asignar las relaciones de pagos e impuestos.
@@ -878,10 +880,10 @@ class facturacionService
     private function actualizarCierreYRelaciones( facturas $factura, cierrescajas $cierre, int $idFactura, int|string $idCuota ):void {
         $cierre->descuentocontado += $this->tipoVenta === 'Credito' ? 0  : $factura->descuento;
         $cierre->descuentocredito += $this->tipoVenta === 'Contado' ? 0  : $factura->descuento;
-
-        ventasService::datosDelCierreCajaXVenta( $cierre, $factura, $this->mediosPago, $this->impuestos, [true, $idFactura], $this->valoresCredito, $this->tipoVenta );
+        $actualizado = ventasService::datosDelCierreCajaXVenta( $cierre, $factura, $this->mediosPago, $this->impuestos, [true, $idFactura], $this->valoresCredito, $this->tipoVenta);
         // datosDelCierreCajaXVenta inicializa idcuota en NULL; para ventas a
         // credito se sustituye despues de crear la cuota.
+        if(!$actualizado)throw new RuntimeException('No fue posible actualizar los acumulados del cierre.');
         foreach($this->mediosPago as $pago)$pago->idcuota = $idCuota;
     }
 
@@ -909,7 +911,7 @@ class facturacionService
             'fk_tipo_documento'=>1,
             'id_documento'=>$idFactura,
             'fk_tipo_tercero'=>1,
-            'id_tercero'=>is_numeric((int)$factura->idcliente),
+            'id_tercero'=>(int)$factura->idcliente>0 ? (int)$factura->idcliente : null,
             'fk_caja'=>$factura->idcaja,
             'fk_usuario'=>$factura->idvendedor,
             'naturaleza'=>'I',
@@ -1092,26 +1094,13 @@ class facturacionService
      */
     public function facturarOrdenAbierta(int $idFactura, int $sucursalId, int $usuarioId, array $datos): array{
         date_default_timezone_set('America/Bogota');
-
-        if($idFactura <= 0 || $sucursalId <= 0 || $usuarioId <= 0){
-            throw new InvalidArgumentException(
-                'La factura, la sucursal o el usuario no es válido.');
-        }
-
+        if($idFactura <= 0 || $sucursalId <= 0 || $usuarioId <= 0)
+            throw new InvalidArgumentException('La factura, la sucursal o el usuario no es válido.');
         // Validar los identificadores recibidos desde el formulario.
-        foreach (['idcaja', 'idconsecutivo'] as $campo) {
-            $id = filter_var(
-                $datos[$campo] ?? null,
-                FILTER_VALIDATE_INT,
-                ['options' => ['min_range' => 1]]
-            );
-
-            if ($id === false) {
-                throw new InvalidArgumentException(
-                    "El campo {$campo} no es válido."
-                );
-            }
-
+        foreach(['idcaja', 'idconsecutivo'] as $campo){
+            $id = filter_var($datos[$campo] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if($id === false)
+                throw new InvalidArgumentException("El campo {$campo} no es válido.");
             $datos[$campo] = $id;
         }
 
@@ -1119,11 +1108,7 @@ class facturacionService
         $this->sucursalId = $sucursalId;
         $this->estado = 'Paga';
         $this->tipoVenta = 'Contado';
-
-        $this->datos = [
-            'idcaja' => $datos['idcaja'],
-            'idconsecutivo' => $datos['idconsecutivo']
-        ];
+        $this->datos = ['idcaja' => $datos['idcaja'], 'idconsecutivo' => $datos['idconsecutivo']];
 
         $this->ordenOrigen = null;
         $this->carrito = [];
@@ -1136,87 +1121,37 @@ class facturacionService
         $this->puntos = 0;
 
         $this->parametros = config_local::getParamGlobal($sucursalId);
-
         // Los métodos comunes necesitan estos datos aunque sea contado.
-        $this->valoresCredito = (object)[
-            'capital' => 0,
-            'abonoinicial' => 0
-        ];
-
-        // El impresor utiliza sus valores predeterminados de consumidor final.
-        // La selección del adquiriente electrónico se integrará después.
+        $this->valoresCredito = (object)['capital' => 0, 'abonoinicial' => 0];
+        // El impresor utiliza sus valores predeterminados de consumidor final. La selección del adquiriente electrónico se integrará después.
         $this->datosAdquiriente = new stdClass();
-
         // Bloquear factura, recalcular y cargar únicamente consumos vigentes.
-        $factura = $this->cargarOrdenAbiertaParaCobro(
-            $idFactura,
-            $sucursalId
-        );
-
-        $this->validarTotalEsperadoOrdenAbierta(
-            $datos['expectedTotal'] ?? null,
-            $factura
-        );
-
-        $this->mediosPago = $this->prepararPagosOrdenAbierta(
-            $datos['mediosPago'] ?? null,
-            (string)$factura->total
-        );
-
+        $factura = $this->cargarOrdenAbiertaParaCobro($idFactura, $sucursalId);
+        $this->validarTotalEsperadoOrdenAbierta($datos['expectedTotal'] ?? null, $factura);
+        $this->mediosPago = $this->prepararPagosOrdenAbierta($datos['mediosPago'] ?? null, (string)$factura->total);
         $this->impuestos = $this->prepararImpuestosOrdenAbierta();
-
         // Caja y cierre participan en la misma transacción.
         $cierre = $this->obtenerOAbrirCierreCaja($usuarioId);
-
         // Reutilizar el bloqueo y la comprobación de sucursal existentes.
         $consecutivo = $this->obtenerConsecutivoBloqueado();
 
-        if ((int)$consecutivo->estado !== 1) {
-            throw new InvalidArgumentException(
-                'El facturador está desactivado.'
-            );
-        }
-
+        if((int)$consecutivo->estado !== 1)
+            throw new InvalidArgumentException('El facturador está desactivado.');
         // El proyecto identifica el facturador POS con el tipo 2.
-        if ((int)$consecutivo->idtipofacturador !== 2) {
-            throw new InvalidArgumentException(
-                'Esta primera versión permite cobrar únicamente con facturador POS.'
-            );
-        }
-
+        if((int)$consecutivo->idtipofacturador !== 2)
+            throw new InvalidArgumentException('Esta primera versión permite cobrar únicamente con facturador POS.');
+        
         $numero = (int)$consecutivo->siguientevalor;
-
-        if (
-            $numero <= 0 ||
-            $numero < (int)$consecutivo->rangoinicial ||
-            (
-                (int)$consecutivo->rangofinal > 0 &&
-                $numero > (int)$consecutivo->rangofinal
-            )
-        ) {
-            throw new InvalidArgumentException(
-                'El consecutivo está fuera del rango configurado.'
-            );
-        }
-
-        // Actualmente los pedidos Abierta se crean sin descontar inventario.
-        // Si ya existiera una entrega registrada, no descontarlo otra vez.
+        if($numero <= 0 || $numero < (int)$consecutivo->rangoinicial || ((int)$consecutivo->rangofinal > 0 && $numero > (int)$consecutivo->rangofinal))
+            throw new InvalidArgumentException('El consecutivo está fuera del rango configurado.');
+        
+        //Actualmente los pedidos Abierta se crean sin descontar inventario. Si ya existiera una entrega registrada, no descontarlo otra vez.
         $descontarInventario = (int)$factura->entregado !== 1;
 
-        if (
-            $descontarInventario &&
-            ($this->parametros['permitir_venta_de_productos_sin_stock']->valor_final ?? 0) == 0
-        ) {
-            $errores = ventasService::validarDisponibilidadInventario(
-                $this->inventarioVenta,
-                $sucursalId
-            );
-
-            if ($errores !== []) {
-                throw new RuntimeException(implode(' ', $errores));
-            }
+        if($descontarInventario && ($this->parametros['permitir_venta_de_productos_sin_stock']->valor_final ?? 0) == 0){
+            $errores = ventasService::validarDisponibilidadInventario($this->inventarioVenta, $sucursalId);
+            if($errores !== [])throw new RuntimeException(implode(' ', $errores));
         }
-
         // Completar el encabezado existente.
         $factura->idcaja = $datos['idcaja'];
         $factura->idcierrecaja = $cierre->id;
@@ -1232,48 +1167,26 @@ class facturacionService
         $factura->valortarifa = $factura->valortarifa ?? 0;
         $factura->observacion = (string)($factura->observacion ?? '');
         $factura->puntos_descontados = $factura->puntos_descontados ?? 0;
-
-        if ((int)$factura->num_orden <= 0) {
+        if((int)$factura->num_orden <= 0)
             $factura->num_orden = facturas::calcularNumOrden($sucursalId);
-        }
-
         // Conservar la generación de puntos del motor existente.
-        $valorPorPunto = (float)(
-            $this->parametros['valor_por_punto']->valor_final ?? 0
-        );
+        $valorPorPunto = (float)($this->parametros['valor_por_punto']->valor_final ?? 0);
 
-        if ($valorPorPunto > 0 && (int)$factura->idcliente > 0) {
+        if($valorPorPunto > 0 && (int)$factura->idcliente > 0)
             $this->puntos = (float)$factura->total / $valorPorPunto;
-        }
 
         $factura->puntos_generados = $this->puntos;
-
         $this->asignarDatosFiscales($factura);
         $this->normalizarFacturaPagada($factura, $consecutivo);
-
         // UPDATE: conservar el mismo registro de facturas.
-        if (!$factura->actualizar()) {
-            throw new RuntimeException(
-                'No fue posible actualizar la factura a Paga.'
-            );
-        }
+        if(!$factura->actualizar())
+            throw new RuntimeException('No fue posible actualizar la factura a Paga.');
 
         $consecutivo->siguientevalor += 1;
+        if(!$consecutivo->actualizar())
+            throw new RuntimeException('No fue posible actualizar el consecutivo.');
 
-        if (!$consecutivo->actualizar()) {
-            throw new RuntimeException(
-                'No fue posible actualizar el consecutivo.'
-            );
-        }
-
-        return $this->finalizarFacturaPagada(
-            $factura,
-            $cierre,
-            $consecutivo,
-            $idFactura,
-            false, // Las líneas ya están guardadas.
-            $descontarInventario
-        );
+        return $this->finalizarFacturaPagada($factura, $cierre, $consecutivo, $idFactura, false, $descontarInventario);
     }
     
 }

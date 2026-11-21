@@ -13,4 +13,6 @@ interface AccountRepository{
     public function create(int $occupationId, string $name = 'General'): int;
     public function createMain(int $occupationId, ?int $idfactura = null): int;
     public function findMainByOccupationId(int $occupationId): ?Account;  //consultar la cuenta principal:
+    // Cierra una cuenta previamente bloqueada por el caso de uso.
+    public function close(int $accountId): void;
 }

@@ -4,6 +4,7 @@ namespace App\Modules\POS\Services;
 
 use App\Models\ventas\facturas;
 use App\Models\ventas\ventas;
+use App\services\facturacionService;
 use InvalidArgumentException;
 
 class OpenOrderService{
@@ -59,4 +60,9 @@ class OpenOrderService{
         return (new OpenInvoiceService())->setLineCourtesy($orderId, $lineId, $branchId, $active, $password);
     }
     
+
+    public function pay(int $orderId, int $branchId, int $userId, array $data): array{
+        // Restaurant ya inició la transacción; aquí no hacemos commit ni rollback.
+        return (new facturacionService())->facturarOrdenAbierta($orderId, $branchId, $userId, $data);
+    }
 }
