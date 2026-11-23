@@ -30,6 +30,8 @@ export function cerrarDialogoExterno(event:Event): void{
     const dialogsAbiertos = document.querySelectorAll<HTMLDialogElement>('dialog[open]');
     //verificar si el clic fue fuera del dialogo
     dialogsAbiertos.forEach( dialog=>{
+        // Algunos diálogos deben permanecer abiertos durante una operación.
+        if(dialog.getAttribute('aria-busy') === 'true')return;
         const rect = dialog.getBoundingClientRect();
         const clicFuera = event.clientX<rect.left || event.clientX>rect.right || event.clientY<rect.top || event.clientY>rect.bottom;
         if(clicFuera && f === dialog || (f as HTMLButtonElement).textContent.trim() === 'Cancelar' || (f as HTMLInputElement).closest('.salir'))

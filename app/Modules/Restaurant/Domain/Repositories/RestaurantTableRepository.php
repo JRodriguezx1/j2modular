@@ -19,4 +19,11 @@ interface RestaurantTableRepository{
     public function lockResource(int $resourceId): void;
     //Bloquea y valida una mesa para iniciar un pedido.
     public function lockTableForOrder(int $resourceId, int $branchId): void;
+    
+    /**
+     * Obtiene las mesas vinculadas a una ocupación de la sucursal.
+     *
+     * @return RestaurantTable[]
+     */
+    public function findByOccupationId(int $occupationId, int $branchId): array;
 }

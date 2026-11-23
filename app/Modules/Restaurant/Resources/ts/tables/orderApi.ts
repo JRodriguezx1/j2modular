@@ -1,5 +1,7 @@
 import type {CartItem} from './cart';
 import type {AccountTotals} from './accountApi';
+import { AccountPaymentData } from './eventos/ProcesarPagoEvent';
+import { DataInvoice } from '../reservations/types';
 
 export interface FirstOrderData {
     resourceId: number;
@@ -51,6 +53,35 @@ interface CancelLineData {
     totales: AccountTotals;
 }
 
+export interface TableState {
+    resourceId: number;
+    active: boolean;
+    operationalStatus: string;
+    occupationId: number | null;
+    occupiedSince: string | null;
+    reservationId: number | null;
+    reservationStart: string | null;
+}
+interface payResponse {
+    success: boolean,
+    message?: string,
+    data?: payData
+}
+export interface payData {
+    accountId: number, 
+    occupationId: number, 
+    exito: string[], 
+    idfactura: number, 
+    dataInvoice: DataInvoice,
+    tables: TableState[];
+}
+
+export class PaymentError extends Error {
+    constructor(message: string, public readonly requiresRefresh: boolean){
+        super(message);
+        this.name = 'PaymentError';
+    }
+}
 
 export async function saveFirstTableOrder(resourceId: number, customerId: number|null, cartItems: CartItem[]): Promise<FirstOrderData>{
     if(!Number.isSafeInteger(resourceId) || resourceId <= 0)
@@ -276,4 +307,63 @@ export async function aplicarCortesiaLinea(accountId: number, lineId: number, co
     const data = result.data;
     if(!data || data.accountId!==accountId || data.lineId!==lineId || !Number.isSafeInteger(data.orderId) || data.orderId<=0 || !data.totales || data.es_cortesia!==(courtesy === '1'))
         throw new Error('La respuesta de la cortesia no corresponde a esta cuenta.');
+}
+
+
+//////// cortesia  /////////
+export async function ProcesarPago(datos:AccountPaymentData): Promise<payData>{
+    let response: Response;
+    let result: payResponse;
+
+    try{
+        response = await fetch('/restaurant/api/accounts/pay', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json' 
+            },
+            body: JSON.stringify(datos),
+        });
+
+        result = await response.json() as payResponse;
+    }catch{
+        // La solicitud pudo llegar al servidor aunque no recibamos respuesta.
+        throw new PaymentError('No se pudo confirmar el cobro. Cierra y vuelve a abrir la mesa para consultar su estado antes de reintentar.', true);
+    }
+
+    if(!response.ok || result?.success !== true){
+        // Estos códigos corresponden a rechazos conocidos del controlador.
+        const knownRejection = [401, 405, 422].includes(response.status);
+        throw new PaymentError(result?.message ?? 'No se pudo confirmar el pago.', !knownRejection);
+    }
+
+    const data = result.data;
+    if(!data || data.accountId!==datos.accountId || !Number.isSafeInteger(data.occupationId) || data.occupationId <= 0 || !Number.isSafeInteger(data.idfactura) || data.idfactura <= 0)
+        throw new PaymentError('La respuesta del pago no corresponde a esta cuenta.', true);
+
+    // Comprobar los datos que utilizaremos para actualizar las tarjetas.
+    const validOptionalId = (id: unknown): boolean => id === null || (typeof id === 'number' && Number.isSafeInteger(id) && id > 0);
+    const validOptionalText = (value: unknown): boolean => value === null || typeof value === 'string';
+
+    if(
+        !Array.isArray(data.tables) ||
+        data.tables.some(table =>
+            !table ||
+            !Number.isSafeInteger(table.resourceId) ||
+            table.resourceId <= 0 ||
+            typeof table.active !== 'boolean' ||
+            typeof table.operationalStatus !== 'string' ||
+            table.operationalStatus.trim() === '' ||
+            !validOptionalId(table.occupationId) ||
+            !validOptionalId(table.reservationId) ||
+            !validOptionalText(table.occupiedSince) ||
+            !validOptionalText(table.reservationStart)
+        ) ||
+        new Set(data.tables.map(table => table.resourceId)).size !== data.tables.length
+    ){
+        // El servidor pudo cobrar aunque la respuesta venga incompleta.
+        throw new PaymentError('No se pudo confirmar el estado de las mesas. Actualiza la atención antes de continuar.', true);
+    }
+
+    return data;
 }

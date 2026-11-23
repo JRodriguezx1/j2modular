@@ -1,6 +1,6 @@
 import { registrarFuncionesLegacy } from '../appFunction';
 import {closeActiveOccupation, initActiveOccupation, openActiveOccupationDetails} from './activeOccupation';
-import {closeOrderWorkspace, initOrderWorkspace, openOrderWorkspace} from './orderWorkspace';
+import {closeOrderWorkspace, initOrderWorkspace, openOrderWorkspace, isSavingOrder} from './orderWorkspace';
 
 export function initTables(): void {
     initActiveOccupation();
@@ -13,6 +13,8 @@ export function initTables(): void {
         const card = action?.closest<HTMLElement>('[data-table-id]');  //data-table-id del articule de la mesa
 
         if(!action || !card)return;
+        // No abrir otra mesa o su detalle mientras se guarda o cobra.
+        if(isSavingOrder())return;
 
         const resourceId = Number(card.dataset.resourceId);
         if(!resourceId)return;

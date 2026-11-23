@@ -27,14 +27,18 @@
                     <div class="hidden h-5 w-px bg-slate-200 sm:block"></div>
 
                     <div class=" flex flex-wrap items-center gap-4 text-lg font-medium text-slate-500">
-                        <span><?= $totalTables ?> mesas</span>
+                        <span  data-table-count="total"><?= $totalTables ?> mesas</span>
                         <span class="flex items-center gap-1.5">
                             <span class="h-2 w-2  rounded-full bg-emerald-500"></span>
-                            <?= $availableTables ?> disponibles
+                            <span data-table-count="disponible">
+                                <?= $availableTables ?> disponibles
+                            </span>
                         </span>
                         <span class="flex items-center gap-1.5">
                             <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-                            <?= $occupiedTables ?> ocupadas
+                            <span data-table-count="ocupada">
+                                <?= $occupiedTables ?> ocupadas
+                            </span>
                         </span>
                     </div>
                 </div>

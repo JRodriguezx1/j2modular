@@ -12,20 +12,10 @@ class MySqlTableRepository implements RestaurantTableRepository{
     {}
 
     public function findAll(): array{
-        $sql = "
-            SELECT
-                m.id,
-                m.recurso_id,
-                m.zona_id,
-                m.forma,
-                r.nombre,
-                r.capacidad,
-                r.activo,
-                r.estado
+        $sql = "SELECT m.id, m.recurso_id, m.zona_id, m.forma, r.nombre, r.capacidad, r.activo, r.estado
             FROM mesas AS m
             INNER JOIN recursos AS r ON r.id = m.recurso_id
-            ORDER BY r.nombre ASC
-        ";
+            ORDER BY r.nombre ASC";
 
         $result = $this->db->query($sql);
         if(!$result)
@@ -50,39 +40,28 @@ class MySqlTableRepository implements RestaurantTableRepository{
 
 
     public function findAvailableForPeriod( string $startDate, string $endDate, int $capacity): array{
-        $sql = "
-            SELECT
-                m.id,
-                m.recurso_id,
-                m.zona_id,
-                m.forma,
-                r.nombre,
-                r.capacidad,
-                r.activo,
-                r.estado,
-                z.nombre AS zona_nombre
-            FROM mesas AS m
-            LEFT JOIN zonas AS z ON z.id = m.zona_id
-            INNER JOIN recursos AS r ON r.id = m.recurso_id
-            WHERE r.activo = 1 AND r.estado = 'disponible' AND r.capacidad >= ?
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM reserva_recursos AS rr
-                    INNER JOIN reservas AS res ON res.id = rr.reserva_id
-                    WHERE rr.recurso_id = r.id
-                        AND res.estado NOT IN ( 'cancelada', 'atendida', 'no_asistio')
-                        AND res.fecha_entrada < ?
-                        AND res.fecha_salida > ?
-                )
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM ocupacion_recursos AS ocr
-                    INNER JOIN ocupaciones AS o ON o.id = ocr.ocupacion_id
-                    WHERE ocr.recurso_id = r.id AND o.estado = 'en_uso' AND o.fecha_inicio < ?
-                ) 
+        $sql = "SELECT m.id, m.recurso_id, m.zona_id, m.forma, r.nombre, r.capacidad, r.activo, r.estado, z.nombre AS zona_nombre
+                FROM mesas AS m
+                LEFT JOIN zonas AS z ON z.id = m.zona_id
+                INNER JOIN recursos AS r ON r.id = m.recurso_id
+                WHERE r.activo = 1 AND r.estado = 'disponible' AND r.capacidad >= ?
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM reserva_recursos AS rr
+                        INNER JOIN reservas AS res ON res.id = rr.reserva_id
+                        WHERE rr.recurso_id = r.id
+                            AND res.estado NOT IN ( 'cancelada', 'atendida', 'no_asistio')
+                            AND res.fecha_entrada < ?
+                            AND res.fecha_salida > ?
+                    )
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM ocupacion_recursos AS ocr
+                        INNER JOIN ocupaciones AS o ON o.id = ocr.ocupacion_id
+                        WHERE ocr.recurso_id = r.id AND o.estado = 'en_uso' AND o.fecha_inicio < ?
+                    ) 
 
-            ORDER BY r.capacidad ASC, r.nombre ASC";
-
+                ORDER BY r.capacidad ASC, r.nombre ASC";
         $stmt = $this->db->prepare($sql);
 
         if(!$stmt)throw new \RuntimeException( 'Error preparando búsqueda de mesas disponibles: ' . $this->db->error);
@@ -91,7 +70,6 @@ class MySqlTableRepository implements RestaurantTableRepository{
         $stmt->execute();
         $result = $stmt->get_result();
         $tables = [];
-
         while($row = $result->fetch_assoc()){
             $tables[] = new RestaurantTable(
                 id: (int) $row['id'],
@@ -111,27 +89,24 @@ class MySqlTableRepository implements RestaurantTableRepository{
 
 
     public function isAvailableForPeriod(int $resourceId, string $startDate, string $endDate, int $capacity): bool{
-        $sql = "
-            SELECT 1 FROM mesas m
-            INNER JOIN recursos r ON r.id = m.recurso_id
-            WHERE m.recurso_id = ? AND r.activo = 1 AND r.estado = 'disponible' AND r.capacidad >= ?
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM reserva_recursos rr
-                    INNER JOIN reservas res ON res.id = rr.reserva_id
-                    WHERE rr.recurso_id = r.id
-                        AND res.estado NOT IN ('cancelada', 'atendida', 'no_asistio')
-                        AND res.fecha_entrada < ?
-                        AND res.fecha_salida > ?
-                )
-                AND NOT EXISTS (
-                    SELECT 1
-                    FROM ocupacion_recursos obr
-                    INNER JOIN ocupaciones o ON o.id = obr.ocupacion_id
-                    WHERE obr.recurso_id = r.id
-                        AND o.estado = 'en_uso' AND o.fecha_inicio < ?
-                )
-            LIMIT 1";
+        $sql = "SELECT 1 FROM mesas m
+                INNER JOIN recursos r ON r.id = m.recurso_id
+                WHERE m.recurso_id = ? AND r.activo = 1 AND r.estado = 'disponible' AND r.capacidad >= ?
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM reserva_recursos rr
+                        INNER JOIN reservas res ON res.id = rr.reserva_id
+                        WHERE rr.recurso_id = r.id
+                            AND res.estado NOT IN ('cancelada', 'atendida', 'no_asistio')
+                            AND res.fecha_entrada < ? AND res.fecha_salida > ?
+                    )
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM ocupacion_recursos obr
+                        INNER JOIN ocupaciones o ON o.id = obr.ocupacion_id
+                        WHERE obr.recurso_id = r.id AND o.estado = 'en_uso' AND o.fecha_inicio < ?
+                    )
+                LIMIT 1";
 
         $stmt = $this->db->prepare($sql);
         if(!$stmt)
@@ -174,7 +149,7 @@ class MySqlTableRepository implements RestaurantTableRepository{
     }
 
 
-    public function lockTableForOrder(int $resourceId, int $branchId): void {
+    public function lockTableForOrder(int $resourceId, int $branchId): void{
         // Comprobamos que el recurso sea una mesa de la sucursal indicada.
         // El bloqueo se mantiene hasta el commit o rollback.
         $sql = "SELECT r.id, r.activo, r.estado
@@ -196,5 +171,46 @@ class MySqlTableRepository implements RestaurantTableRepository{
             $stmt->close();
         }
     }
+
+
+    public function findByOccupationId(int $occupationId, int $branchId): array{
+        // La relación sigue existiendo después de finalizar la ocupación.
+        $sql = "SELECT DISTINCT m.id, m.recurso_id, m.zona_id, m.forma, r.nombre, r.capacidad, r.activo, r.estado
+                FROM mesas AS m
+                INNER JOIN recursos AS r ON r.id = m.recurso_id
+                INNER JOIN ocupacion_recursos AS obr ON obr.recurso_id = r.id
+                INNER JOIN ocupaciones AS o ON o.id = obr.ocupacion_id
+                WHERE o.id = ? AND o.sucursal_id = ? AND r.sucursal_id = ? ORDER BY m.id";
+        $stmt = $this->db->prepare($sql);
+
+        if(!$stmt)
+            throw new \RuntimeException('No fue posible preparar la consulta de las mesas.');
+
+        try{
+            $stmt->bind_param('iii', $occupationId, $branchId, $branchId);
+            if(!$stmt->execute())
+                throw new \RuntimeException('No fue posible consultar las mesas de la atención.');
+
+            $result = $stmt->get_result();
+            $tables = [];
+            while($row = $result->fetch_assoc()){
+                $tables[] = new RestaurantTable(
+                    id: (int) $row['id'],
+                    resourceId: (int) $row['recurso_id'],
+                    name: $row['nombre'],
+                    capacity: (int) $row['capacidad'],
+                    active: (bool) $row['activo'],
+                    resourceStatus: $row['estado'],
+                    zoneId: $row['zona_id'] !== null ? (int) $row['zona_id'] : null,
+                    shape: $row['forma']
+                );
+            }
+
+            return $tables;
+        }finally{
+            $stmt->close();
+        }
+    }
+
 
 }

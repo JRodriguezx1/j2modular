@@ -40,10 +40,8 @@ class AddProductsToAccount{
         if($items === [] || !array_is_list($items)) 
             throw new InvalidArgumentException('El pedido debe contener una lista de productos.');
 
-        // Todas las escrituras deben usar esta misma transacción
-        // y la conexión compartida de la aplicación.
+        // Todas las escrituras deben usar esta misma transacción y la conexión compartida de la aplicación.
         $this->transactionManager->begin();
-
         try {
             // Bloqueamos la cuenta mientras guardamos.
             // Así, dos solicitudes que sigan este flujo no crearán
@@ -84,19 +82,11 @@ class AddProductsToAccount{
                 $this->occupationRepository->updateCustomer($occupation->getId(), $clientId);
             }
 
-            // POS valida los productos y sus cantidades. También obtiene precios e impuestos del servidor,
-            // inserta las líneas y recalcula la factura.
+            // POS valida los productos y sus cantidades. También obtiene precios e impuestos del servidor, inserta las líneas y recalcula la factura.
             $result = $this->openOrderPort->addSimpleProducts($orderId, $items, $branchId);
-
             // Confirmamos únicamente cuando todo el lote se guardó.
             $this->transactionManager->commit();
-
-            return [
-                'accountId' => $accountId,
-                'orderId' => $orderId,
-                'lineIds' => $result['lineIds'],
-                'totales' => $result['totales'],
-            ];
+            return ['accountId' => $accountId, 'orderId' => $orderId, 'lineIds' => $result['lineIds'], 'totales' => $result['totales']];
         } catch (Throwable $e) {
             // Si algo falla, deshacemos las líneas insertadas y,
             // si se crearon aquí, la factura y su vínculo con la cuenta.
@@ -106,4 +96,5 @@ class AddProductsToAccount{
         }
         
     }
+
 }

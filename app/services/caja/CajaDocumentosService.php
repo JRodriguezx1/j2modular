@@ -97,9 +97,7 @@ final class CajaDocumentosService
             'logo'=>$sucursal->logo,
             'num_orden'=>(int)$factura->num_orden,
             'tipoFactura'=>$consecutivo->idtipofacturador,
-            'textFactura'=>(int)$consecutivo->idtipofacturador === 1
-                ? 'FACTURA ELECTRONICA DE VENTA'
-                : 'COMPROBANTE DE VENTA',
+            'textFactura'=>(int)$consecutivo->idtipofacturador === 1 ? 'FACTURA ELECTRONICA DE VENTA' : 'COMPROBANTE DE VENTA',
             'prefijo'=>$factura->prefijo,
             'consecutivo'=>$factura->num_consecutivo,
             'fechaPago'=>$factura->fechapago,

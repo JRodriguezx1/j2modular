@@ -36,7 +36,6 @@ class UpdateAccountCustomer{
             throw new InvalidArgumentException('El cliente no es válido.');
 
         $this->transactionManager->begin();
-
         try {
             // Mismo orden de bloqueo que en AddProductsToAccount: primero la cuenta, después la ocupación.
             $account = $this->accountRepository->findByIdForUpdate($accountId);
@@ -46,8 +45,7 @@ class UpdateAccountCustomer{
             if ($account->getStatus() !== 'abierta')
                 throw new InvalidArgumentException('La cuenta no está abierta.');
 
-            // El bloqueo impide que otra transacción cambie
-            // la ocupación mientras actualizamos el cliente.
+            // El bloqueo impide que otra transacción cambie la ocupación mientras actualizamos el cliente.
             $occupation = $this->occupationRepository->findByIdForUpdate($account->getOccupationId());
             if($occupation === null || $occupation->getStatus() !== 'en_uso')
                 throw new InvalidArgumentException('La atención de esta cuenta no está en uso.');
@@ -56,25 +54,17 @@ class UpdateAccountCustomer{
                 throw new InvalidArgumentException('La cuenta no pertenece a la sucursal actual.');
             
             $orderId = $account->getInvoiceId();
-
             // Esta operación requiere una factura ya vinculada.
             if($orderId === null)
                 throw new InvalidArgumentException('Guarda el primer pedido antes de actualizar el cliente.');
 
-            // POS bloquea la factura, comprueba que esté Abierta
-            // y valida que el cliente exista cuando no es null.
+            // POS bloquea la factura, comprueba que esté Abierta  y valida que el cliente exista cuando no es null.
             $this->openOrderPort->updateCustomer($orderId, $branchId, $clientId);
             // Guardamos exactamente el mismo cliente en la ocupación.
             $this->occupationRepository->updateCustomer($occupation->getId(), $clientId);
             // Ambas actualizaciones se confirman juntas.
             $this->transactionManager->commit();
-
-            return [
-                'accountId' => $accountId,
-                'occupationId' => $occupation->getId(),
-                'orderId' => $orderId,
-                'clientId' => $clientId,
-            ];
+            return ['accountId' => $accountId, 'occupationId' => $occupation->getId(), 'orderId' => $orderId, 'clientId' => $clientId,];
         }catch(Throwable $e){
             // Si falla cualquiera de las operaciones,
             // deshacemos los cambios y liberamos los bloqueos.

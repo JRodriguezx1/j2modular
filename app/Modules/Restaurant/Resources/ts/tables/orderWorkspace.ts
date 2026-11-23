@@ -15,6 +15,8 @@ import type { AccountTotals, AccountConsumption } from './accountApi';
 import { asignarClienteDianEvent } from './eventos/customerDianEvent';
 import { createCliDian } from './cliDian';
 import { registerProcesarPagoEvents } from './eventos/ProcesarPagoEvent';
+import { updateTableCards } from './tableCards';
+import type { payData } from './orderApi';
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
@@ -65,17 +67,16 @@ const productosGrid = document.querySelector<HTMLDivElement>('#catalogProductGri
 const cartContainer = document.getElementById('accountPanelPendingProducts');
 
 
-function isSavingOrder(): boolean{
+export function isSavingOrder(): boolean{
     return savingOrder;
 }
 
 function setSavingOrder(saving: boolean): void{
     if(saving && !savingOrder){
-        //Invalidar consultas anteriores al inicio del guardado.
-        ++requestVersion;
+        ++requestVersion; //Invalidar consultas anteriores al inicio del guardado.
     }
     savingOrder = saving;
-    drawer.inert = saving;
+    drawer.inert = saving || drawer.getAttribute('aria-hidden') === 'true';
     drawer.setAttribute('aria-busy', String(saving));
 }
 
@@ -229,8 +230,9 @@ function openDrawer(): void{
     requestAnimationFrame(() => drawer.classList.remove('translate-x-full'));
 }
 
-export function closeOrderWorkspace(): void{
-    if(savingOrder)return;
+export function closeOrderWorkspace(force = false): void{
+    // force se usará únicamente después de confirmar el cobro.
+    if(savingOrder && !force)return;
     if(drawer.getAttribute('aria-hidden') === 'true') return;
     ++requestVersion;
     activeOrder = null;
@@ -376,7 +378,7 @@ export function initOrderWorkspace(): void{
         //if(selected && info)
         //    info.textContent = `Estado: ${selected.status} · ${selected.invoiceId === null ? 'Sin orden todavía' : `Orden #${selected.invoiceId}`}`;
     });*/
-    overlay.addEventListener('click', closeOrderWorkspace);
+    overlay.addEventListener('click', ()=>closeOrderWorkspace());
 
     document.addEventListener("click", (e)=> {
         cerrarDialogoExterno(e);
@@ -429,10 +431,39 @@ export function initOrderWorkspace(): void{
     registeraddclienteEvents(getActiveClient, () => requestVersion);  //para abrir modal de clientes y seleccionar.
     asignarClienteDianEvent(getActiveClientDian, () => requestVersion);
     orderEvents = registrarProcesarOrdenEvent(getActiveOrder, () => requestVersion, isSavingOrder, setSavingOrder, confirmFirstOrder, refreshConfirmedOrderCart);
-    registerProcesarPagoEvents(getEditableOrder, () => requestVersion);
+    registerProcesarPagoEvents(getEditableOrder, setSavingOrder, finishPaidAccount);
     
 
     void precargarProductos(); //carga de productos
+}
+
+
+function finishPaidAccount(result: payData): void{
+    const order = activeOrder;
+    // Limpiar únicamente la cuenta que acabamos de cobrar.
+    if(order === null || order.accountId !== result.accountId || order.occupationId !== result.occupationId)
+        throw new Error('El cobro se confirmó, pero cambió el contexto de la cuenta.');
+
+    order.cart.clear();
+    order.cli.loadCli(null);
+    order.cliDian.clear();
+    // Quitar solo las referencias de esta cuenta. Los borradores de las demás mesas permanecen en memoria.
+    for(const [key, cart] of carts)
+        if(cart === order.cart)carts.delete(key);
+
+    for(const [key, cli] of clientes)
+        if (cli === order.cli)clientes.delete(key);
+
+    for(const [key, cliDian] of clientesDian)
+        if(cliDian === order.cliDian)clientesDian.delete(key);
+
+    // Cierre autorizado después del cobro, aunque siga el bloqueo. Esta función también deja activeOrder en null.
+    closeOrderWorkspace(true);
+    renderCartPanel([]);
+    renderCli(order.cli.getCli());
+    closePopover();
+    // Usar directamente la respuesta del cobro. No consultar nuevamente al backend.
+    updateTableCards(result.tables);
 }
 
 

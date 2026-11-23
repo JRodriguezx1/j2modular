@@ -6,6 +6,8 @@ use App\Core\Database\TransactionManager;
 use App\Modules\Restaurant\Application\Ports\OpenOrderPort;
 use App\Modules\Restaurant\Domain\Repositories\AccountRepository;
 use App\Modules\Restaurant\Domain\Repositories\OccupationRepository;
+use App\Modules\Restaurant\Application\Services\TableStateService;
+use App\Modules\Restaurant\Domain\Repositories\RestaurantTableRepository;
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
@@ -17,7 +19,9 @@ class PayAccount{
         private AccountRepository $accountRepository,
         private OccupationRepository $occupationRepository,
         private OpenOrderPort $openOrderPort,
-        private TransactionManager $transactionManager
+        private TransactionManager $transactionManager,
+        private RestaurantTableRepository $tableRepository,
+        private TableStateService $tableStateService
     ) {}
 
     public function execute(int $accountId, int $branchId, int $userId, array $data): array{
@@ -49,11 +53,14 @@ class PayAccount{
                 'mediosPago' => $data['mediosPago'] ?? null,
             ];
 
-            $result = $this->openOrderPort->pay($orderId, $branchId, $userId, $paymentData);
+            $result = $this->openOrderPort->pay($orderId, $branchId, $userId, $paymentData);  //devuelve estas llaves: exito, idfactura y dataInvoice
             // POS procesó el cobro, pero todavía no hay commit.
             $this->accountRepository->close($accountId);
             $finishedAt = new DateTimeImmutable('now', new DateTimeZone('America/Bogota'));
             $this->occupationRepository->finish($occupation->getId(), $finishedAt->format('Y-m-d H:i:s'));
+            // La ocupación ya está finalizada dentro de esta transacción. Ahora calculamos el estado de sus mesas.
+            $result['tables'] = $this->getTableStates($occupation->getId(), $branchId);
+
             // Conservamos exito, idfactura y dataInvoice para el frontend.
             $result['accountId'] = $accountId;
             $result['occupationId'] = $occupation->getId();
@@ -65,4 +72,32 @@ class PayAccount{
             throw $e;
         }
     }
+
+
+    private function getTableStates(int $occupationId, int $branchId): array{
+        // Consultar solamente las mesas de esta atención.
+        $tables = $this->tableRepository->findByOccupationId($occupationId, $branchId);
+        // Aplicar las mismas reglas utilizadas por ListTables.
+        $states = $this->tableStateService->resolve($tables);
+        $result = [];
+        foreach($states as $item){
+            $table = $item['table'];
+            $occupation = $item['occupation'];
+            $reservation = $item['reservation'];
+            // Convertir las entidades en datos simples para el JSON.
+            $result[] = [
+                'resourceId' => $table->getResourceId(),
+                'active' => $table->isActive(),
+                'operationalStatus' => $item['operationalStatus'],
+                'occupationId' => $occupation?->getId(),
+                'occupiedSince' => $occupation?->getStartDate(),
+                'reservationId' => $reservation?->getId(),
+                'reservationStart' => $reservation?->getStartDate(),
+            ];
+        }
+
+        return $result;
+    }
+
+
 }

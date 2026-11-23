@@ -3,6 +3,7 @@ import { createCart } from "../cart";
 import { createCli } from "../cli";
 import { createCliDian } from "../cliDian";
 import { msjalertToast } from "../../appFunction";
+import { ProcesarPago, PaymentError, payData  } from "../orderApi";
 
 
 const processPaymentButton = document.querySelector('#processPaymentButton') as HTMLElement;
@@ -26,7 +27,7 @@ let paymentAccountId: number | null = null;
 type Cart = ReturnType<typeof createCart>;
 type Cli = ReturnType<typeof createCli>;
 type CartKey = | `account:${number}` | `occupation:${number}` | `table:${number}`;
-interface ActiveOrder {
+interface ActiveOrder{
     resourceId: number,
     occupationId: number|null,
     accountId: number|null,
@@ -38,12 +39,12 @@ interface ActiveOrder {
     summaryPending: boolean,
 }
 
-interface PaymentMethodData {
+interface PaymentMethodData{
     idmediopago: number,
     valor: string // Importe decimal sin separadores: "25000.50"
 }
 
-interface AccountPaymentData {
+export interface AccountPaymentData{
     accountId: number,
     idcaja: number,
     idconsecutivo: number,
@@ -51,9 +52,8 @@ interface AccountPaymentData {
     mediosPago: PaymentMethodData[],
 }
 
-export function registerProcesarPagoEvents(getActiveOrder: () => ActiveOrder|null, getContextVersion: () => number): void{
+export function registerProcesarPagoEvents(getActiveOrder: () => ActiveOrder|null, setSavingOrder: (saving: boolean) => void, finishPaidAccount: (result: payData) => void): void{
 
-    let clientRequestVersion = 0;
 
     processPaymentButton?.addEventListener('click', (event)=>{
         event.preventDefault();
@@ -155,26 +155,79 @@ export function registerProcesarPagoEvents(getActiveOrder: () => ActiveOrder|nul
     });
 
 
-    /////
-    const formFacturar = miDialogoFacturar.querySelector<HTMLFormElement>('#formfacturar');
-    formFacturar?.addEventListener('submit', event => {
-        // Evitar que el navegador envíe el formulario por su cuenta.
-        event.preventDefault();
-        if(!miDialogoFacturar.open || btnPagar.disabled)return;
-
-        try {
-            // Este callback ya utiliza getEditableOrder().
-            const datos = prepararDatosCobro(getActiveOrder());
-            // Temporal: revisar el objeto antes de conectar el backend.
-            console.log('Datos preparados para el cobro:', datos);
-            msjalertToast('success', 'Datos válidos', 'El cobro está preparado. Todavía no se ha enviado.');
-        } catch (error) {
-            msjalertToast('warning', 'Revisar cobro', error instanceof Error ? error.message : 'No fue posible preparar los datos del cobro.');
-        }
+    ////////    Procesar el pago    //////////
+    let processingPayment = false;
+    // Evitar que Escape cierre el modal mientras se está cobrando.
+    miDialogoFacturar.addEventListener('cancel', event => {
+        if(processingPayment)event.preventDefault();
     });
 
+    const formFacturar = miDialogoFacturar.querySelector<HTMLFormElement>('#formfacturar');
+    formFacturar?.addEventListener('submit', async event => {
+        event.preventDefault();
+        if(!miDialogoFacturar.open || processingPayment  || btnPagar.disabled)return;
+
+        // Conservar la referencia de la cuenta que estamos cobrando.
+        const orden = getActiveOrder();
+        let paymentConfirmed = false;
+        let locked = false;
+        try{
+            const datos = prepararDatosCobro(orden); // Este callback ya utiliza getEditableOrder().
+            processingPayment = true;
+            btnPagar.disabled = true;
+            // Bloquear campos y cierre del modal.
+            miDialogoFacturar.inert = true;
+            miDialogoFacturar.setAttribute('aria-busy', 'true');
+            // Bloquear productos, clientes y cambios de mesa.
+            setSavingOrder(true);
+            locked = true;
+            const result = await ProcesarPago(datos);
+            // A partir de aquí, cualquier fallo es de actualización visual: el servidor ya confirmó el cobro.
+            paymentConfirmed = true;
+            // La cuenta ya fue cobrada. Mientras conectamos la limpieza del workspace, impedir otro cobro usando el resumen anterior.
+            if(orden)orden.summaryPending = true;
+            // Cierre programático después de confirmar el pago.
+            miDialogoFacturar.close();
+            resetPaymentModal();
+            // Limpiar la cuenta y consultar el estado actual de las mesas.
+            finishPaidAccount(result);
+            console.log('Resultado del cobro:', result);
+            msjalertToast('success', 'Cobro realizado', 'El cobro se completó correctamente.');
+        }catch(error){
+            if(paymentConfirmed){
+                // No presentar este fallo como un pago rechazado.
+                msjalertToast('warning', 'Cobro realizado', 'El pago se confirmó, pero no se pudo completar la actualización de la pantalla. No vuelvas a cobrar esta cuenta.');
+            }else{
+                if(orden && error instanceof PaymentError && error.requiresRefresh) 
+                    orden.summaryPending = true; //No sabemos con certeza si el servidor completó el cobro. prepararDatosCobro bloqueará otro intento hasta actualizar.
+                msjalertToast('warning', 'Revisar cobro', error instanceof Error ? error.message : 'No fue posible procesar el cobro.');
+            }
+        }finally{
+            // Liberar solamente el bloqueo adquirido por este evento.
+            if(locked)setSavingOrder(false);
+            // Liberar el botón tanto en éxito como en error. summaryPending impide reenviar cuando hace falta actualizar.
+            processingPayment = false;
+            btnPagar.disabled = false;
+            miDialogoFacturar.inert = false;
+            miDialogoFacturar.removeAttribute('aria-busy');
+        }
+    });
 }
 
+function resetPaymentModal(): void {
+    // Esta distribución ya pertenecía a una cuenta cobrada.
+    paymentAccountId = null;
+    mapMediospago.clear();
+    mediospago.forEach(input => {input.value = '0';});
+    const recibido = document.querySelector<HTMLInputElement>('#recibio');
+    const cambio = document.querySelector<HTMLElement>('#cambio');
+    const totalPagar = document.querySelector<HTMLElement>('#totalPagar');
+    const observacion = miDialogoFacturar.querySelector<HTMLTextAreaElement>('#observacion');
+    if (recibido) recibido.value = '';
+    if (cambio) cambio.textContent = '0';
+    if (totalPagar) totalPagar.textContent = '$0';
+    if (observacion) observacion.value = '';
+}
 
 
 function selectFacturadorSegunCaja(z:HTMLSelectElement){
