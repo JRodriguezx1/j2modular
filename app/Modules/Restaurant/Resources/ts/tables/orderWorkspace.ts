@@ -17,6 +17,7 @@ import { createCliDian } from './cliDian';
 import { registerProcesarPagoEvents } from './eventos/ProcesarPagoEvent';
 import { updateTableCards } from './tableCards';
 import type { payData } from './orderApi';
+import { closeOpcionesPopover, registerOrdenEvents } from './eventos/ordenEvents';
 
 let drawer: HTMLElement;
 let overlay: HTMLElement;
@@ -385,8 +386,13 @@ export function initOrderWorkspace(): void{
         const target = e.target;
         if(!(target instanceof Element))return;
         const accountPanelConsumptions = target.closest<HTMLElement>('#accountPanelConsumptions');
+        const masOpciones = target.closest<HTMLElement>('#masOpciones');
         const popover = document.querySelector('#cart-popover') as HTMLElement;
-        if(accountPanelConsumptions == null && popover.hidden==false)closePopover();
+        const opcionesPopover = document.querySelector('#opciones-popover') as HTMLElement;
+        if(accountPanelConsumptions == null && popover.hidden==false || masOpciones==null && opcionesPopover.hidden==false){
+            closePopover();
+            closeOpcionesPopover();
+        }
     });
     
     document.addEventListener('keydown', event => {
@@ -425,6 +431,7 @@ export function initOrderWorkspace(): void{
     if(productosGrid && cartContainer)
         registerProductEvents({otrosProducts, productosGrid, cartContainer, catalogProducts, ActiveOrderE:getEditableOrder, renderCartPanelE:renderCartPanel, setSavingOrder, refreshConfirmedOrderCart}); //evento a los productos del catalago, productos del carrito, otros productos, 
 
+    registerOrdenEvents({ActiveOrderE:getEditableOrder, renderCartPanelE:renderCartPanel, setSavingOrder, refreshConfirmedOrderCart});
     const getActiveClient = () => getEditableOrder()?.cli ?? null;
     const getActiveClientDian = () => getEditableOrder()?.cliDian ?? null;
     

@@ -8,7 +8,6 @@ import { eliminarItem, aplicarDescuentoLinea, aplicarCortesiaLinea } from "../or
 
 const productsRegistrados = document.getElementById('accountPanelConsumptions');
 const popover = document.querySelector<HTMLDivElement>("#cart-popover");
-const btnsdevolverinv = document.querySelectorAll<HTMLInputElement>('input[name="devolverinventario"]'); //radio buttom
 const miDialogoDescuento = document.querySelector('#miDialogoDescuento') as HTMLDialogElement;
 const miDialogoConfirmar = document.querySelector('#miDialogoConfirmar') as HTMLDialogElement;
 const miDialogoEliminarItem = document.querySelector('#miDialogoEliminarItem') as HTMLDialogElement;
@@ -21,11 +20,10 @@ const btnModalCortesia = document.querySelector('#btnModalCortesia') as HTMLButt
 const inputConfirmarClave = document.querySelector('#inputConfirmarClave') as HTMLInputElement;
 const btnModalEliminarItem = document.querySelector('#btnModalEliminarItem') as HTMLButtonElement;
 
-let activeItemId: string|number|null = null;
-let activePop: HTMLElement | null = null;
+let activePop: HTMLElement|null = null;
 let rowId:number|null = null;
 // Permite comprobar que seguimos trabajando con el mismo pedido.
-let rowOrder: ActiveOrder | null = null;
+let rowOrder: ActiveOrder|null = null;
 let itemReg: AccountConsumption;
 
 type Cart = ReturnType<typeof createCart>;
@@ -150,12 +148,12 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
       if(activeOrder === null)return;
       const cart = activeOrder.cart;
       const input = e.target as HTMLInputElement;
-      if (!input.classList.contains('inputcantidad')) return;
+      if (!input.classList.contains('inputcantidad'))return;
       //const fila = input?.closest('.productselect') as HTMLTableRowElement;
       //indexcarrito = Number(fila.dataset.indexcarrito!);
 
       const row = input.closest<HTMLElement>('[data-cart-product-id]');
-      if (!row) return;
+      if(!row)return;
 
       const productId = Number(row.dataset.cartProductId);
       if(!Number.isSafeInteger(productId) || productId <= 0)return;
@@ -262,7 +260,7 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
         }
         rowId = lineId;
         rowOrder = order;
-        openPopover(row, lineId);
+        openPopover(row);
     });
 
 
@@ -570,21 +568,19 @@ export const closePopover = (): void => {
     if(popover)popover.hidden = true;
     activePop?.setAttribute("aria-expanded", "false");
     activePop = null;
-    activeItemId = null;
     // Limpiar también la selección asociada al popover.
     rowId = null;
     rowOrder = null;
 };
 
 
-const openPopover = (registroDiv: HTMLElement, registroId: string|number): void => {
+const openPopover = (registroDiv: HTMLElement): void => {
     const rect = registroDiv.getBoundingClientRect();
 
     if(!popover)return;
     if(activePop && activePop !== registroDiv)activePop.setAttribute("aria-expanded", "false");
 
     activePop = registroDiv;
-    activeItemId = registroId;
     registroDiv.setAttribute("aria-expanded", "true");
 
     popover.hidden = false;

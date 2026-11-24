@@ -40,7 +40,7 @@
       <!-- INFORMACIÓN DE OCUPACIÓN -->
       <div id="atencionEstado" class="flex shrink-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
         <div class="flex items-center gap-3">
-          <div class="flex size-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+          <div class="flex size-12 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500">
             <span class="material-symbols-outlined">table_restaurant</span>
           </div>
           <div>
@@ -48,7 +48,7 @@
             <p id="atencionEstadoResumen" class="m-0 text-sm text-slate-500">Atención por consultar</p>
           </div>
         </div>
-        <span id="atencionEstadoCuenta" class="rounded-full bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">Cuenta por consultar</span>
+        <span id="atencionEstadoCuenta" class="rounded-full bg-emerald-50 px-3 py-2 text-base font-semibold text-emerald-500">Cuenta por consultar</span>
       </div>
 
       <!-- DOS COLUMNAS -->
@@ -79,22 +79,26 @@
             <div id="divCategorias" class="mt-3 flex gap-2 overflow-x-auto pb-1 text-base"></div>
           </div>
 
-          <!-- Productos con scroll independiente -->
           <div id="catalogoPaginador" class="min-h-0 flex-1 overflow-y-auto p-4">
             <div class="mb-3 flex items-center justify-between">
               <p id="catalogProductStatus" class="text-base font-medium text-slate-500">Cargando productos...</p>
               <div class="flex items-center gap-2">
-                <button id="consumidorFinal" type="button" class="btnApp btnApp--primary btnApp--sm">
+                <button id="consumidorFinal" type="button" class="btnApp btnApp--gradient-green-blue btnApp--md">
                   <span class="material-symbols-outlined text-2xl">person</span>
                   DIAN
                 </button>
-                <button id="otrosProducts" type="button" class="btnApp btnApp--indigo btnApp--sm">
+                <button id="otrosProducts" type="button" class="btnApp btnApp--gradient-purple-blue btnApp--md">
                   <span class="material-symbols-outlined text-2xl">tune</span>
                   Otros
+                </button>
+                <button id="masOpciones" type="button" class="btnApp btnApp--gradient-pink-orange btnApp--md">
+                  <span class="material-symbols-outlined text-2xl">tune</span>
+                  Mas..
                 </button>
               </div>
             </div>
 
+            <!-- Productos con scroll independiente -->
             <div id="catalogProductGrid" class="grid grid-cols-1 gap-3 xxs:grid-cols-2 xs:grid-cols-3 xsm:grid-cols-4 xmd:grid-cols-3 2xlg:grid-cols-4">
 
               <!-- PRODUCTO 1 -->
@@ -210,10 +214,15 @@
         <section id="accountPanel" aria-busy="false" class="flex min-h-[520px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white">
           <!-- Cabecera cuenta -->
           <div class="shrink-0 border-b border-slate-100 p-4">
-            <div class="flex items-center justify-between">
+            <div class="">
               <div>
-                <h3 class="text-xl font-bold text-slate-900">Cuenta de la mesa</h3>
-                <p id="accountPanelOccupation" class="mt-0.5 text-base text-slate-500">Atención por consultar</p>
+                <div class="flex items-center justify-between">
+                  <h3 class="text-xl font-bold text-slate-900">Cuenta de la mesa</h3>
+                  <div class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 hover:bg-emerald-100 cursor-pointer">
+                    <i class="fa-brands fa-gratipay text-3xl"></i>
+                  </div>
+                </div>
+                <p id="accountPanelOccupation" class="mt-0 text-base text-slate-500">Atención por consultar</p>
                 <p id="accountPanelName" class="mt-0.5 text-sm text-slate-500">Cuenta por consultar</p>
               </div>
               
@@ -350,71 +359,11 @@
 </div>
 
 
-<div id="cart-popover" class="fixed z-40 w-72 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg" hidden>
-    <!-- Descuento -->
-    <button
-        id="btnModalDescuento"
-        type="button"
-        data-action="discount"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-amber-50"
-    >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-100">
-            <i class="fa-solid fa-percent"></i>
-        </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-slate-700">
-                Aplicar descuento
-            </span>
-            <span class="text-sm text-slate-500">
-                Modificar precio
-            </span>
-        </span>
-    </button>
 
-    <!-- Cortesía -->
-    <button
-        id="btnModalCortesia"
-        type="button"
-        data-action="courtesy"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-indigo-50"
-    >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
-            <i class="fa-solid fa-gift"></i>
-        </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-slate-700">
-                Cortesía
-            </span>
-            <span class="text-sm text-slate-500">
-                Sin costo para el cliente
-            </span>
-        </span>
-    </button>
-
-    <!-- Cancelar -->
-    <button
-        id="btnModalEliminarItem"
-        type="button"
-        data-action="cancel"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-rose-50"
-    >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-500 group-hover:bg-rose-100">
-           <i class="fa-regular fa-trash-can"></i>
-        </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-rose-600">
-                Cancelar producto
-            </span>
-            <span class="text-sm text-slate-500">
-                Retirar de la cuenta
-            </span>
-        </span>
-    </button>
-</div>
-
-
-
-
+<!-- POPOVER LINEA ITEMS-->
+<?php include __DIR__. "/cartPopover.php"; ?>
+<!-- POPOVER MAS OPCIONES-->
+<?php include __DIR__. "/opcionesPopover.php"; ?>
 <!-- MODAL PARA CREAR CLIENTE-->
 <?php include __DIR__. "/../../admin/ventas/modalCreateAddCli.php"; ?>
 <!-- MODAL PARA GUARDAR EL PEDIDO-->
