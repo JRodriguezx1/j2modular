@@ -78,7 +78,8 @@ final class CajaDocumentosService
             }
         }
 
-        $mediosPago = $this->mapearMediosPago($facturaId);
+        
+        $mediosPago = $datos['mediosPago']; // obtenerDetalleVenta() ya consultó los medios de pago.
         $items = $this->mapearProductos($datos['productos']);
         $cliente = $datos['cliente'];
         $sucursal = $datos['sucursal'];
@@ -180,6 +181,10 @@ final class CajaDocumentosService
 
         $mediosPago = $this->mapearMediosPago($facturaId);
         $productos = ventas::idregistros('idfactura', $facturaId);
+        // Excluir solamente las líneas anuladas.
+        // Las cortesías se conservan, aunque su total sea cero.
+        $productos = array_values(array_filter($productos, static fn($producto) => (int) $producto->anulada !== 1));
+
         $cliente = clientes::find('id', (int)$factura->idcliente) ?? new clientes();
         $direccion = direcciones::uniquewhereArray(['id'=>(int)$factura->iddireccion, 'idcliente'=>(int)$factura->idcliente]);
         if(!$direccion)$direccion = new direcciones(['idcliente'=>(int)$factura->idcliente]);

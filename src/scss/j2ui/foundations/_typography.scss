@@ -1,0 +1,62 @@
+// J2 UI — Typography foundations
+
+$j2-font-family: "Poppins", sans-serif;
+$j2-typography: (
+    "display": (
+        size: 3rem,
+        weight: 700,
+        line-height: 1.2
+    ),
+
+    "headline": (
+        size: 2.4rem,
+        weight: 700,
+        line-height: 1.25
+    ),
+
+    "title": (
+        size: 2rem,
+        weight: 600,
+        line-height: 1.3
+    ),
+
+    "subtitle": (
+        size: 1.8rem,
+        weight: 600,
+        line-height: 1.4
+    ),
+
+    "body": (
+        size: 1.4rem,
+        weight: 400,
+        line-height: 1.5
+    ),
+
+    "label": (
+        size: 1.3rem,
+        weight: 600,
+        line-height: 1.4
+    ),
+
+    "caption": (
+        size: 1.2rem,
+        weight: 400,
+        line-height: 1.5
+    ),
+
+    "micro": (
+        size: 1.1rem,
+        weight: 500,
+        line-height: 1.4
+    )
+);
+
+:root {
+    --j2-font-family: #{$j2-font-family};
+
+    @each $role, $properties in $j2-typography {
+        @each $property, $value in $properties {
+            --j2-font-#{$role}-#{$property}: #{$value};
+        }
+    }
+}

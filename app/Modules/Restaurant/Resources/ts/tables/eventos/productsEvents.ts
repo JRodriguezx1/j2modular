@@ -380,9 +380,11 @@ export function registerProductEvents({otrosProducts, productosGrid, cartContain
         }
 
         const textConfirmacion = miDialogoConfirmar.querySelector<HTMLElement>('#textConfirmacion');
+        const textActionBadge = miDialogoConfirmar.querySelector<HTMLElement>('#textActionBadge');
         const textDescripcion = miDialogoConfirmar.querySelector<HTMLElement>('#textDescripcion');
-        if(!textConfirmacion || !textDescripcion)return;
-        textConfirmacion.textContent = `${item.nombreproducto} · ${item.es_cortesia===0?'Aplicar cortesia':'Retirar cortesía'}`;
+        if(!textConfirmacion || !textDescripcion || !textActionBadge)return;
+        textConfirmacion.textContent = `${item.nombreproducto}`;
+        textActionBadge.textContent = `· ${item.es_cortesia===0?'Aplicar cortesia':'Retirar cortesía'}`;
         textDescripcion.textContent = item.es_cortesia===0?'El importe a cobrar por esta línea quedará en cero.':'Se recuperará el descuento anterior de esta línea.';
         // Limpiar los datos de una apertura anterior.
         inputConfirmarClave.value = ''

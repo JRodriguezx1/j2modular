@@ -1,0 +1,212 @@
+@use 'sass:list';
+
+// ========================================
+// J2 UI — Button
+// ========================================
+
+.j2-btn {
+    // ------------------------------------
+    // Configuration
+    // ------------------------------------
+    --j2-btn-bg: var(--j2-color-primary);
+    --j2-btn-fg: var(--j2-color-surface);
+    --j2-btn-hover: var(--j2-color-primary-hover);
+    --j2-btn-active: var(--j2-color-primary-active);
+    --j2-btn-border: transparent;
+
+    --j2-btn-height: 4rem;
+    --j2-btn-padding-x: var(--j2-space-4);
+    --j2-btn-padding-y: var(--j2-space-2);
+    --j2-btn-font-size: var(--j2-font-body-size);
+    --j2-btn-radius: var(--j2-radius-md);
+    // ------------------------------------
+    // Base
+    // ------------------------------------
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--j2-space-2);
+    min-height: var(--j2-btn-height);
+    padding: var(--j2-btn-padding-y) var(--j2-btn-padding-x);
+    border: 1px solid var(--j2-btn-border);
+    border-radius: var(--j2-btn-radius);
+    background: var(--j2-btn-bg);
+    color: var(--j2-btn-fg);
+    font-family: var(--j2-font-family);
+    font-size: var(--j2-btn-font-size);
+    font-weight: var(--j2-font-label-weight);
+    line-height: 1.35;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+    // ------------------------------------
+    // States
+    // ------------------------------------
+    &:not(:disabled):not([aria-disabled="true"]):not(.is-loading) {
+        &:hover {
+            background: var(--j2-btn-hover);
+        }
+
+        &:active {
+            background: var(--j2-btn-active);
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--j2-color-primary);
+        outline-offset: 2px;
+    }
+
+    &:disabled,
+    &[aria-disabled="true"] {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+    &.is-loading {
+        cursor: wait;
+    }
+
+    &[hidden] {
+        display: none;
+    }
+
+    // ------------------------------------
+    // Elements
+    // ------------------------------------
+    &__icon {
+        flex: none;
+        font-size: 1.8rem;
+        line-height: 1;
+    }
+    // ------------------------------------
+    // Appearance
+    // ------------------------------------
+    &--secondary {
+        --j2-btn-bg: var(--j2-color-surface-soft);
+        --j2-btn-fg: var(--j2-color-text);
+        --j2-btn-border: var(--j2-color-border-soft);
+        --j2-btn-hover: var(--j2-color-surface-hover);
+        --j2-btn-active: var(--j2-color-surface-active);
+    }
+    &--outline {
+        --j2-btn-bg: var(--j2-color-surface);
+        --j2-btn-fg: var(--j2-color-primary-hover);
+        --j2-btn-border: var(--j2-color-primary);
+        --j2-btn-hover: var(--j2-color-primary-soft);
+        --j2-btn-active: var(--j2-color-primary-tint);
+    }
+    &--success {
+        --j2-btn-bg: var(--j2-color-success);
+        --j2-btn-hover: var(--j2-color-success-hover);
+        --j2-btn-active: var(--j2-color-success-active);
+    }
+    &--danger {
+        --j2-btn-bg: var(--j2-color-danger);
+        --j2-btn-hover: var(--j2-color-danger-hover);
+        --j2-btn-active: var(--j2-color-danger-active);
+    }
+    &--soft {
+        --j2-btn-bg: var(--j2-color-primary-soft);
+        --j2-btn-fg: var(--j2-color-primary-hover);
+        --j2-btn-hover: var(--j2-color-primary-tint);
+        --j2-btn-active: var(--j2-color-primary-tint-hover);
+    }
+    &--ghost {
+        --j2-btn-bg: transparent;
+        --j2-btn-fg: var(--j2-color-text-secondary);
+        --j2-btn-hover: var(--j2-color-surface-secondary);
+        --j2-btn-active: var(--j2-color-surface-hover);
+    }
+    &--rose {
+        --j2-btn-bg: var(--j2-color-rose);
+        --j2-btn-hover: var(--j2-color-rose-hover);
+        --j2-btn-active: var(--j2-color-rose-text);
+    }
+    // ------------------------------------
+    // Sizes
+    // ------------------------------------
+    &--xs {
+        --j2-btn-height: 2.8rem;
+        --j2-btn-padding-x: var(--j2-space-2);
+        --j2-btn-padding-y: var(--j2-space-1);
+        --j2-btn-font-size: var(--j2-font-caption-size);
+    }
+    &--sm {
+        --j2-btn-height: 3.6rem;
+        --j2-btn-padding-x: var(--j2-space-3);
+        --j2-btn-padding-y: .6rem;
+        --j2-btn-font-size: var(--j2-font-label-size);
+    }
+    &--md {
+        --j2-btn-height: 4rem;
+    }
+    &--lg {
+        --j2-btn-height: 4.4rem;
+    }
+    &--xl {
+        --j2-btn-height: 4.8rem;
+        --j2-btn-padding-x: var(--j2-space-5);
+        --j2-btn-padding-y: var(--j2-space-3);
+    }
+    // ------------------------------------
+    // Shapes
+    // ------------------------------------
+    &--rounded-md {
+        --j2-btn-radius: var(--j2-radius-md);
+    }
+    &--rounded-lg {
+        --j2-btn-radius: var(--j2-radius-lg);
+    }
+    &--rounded-xl {
+        --j2-btn-radius: var(--j2-radius-xl);
+    }
+    &--rounded-full {
+        --j2-btn-radius: var(--j2-radius-full);
+    }
+    // Legacy compatibility.
+    // Prefer Tailwind w-full in new views.
+    &--block {
+        width: 100%;
+    }
+    // ------------------------------------
+    // Accessibility
+    // ------------------------------------
+    @media(prefers-reduced-motion: reduce){
+        transition: none;
+    }
+
+    @media(forced-colors: active){
+        &:focus-visible{
+            outline-color: Highlight;
+        }
+    }
+}
+
+// ========================================
+// Optional gradients
+// ========================================
+$j2-gradients: (
+    "green-blue": (#047857, #1d4ed8),
+    "purple-blue": (#7e22ce, #1d4ed8),
+    "pink-orange": (#be185d, #c2410c)
+);
+
+@each $name, $stops in $j2-gradients{
+
+    $start: list.nth($stops, 1);
+    $end: list.nth($stops, 2);
+
+    .j2-btn--gradient-#{$name}{
+        --j2-btn-bg: linear-gradient(
+            135deg, #{$start}, #{$end}
+        );
+
+        --j2-btn-hover: linear-gradient(
+            225deg, #{$start}, #{$end}
+        );
+
+        --j2-btn-active: #{$start};
+    }
+}

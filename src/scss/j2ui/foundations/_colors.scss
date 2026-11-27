@@ -1,0 +1,81 @@
+// J2 UI — Color foundations
+
+$j2-colors: (
+
+    // Primary
+    "primary": #4f46e5,
+    "primary-hover": #4338ca,
+    "primary-active": #3730a3,
+    "primary-soft": #eef2ff,
+    "primary-tint": #e0e7ff,
+    "primary-tint-hover": #c7d2fe,
+    "primary-icon": #4f46e5,
+    "primary-focus-ring": rgba(79, 70, 229, .15),
+
+    // Success
+    "success": #047857,
+    "success-hover": #065f46,
+    "success-active": #064e3b,
+    "success-soft": #ecfdf5,
+    "success-tint": #d1fae5,
+    "success-icon": #10b981,
+
+    // Warning
+    "warning": #b45309,
+    "warning-soft": #fffbeb,
+    "warning-tint": #fef3c7,
+    "warning-icon": #d97706,
+
+    // Danger
+    "danger": #dc2626,
+    "danger-hover": #b91c1c,
+    "danger-active": #991b1b,
+    "danger-soft": #fef2f2,
+    "danger-tint": #fee2e2,
+    "danger-icon": #f43f5e,
+    "danger-focus-ring": rgba(220, 38, 38, .15),
+
+    // Info
+    "info": #0e7490,
+    "info-soft": #ecfeff,
+    "info-tint": #cffafe,
+    "info-icon": #06b6d4,
+
+    // Text
+    "text": #0f172a,
+    "text-secondary": #475569,
+    "text-muted": #64748b,
+    "text-subtle": #6b778c,
+
+    // Borders
+    "border": #e2e8f0,
+    "border-soft": #d5dce7,
+    "border-control": #8795a8,
+
+    // Surfaces
+    "surface": #ffffff,
+    "surface-soft": #f8fafc,
+    "surface-secondary": #f1f5f9,
+    "surface-hover": #e2e8f0,
+    "surface-active": #cbd5e1,
+
+    // Rose — compatibilidad con componentes existentes
+    "rose": #e11d48,
+    "rose-hover": #be123c,
+    "rose-text": #9f1239,
+    "rose-heading": #881337,
+    "rose-soft": #fff1f2,
+    "rose-tint": #ffe4e6,
+    "rose-border": #fecdd3,
+    "rose-control-border": #be647b,
+    "rose-focus-ring": rgba(225, 29, 72, .15),
+
+    // Overlays
+    "backdrop": rgba(15, 23, 42, .48)
+);
+
+:root {
+    @each $name, $value in $j2-colors {
+        --j2-color-#{$name}: #{$value};
+    }
+}

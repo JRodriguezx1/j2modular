@@ -1,0 +1,14 @@
+$j2-radius: (
+    "sm": 0.4rem,
+    "md": 0.8rem,
+    "lg": 1.2rem,
+    "xl": 1.5rem,
+    "2xl": 1.8rem,
+    "full": 9999px
+);
+
+:root {
+    @each $name, $value in $j2-radius {
+        --j2-radius-#{$name}: #{$value};
+    }
+}

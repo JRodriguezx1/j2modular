@@ -5,6 +5,8 @@ namespace App\Modules\POS\Services;
 use App\Models\ventas\facturas;
 use App\Models\ventas\ventas;
 use App\services\facturacionService;
+use App\services\caja\CajaDocumentosService;
+use RuntimeException;
 use InvalidArgumentException;
 
 class OpenOrderService{
@@ -62,7 +64,13 @@ class OpenOrderService{
     
 
     public function pay(int $orderId, int $branchId, int $userId, array $data): array{
-        // Restaurant ya inició la transacción; aquí no hacemos commit ni rollback.
-        return (new facturacionService())->facturarOrdenAbierta($orderId, $branchId, $userId, $data);
+        // Restaurant ya inició la transacción. Este método no hace commit ni rollback.
+        $result = (new facturacionService())->facturarOrdenAbierta($orderId, $branchId, $userId, $data);
+        // La factura ya está en estado Paga dentro de la transacción. Consultar sus productos y medios de pago guardados.
+        $dataInvoice = (new CajaDocumentosService())->prepararInvoiceParaImpresion($orderId, $branchId);
+        if($dataInvoice === null)throw new RuntimeException('No fue posible preparar los datos de la factura.');
+        // Sustituir los datos incompletos por el comprobante completo. Conservar las demás propiedades de la respuesta.
+        $result['dataInvoice'] = $dataInvoice;
+        return $result;
     }
 }

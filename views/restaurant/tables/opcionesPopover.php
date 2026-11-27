@@ -1,16 +1,16 @@
-<div id="opciones-popover" class="fixed z-40 w-72 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg" hidden>
+<div id="opciones-popover" class="j2-popover" hidden>
     <!-- Descuento -->
     <button
         id="btnModalDescuentoCuenta"
         type="button"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-amber-50"
+        class="j2-popover__item j2-popover__item--warning"
     >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600 group-hover:bg-amber-100">
-            <i class="fa-solid fa-percent"></i>
+        <span class="j2-popover__icon">
+            <i class="fa-solid fa-percent" aria-hidden="true"></i>
         </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-slate-700">descuento</span>
-            <span class="text-sm text-slate-500">Modificar precio</span>
+        <span class="j2-popover__content">
+            <span class="j2-popover__title">descuento</span>
+            <span class="j2-popover__description">Modificar precio</span>
         </span>
     </button>
 
@@ -18,14 +18,14 @@
     <button
         id="btnModalCortesiaCuenta"
         type="button"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-indigo-50"
+        class="j2-popover__item j2-popover__item--primary"
     >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100">
-            <i class="fa-solid fa-gift"></i>
+        <span class="j2-popover__icon">
+            <i class="fa-solid fa-gift" aria-hidden="true"></i>
         </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-slate-700">Cortesía</span>
-            <span class="text-sm text-slate-500">Sin costo para el cliente</span>
+        <span class="j2-popover__content">
+            <span class="j2-popover__title">Cortesía</span>
+            <span class="j2-popover__description">Sin costo para el cliente</span>
         </span>
     </button>
 
@@ -33,14 +33,14 @@
     <button
         id="btnModalCambiarMesa"
         type="button"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-emerald-50"
+        class="j2-popover__item j2-popover__item--success"
     >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500 group-hover:bg-emerald-100">
-           <i class="fa-solid fa-dice-d6"></i>
+        <span class="j2-popover__icon">
+           <i class="fa-solid fa-dice-d6" aria-hidden="true"></i>
         </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-slate-700">Cambiar mesa</span>
-            <span class="text-sm text-slate-500">Cambiar de mesa</span>
+        <span class="j2-popover__content">
+            <span class="j2-popover__title">Cambiar mesa</span>
+            <span class="j2-popover__description">Cambiar de mesa</span>
         </span>
     </button>
 
@@ -48,14 +48,14 @@
     <button
         id="btnModalAnularAtencion"
         type="button"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-rose-50"
+        class="j2-popover__item j2-popover__item--danger"
     >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-500 group-hover:bg-rose-100">
-           <i class="fa-regular fa-trash-can"></i>
+        <span class="j2-popover__icon">
+           <i class="fa-regular fa-trash-can" aria-hidden="true"></i>
         </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-rose-600">Anular</span>
-            <span class="text-sm text-slate-500">Anular la atencion</span>
+        <span class="j2-popover__content">
+            <span class="j2-popover__title">Anular</span>
+            <span class="j2-popover__description">Anular la atencion</span>
         </span>
     </button>
 
@@ -63,14 +63,14 @@
     <button
         id="btnImprimirPrecuenta"
         type="button"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-cyan-50"
+        class="j2-popover__item j2-popover__item--info" style="--j2-pop-icon-fg:#06b6d4"
     >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-cyan-500 group-hover:bg-cyan-100">
-           <i class="fa-solid fa-file-lines"></i>
+        <span class="j2-popover__icon">
+           <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
         </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-slate-700">Precuenta</span>
-            <span class="text-sm text-slate-500">Imprime la precuenta</span>
+        <span class="j2-popover__content">
+            <span class="j2-popover__title">Precuenta</span>
+            <span class="j2-popover__description">Imprime la precuenta</span>
         </span>
     </button>
 
@@ -78,14 +78,14 @@
     <button
         id="btnVerDetalle"
         type="button"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-indigo-50"
+        class="j2-popover__item j2-popover__item--primary" style="--j2-pop-icon-fg:#6366f1"
     >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-500 group-hover:bg-indigo-100">
-           <i class="fa-brands fa-instalod"></i>
+        <span class="j2-popover__icon">
+           <i class="fa-brands fa-instalod" aria-hidden="true"></i>
         </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-slate-700">Detalle</span>
-            <span class="text-sm text-slate-500">Detalle de la orden</span>
+        <span class="j2-popover__content">
+            <span class="j2-popover__title">Detalle</span>
+            <span class="j2-popover__description">Detalle de la orden</span>
         </span>
     </button>
 
@@ -93,14 +93,14 @@
     <button
         id="btnImprimirComanda"
         type="button"
-        class="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left transition-colors duration-150 hover:bg-cyan-50"
+        class="j2-popover__item j2-popover__item--info" style="--j2-pop-icon-fg:#06b6d4; --j2-pop-title:#0891b2"
     >
-        <span class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-cyan-500 group-hover:bg-cyan-100">
-           <i class="fa-solid fa-kitchen-set"></i>
+        <span class="j2-popover__icon">
+           <i class="fa-solid fa-kitchen-set" aria-hidden="true"></i>
         </span>
-        <span class="flex flex-col gap-0.5">
-            <span class="text-lg font-semibold text-cyan-600">Comanda</span>
-            <span class="text-sm text-slate-500">Imprimir comanda</span>
+        <span class="j2-popover__content">
+            <span class="j2-popover__title">Comanda</span>
+            <span class="j2-popover__description">Imprimir comanda</span>
         </span>
     </button>
 </div>

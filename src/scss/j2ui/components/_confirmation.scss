@@ -1,0 +1,132 @@
+// J2 UI — refinamiento local del diálogo de confirmación.
+.j2-dialog--confirmation {
+    --j2-dialog-width: 48rem;
+    border-radius: var(--j2-radius-2xl);
+
+    .j2-dialog__header {
+        align-items: center;
+        gap: var(--j2-space-2);
+        padding: var(--j2-space-5) var(--j2-space-6) var(--j2-space-4);
+        border-bottom: 1px solid var(--j2-color-border);
+    }
+    .j2-dialog__title {
+        font-size: var(--j2-font-title-size);
+        font-weight: 600;
+        line-height: 1.3;
+    }
+    .j2-dialog__description {
+        margin: .4rem 0 0;
+        font-size: var(--j2-font-label-size);
+        color: var(--j2-color-text-subtle);
+    }
+    .j2-dialog__close {
+        width: 4.4rem;
+        height: 4.4rem;
+        font-size: 1.6rem;
+        &[hidden] { display: none; }
+    }
+    .j2-dialog__body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--j2-space-5);
+        padding: var(--j2-space-6);
+    }
+    .j2-confirmation__context {
+        --confirmation-fg: var(--j2-color-primary-hover);
+        --confirmation-bg: var(--j2-color-primary-soft);
+        display: flex;
+        align-items: flex-start;
+        gap: var(--j2-space-3);
+        padding: var(--j2-space-4);
+        border: 1px solid var(--j2-color-border);
+        border-radius: var(--j2-radius-xl);
+        background: var(--j2-color-surface-soft);
+    }
+    .j2-confirmation__icon {
+        display: grid;
+        place-items: center;
+        flex: none;
+        width: 4rem;
+        height: 4rem;
+        border-radius: var(--j2-radius-lg);
+        background: var(--confirmation-bg);
+        color: var(--confirmation-fg);
+        font-size: 1.8rem;
+    }
+    .j2-confirmation__content { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .j2-confirmation__subject {
+        margin: 0;
+        color: var(--j2-color-text);
+        font-size: var(--j2-font-label-size);
+        font-weight: 600;
+        line-height: 1.5;
+    }
+    .j2-confirmation__badge {
+        display: table;
+        max-width: 100%;
+        margin-top: .4rem;
+        padding: .2rem .8rem;
+        border-radius: var(--j2-radius-full);
+        background: #e0e7ff;
+        color: var(--confirmation-fg);
+        font-size: var(--j2-font-caption-size);
+        font-weight: 600;
+        line-height: 1.5;
+        &[hidden] { display: none; }
+    }
+    .j2-confirmation__detail {
+        margin: .6rem 0 0;
+        font-size: var(--j2-font-label-size);
+        font-weight: 400;
+        line-height: 1.55;
+        color: var(--j2-color-text-subtle);
+    }
+    .j2-field { 
+        gap: .8rem; 
+    }
+    .j2-field__icon { 
+        font-size: 1.5rem; 
+    }
+    .j2-input {
+        min-height: 4.8rem;
+        border-radius: var(--j2-radius-xl);
+        caret-color: var(--j2-color-primary);
+        transition: border-color 180ms ease, box-shadow 180ms ease;
+        &::placeholder {
+            color: var(--j2-color-text-subtle);
+            opacity: 1;
+        }
+        &:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: var(--j2-color-primary);
+            box-shadow: 0 0 0 .4rem rgba(79, 70, 229, .15);
+        }
+        &[aria-invalid="true"]:focus {
+            border-color: var(--j2-color-danger);
+            box-shadow: 0 0 0 .4rem rgba(220, 38, 38, .15);
+        }
+        @media (prefers-reduced-motion: reduce) { 
+            transition: none; 
+        }
+        @media (forced-colors: active) {
+            &:focus { 
+                outline-color: Highlight; 
+            }
+        }
+    }
+    #divmsjalertaConfirmarCortesia:empty { margin-top: -.8rem; }
+    .j2-dialog__footer {
+        background: var(--j2-color-surface-secondary);
+        border-top: 1px solid var(--j2-color-border);
+        padding: var(--j2-space-4) var(--j2-space-6);
+        gap: var(--j2-space-3);
+    }
+    @media (max-width: 480px) {
+        .j2-dialog__header, .j2-dialog__body, .j2-dialog__footer { padding-inline: var(--j2-space-4); }
+        .j2-dialog__body { padding-block: var(--j2-space-4); }
+    }
+    @media (max-height: 380px) {
+        .j2-dialog__body { flex: 0 0 auto; overflow: visible; }
+    }
+}

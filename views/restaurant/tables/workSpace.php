@@ -369,7 +369,7 @@
 <!-- MODAL PARA GUARDAR EL PEDIDO-->
 <?php include __DIR__. "/../../admin/ventas/modalguardarpedido.php"; ?>
 <!--///////////////////// Modal procesar el pago boton facturar /////////////////////////-->
-<?php include __DIR__. "/../../admin/ventas/modalprocesarpago.php"; ?>
+<?php include __DIR__. "/../../shared/modalprocesarpago.php"; ?>
 <!-- MODAL DATOS DEL ADQUIRIENTE -->
 <?php include __DIR__. "/../../admin/ventas/modaladquiriente.php"; ?>
 <!-- MODAL OTROS PRODUCTOS -->

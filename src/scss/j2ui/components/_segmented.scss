@@ -1,0 +1,48 @@
+// Radios nativos: teclado y semántica permanecen disponibles.
+.j2-segmented { 
+    display: flex; 
+    gap: .4rem; padding: .4rem; 
+    border: 1px solid var(--j2-color-border-soft); 
+    border-radius: var(--j2-radius-lg); 
+    background: var(--j2-color-surface); 
+}
+.j2-segmented__option { 
+    position: relative; 
+    flex: 1 1 0; 
+    min-width: 0; cursor: pointer; 
+}
+.j2-segmented__input { position: absolute; 
+    width: 1px; 
+    height: 1px; 
+    padding: 0; 
+    margin: -1px; 
+    overflow: hidden; 
+    clip-path: inset(50%); 
+    white-space: nowrap; 
+    border: 0; 
+}
+.j2-segmented__text {
+    display: flex; align-items: center; 
+    justify-content: center; 
+    min-height: 3.4rem; 
+    padding: .6rem .8rem; 
+    border-radius: var(--j2-radius-md); 
+    color: var(--j2-color-text-secondary); font: 600 var(--j2-font-label-size)/1.4 var(--j2-font-family); 
+    text-align: center; overflow-wrap: anywhere; 
+    transition: background-color 180ms; 
+}
+.j2-segmented__input:checked + .j2-segmented__text { 
+    background: var(--j2-color-primary); 
+    color: var(--j2-color-surface); 
+}
+.j2-segmented__input:focus-visible + .j2-segmented__text { 
+    outline: 2px solid var(--j2-color-primary); 
+    outline-offset: 2px; }
+.j2-segmented__input:disabled + .j2-segmented__text { 
+    opacity: .55; cursor: not-allowed; 
+}
+@media (prefers-reduced-motion: reduce) { 
+    .j2-segmented__text { 
+        transition: none; 
+    } 
+}

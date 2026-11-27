@@ -1,0 +1,24 @@
+// Primera extracción: medidas originales Tailwind, con raíz de 10px.
+.j2-popover { position: fixed; z-index: 40; width: 18rem; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); overflow-y: auto; padding: .375rem; border: 1px solid #e2e8f0; border-radius: .75rem; background: #fff; box-shadow: 0 10px 15px -3px rgb(0 0 0 / .1), 0 4px 6px -4px rgb(0 0 0 / .1); }
+.j2-popover[hidden] { display: none; }
+.j2-popover__item { --j2-pop-icon-bg: #eef2ff; --j2-pop-icon-fg: #4f46e5; --j2-pop-icon-hover: #e0e7ff; --j2-pop-title: #334155; display: flex; align-items: center; width: 100%; gap: .75rem; border: 0; border-radius: .5rem; background: transparent; padding: .5rem .625rem; text-align: left; font-family: var(--j2-font-family); cursor: pointer; transition: background-color 150ms; }
+.j2-popover__item:hover { background: var(--j2-pop-icon-bg); }
+.j2-popover__item:focus-visible { outline: 2px solid var(--j2-color-primary); outline-offset: -2px; }
+.j2-popover__item:disabled { opacity: .6; cursor: not-allowed; }
+.j2-popover__icon { display: flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; flex: none; border-radius: .5rem; background: var(--j2-pop-icon-bg); color: var(--j2-pop-icon-fg); font-size: 1.4rem; }
+.j2-popover__item:hover .j2-popover__icon { background: var(--j2-pop-icon-hover); }
+.j2-popover__content { display: flex; flex-direction: column; gap: .125rem; min-width: 0; }
+.j2-popover__title { color: var(--j2-pop-title); font-size: 1.125rem; line-height: 1.75rem; font-weight: 600; overflow-wrap: anywhere; }
+.j2-popover__description { color: #64748b; font-size: .875rem; line-height: 1.25rem; overflow-wrap: anywhere; }
+.j2-popover__item--warning { --j2-pop-icon-bg: #fffbeb; --j2-pop-icon-fg: #d97706; --j2-pop-icon-hover: #fef3c7; }
+.j2-popover__item--success { --j2-pop-icon-bg: #ecfdf5; --j2-pop-icon-fg: #10b981; --j2-pop-icon-hover: #d1fae5; }
+.j2-popover__item--danger { --j2-pop-icon-bg: #fff1f2; --j2-pop-icon-fg: #f43f5e; --j2-pop-icon-hover: #ffe4e6; --j2-pop-title: #e11d48; }
+.j2-popover__item--info { --j2-pop-icon-bg: #ecfeff; --j2-pop-icon-fg: #06b6d4; --j2-pop-icon-hover: #cffafe; }
+.j2-popover__item--neutral { --j2-pop-icon-bg: #f1f5f9; --j2-pop-icon-fg: #475569; --j2-pop-icon-hover: #e2e8f0; }
+.j2-popover__divider { border: 0; border-top: 1px solid var(--j2-color-border); margin: .4rem 0; }
+// Opt-in para pantallas táctiles; no modifica por defecto la extracción visual.
+.j2-popover--touch .j2-popover__item { min-height: 4.4rem; }
+.j2-popover--touch .j2-popover__title { font-size: 1.3rem; }
+.j2-popover--touch .j2-popover__description { font-size: 1.2rem; line-height: 1.5; }
+.j2-popover--touch { width: 26rem; }
+@media (prefers-reduced-motion: reduce) { .j2-popover__item { transition: none; } }

@@ -317,14 +317,14 @@ export const closeOpcionesPopover = (): void => {
     rowOrder = null;
 };
 
-const openPopover = (registroDiv: HTMLElement): void => {
-    const rect = registroDiv.getBoundingClientRect();
+const openPopover = (element: HTMLElement): void => {
+    const rect = element.getBoundingClientRect();
 
     if(!popover)return;
-    if(activePop && activePop !== registroDiv)activePop.setAttribute("aria-expanded", "false");
+    if(activePop && activePop !== element)activePop.setAttribute("aria-expanded", "false");
 
-    activePop = registroDiv;
-    registroDiv.setAttribute("aria-expanded", "true");
+    activePop = element;
+    element.setAttribute("aria-expanded", "true");
     popover.hidden = false;
 
     const width = popover.offsetWidth;
