@@ -81,41 +81,8 @@
         line-height: 1.55;
         color: var(--j2-color-text-subtle);
     }
-    .j2-field { 
-        gap: .8rem; 
-    }
-    .j2-field__icon { 
-        font-size: 1.5rem; 
-    }
-    .j2-input {
-        min-height: 4.8rem;
-        border-radius: var(--j2-radius-xl);
-        caret-color: var(--j2-color-primary);
-        transition: border-color 180ms ease, box-shadow 180ms ease;
-        &::placeholder {
-            color: var(--j2-color-text-subtle);
-            opacity: 1;
-        }
-        &:focus {
-            outline: 2px solid transparent;
-            outline-offset: 2px;
-            border-color: var(--j2-color-primary);
-            box-shadow: 0 0 0 .4rem rgba(79, 70, 229, .15);
-        }
-        &[aria-invalid="true"]:focus {
-            border-color: var(--j2-color-danger);
-            box-shadow: 0 0 0 .4rem rgba(220, 38, 38, .15);
-        }
-        @media (prefers-reduced-motion: reduce) { 
-            transition: none; 
-        }
-        @media (forced-colors: active) {
-            &:focus { 
-                outline-color: Highlight; 
-            }
-        }
-    }
-    #divmsjalertaConfirmarCortesia:empty { margin-top: -.8rem; }
+    
+    
     .j2-dialog__footer {
         background: var(--j2-color-surface-secondary);
         border-top: 1px solid var(--j2-color-border);

@@ -1,0 +1,70 @@
+// ========================================
+// J2 UI — Context Card
+// ========================================
+
+.j2-context-card {
+    // Configuration
+    --j2-context-bg: var(--j2-color-surface-soft);
+    --j2-context-border: var(--j2-color-border);
+    --j2-context-radius: var(--j2-radius-xl);
+    --j2-context-padding: var(--j2-space-4);
+    --j2-context-gap: var(--j2-space-3);
+
+    // Base
+    display: flex;
+    align-items: flex-start;
+    gap: var(--j2-context-gap);
+    min-width: 0;
+    padding: var(--j2-context-padding);
+    border: 1px solid var(--j2-context-border);
+    border-radius: var(--j2-context-radius);
+    background: var(--j2-context-bg);
+
+    // Content
+    &__content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
+        min-width: 0;
+        gap: var(--j2-space-1);
+    }
+
+    // Text elements
+    &__subject, &__meta, &__detail {
+        margin: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    &__subject {
+        color: var(--j2-color-text);
+        font-size: var(--j2-font-body-size);
+        font-weight: var(--j2-font-label-weight);
+        line-height: var(--j2-font-body-line-height);
+    }
+
+    &__meta {
+        color: var(--j2-color-text-muted);
+        font-size: var(--j2-font-caption-size);
+        font-weight: var(--j2-font-caption-weight);
+        line-height: var(--j2-font-caption-line-height);
+    }
+
+    &__detail {
+        color: var(--j2-color-text-secondary);
+        font-size: var(--j2-font-body-size);
+        font-weight: var(--j2-font-body-weight);
+        line-height: var(--j2-font-body-line-height);
+    }
+
+    // Sizes
+    &--compact {
+        --j2-context-padding: var(--j2-space-3);
+        --j2-context-gap: var(--j2-space-2);
+    }
+
+    &[hidden] {
+        display: none;
+    }
+}

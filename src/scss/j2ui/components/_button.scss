@@ -194,10 +194,8 @@ $j2-gradients: (
 );
 
 @each $name, $stops in $j2-gradients{
-
     $start: list.nth($stops, 1);
     $end: list.nth($stops, 2);
-
     .j2-btn--gradient-#{$name}{
         --j2-btn-bg: linear-gradient(
             135deg, #{$start}, #{$end}

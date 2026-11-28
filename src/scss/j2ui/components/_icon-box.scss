@@ -1,0 +1,81 @@
+// ========================================
+// J2 UI — Icon Box
+// ========================================
+
+.j2-icon-box {
+    // Configuration
+    --j2-icon-box-bg: var(--j2-color-primary-soft);
+    --j2-icon-box-fg: var(--j2-color-primary-icon);
+    --j2-icon-box-size: 4rem;
+    --j2-icon-box-font-size: 1.8rem;
+    --j2-icon-box-radius: var(--j2-radius-lg);
+
+    // Base
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: var(--j2-icon-box-size);
+    height: var(--j2-icon-box-size);
+    border-radius: var(--j2-icon-box-radius);
+    background: var(--j2-icon-box-bg);
+    color: var(--j2-icon-box-fg);
+    font-size: var(--j2-icon-box-font-size);
+    line-height: 1;
+
+    // Sizes
+    &--xs {
+        --j2-icon-box-size: 2.5rem;
+        --j2-icon-box-font-size: 1.4rem;
+        --j2-icon-box-radius: .5rem;
+    }
+
+    &--sm {
+        --j2-icon-box-size: 3.2rem;
+        --j2-icon-box-font-size: 1.6rem;
+        --j2-icon-box-radius: var(--j2-radius-md);
+    }
+
+    &--lg {
+        --j2-icon-box-size: 4.4rem;
+        --j2-icon-box-font-size: 2rem;
+    }
+
+    &--xl {
+        --j2-icon-box-size: 5.6rem;
+        --j2-icon-box-font-size: 2.4rem;
+        --j2-icon-box-radius: var(--j2-radius-xl);
+    }
+
+    // Shape
+    &--circle {
+        --j2-icon-box-radius: var(--j2-radius-full);
+    }
+
+    // Native SVG support
+    > svg {
+        width: 1em;
+        height: 1em;
+    }
+
+    &[hidden] {
+        display: none;
+    }
+
+    // Semantic variants
+    @each $tone in primary, success, warning, danger, info {
+        &[data-tone="#{$tone}"] {
+            --j2-icon-box-bg: var(--j2-color-#{$tone}-soft);
+            --j2-icon-box-fg: var(--j2-color-#{$tone}-icon);
+        }
+    }
+
+    &[data-tone="neutral"] {
+        --j2-icon-box-bg: var(--j2-color-surface-secondary);
+        --j2-icon-box-fg: var(--j2-color-text-secondary);
+    }
+
+    &[data-tone="rose"] {
+        --j2-icon-box-bg: var(--j2-color-rose-soft);
+        --j2-icon-box-fg: var(--j2-color-rose);
+    }
+}

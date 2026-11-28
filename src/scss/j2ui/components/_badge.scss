@@ -1,0 +1,87 @@
+// ========================================
+// J2 UI — Badge
+// ========================================
+
+.j2-badge {
+
+    // Configuration
+    --j2-badge-bg: var(--j2-color-primary-tint);
+    --j2-badge-fg: var(--j2-color-primary-hover);
+    --j2-badge-font-size: var(--j2-font-caption-size);
+    --j2-badge-padding-x: 1rem;
+    --j2-badge-padding-y: var(--j2-space-1);
+    --j2-badge-radius: var(--j2-radius-full);
+
+    // Base
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    width: fit-content;
+    max-width: 100%;
+    padding: var(--j2-badge-padding-y) var(--j2-badge-padding-x);
+    border-radius: var(--j2-badge-radius);
+    background: var(--j2-badge-bg);
+    color: var(--j2-badge-fg);
+    font-family: var(--j2-font-family);
+    font-size: var(--j2-badge-font-size);
+    font-weight: var(--j2-font-label-weight);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    vertical-align: middle;
+
+    // Elements
+    &__dot {
+        flex: none;
+        width: .6rem;
+        height: .6rem;
+        border-radius: var(--j2-radius-full);
+        background: currentColor;
+    }
+
+    &__icon {
+        flex: none;
+        font-size: 1em;
+        line-height: 1;
+    }
+
+    // Sizes
+    &--sm {
+        --j2-badge-font-size: var(--j2-font-micro-size);
+        --j2-badge-padding-x: var(--j2-space-2);
+        --j2-badge-padding-y: .2rem;
+    }
+
+    &--lg {
+        --j2-badge-font-size: var(--j2-font-label-size);
+        --j2-badge-padding-x: var(--j2-space-3);
+        --j2-badge-padding-y: .5rem;
+    }
+
+    // Semantic variants
+    @each $tone in success, warning, danger, info {
+        &[data-tone="#{$tone}"] {
+            --j2-badge-bg: var(--j2-color-#{$tone}-tint);
+            --j2-badge-fg: var(--j2-color-#{$tone});
+        }
+    }
+
+    &[data-tone="primary"] {
+        --j2-badge-bg: var(--j2-color-primary-tint);
+        --j2-badge-fg: var(--j2-color-primary-hover);
+    }
+
+    &[data-tone="neutral"] {
+        --j2-badge-bg: var(--j2-color-surface-secondary);
+        --j2-badge-fg: var(--j2-color-text-secondary);
+    }
+
+    &[data-tone="rose"] {
+        --j2-badge-bg: var(--j2-color-rose-tint);
+        --j2-badge-fg: var(--j2-color-rose-text);
+    }
+
+    &[hidden] {
+        display: none;
+    }
+}
